@@ -392,7 +392,7 @@ Ví dụ:
 |---|---:|---|---|
 | 1 | TP. Hồ Chí Minh | CITY | null |
 | 2 | Quận 1 | DISTRICT | 1 |
-| 1 | Phường Bến Nghé | WARD | 2 |
+| 3 | Phường Bến Nghé | WARD | 2 |
 
 Quan hệ:
 
