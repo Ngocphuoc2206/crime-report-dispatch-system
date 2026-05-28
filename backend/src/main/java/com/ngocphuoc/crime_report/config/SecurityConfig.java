@@ -25,7 +25,8 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_GET_ENDPOINTS = {
             "/api/health",
-            "/api/health/**"
+            "/api/health/**",
+            "/api/health/db"
     };
 
     @Bean
@@ -34,7 +35,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
                 .requestMatchers( PUBLIC_ENDPOINTS).permitAll()
-                .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
+                .requestMatchers(PUBLIC_GET_ENDPOINTS).permitAll()
                 .anyRequest().authenticated()
 
         );
