@@ -1,0 +1,148 @@
+# =========================
+# General / OS
+# =========================
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+
+# =========================
+# Environment files
+# =========================
+.env
+.env.*
+!.env.example
+
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+
+# Không commit file cấu hình local chứa secret
+application-local.yml
+application-local.properties
+backend/src/main/resources/application-local.yml
+backend/src/main/resources/application-local.properties
+
+# =========================
+# Java / Spring Boot / Maven
+# =========================
+HELP.md
+target/
+backend/target/
+
+# Maven wrapper
+# Nếu bạn muốn CI/CD dùng ./mvnw thì nên commit maven-wrapper.jar.
+# Nếu không dùng Maven Wrapper thì có thể ignore dòng này.
+.mvn/wrapper/maven-wrapper.jar
+backend/.mvn/wrapper/maven-wrapper.jar
+
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# =========================
+# Spring Tool Suite / Eclipse
+# =========================
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# =========================
+# IntelliJ IDEA
+# =========================
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# =========================
+# NetBeans
+# =========================
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+backend/build/
+
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# =========================
+# VS Code
+# =========================
+.vscode/
+
+# =========================
+# Node / React / Next.js
+# =========================
+node_modules/
+frontend/node_modules/
+
+dist/
+frontend/dist/
+
+build/
+frontend/build/
+
+.next/
+frontend/.next/
+
+out/
+frontend/out/
+
+coverage/
+frontend/coverage/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Package manager cache
+.pnpm-store/
+
+# =========================
+# Frontend env / generated files
+# =========================
+frontend/.turbo/
+frontend/.vercel/
+frontend/.vite/
+
+# =========================
+# Docker / Local volumes
+# =========================
+docker-data/
+postgres-data/
+minio-data/
+redis-data/
+
+*.pid
+
+# =========================
+# Upload / Storage local
+# =========================
+uploads/
+backend/uploads/
+storage/
+backend/storage/
+
+# =========================
+# Test / Report output
+# =========================
+surefire-reports/
+failsafe-reports/
+backend/surefire-reports/
+backend/failsafe-reports/
+
+# =========================
+# Misc
+# =========================
+*.bak
+*.backup
