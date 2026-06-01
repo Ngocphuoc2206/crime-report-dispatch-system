@@ -30,10 +30,11 @@ public class SecurityConfig {
     }
 
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/api/auth/login",
+            "/api/auth/**",
+            "/api/public/**"
     };
 
-    private static final String[] PUBLIC_GET_ENDPOINTS = {
+    private static final String[] HEALTH_ENDPOINTS = {
             "/api/health",
             "/api/health/**",
             "/api/health/db"
@@ -45,7 +46,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
                 .requestMatchers( PUBLIC_ENDPOINTS).permitAll()
-                .requestMatchers(PUBLIC_GET_ENDPOINTS).permitAll()
+                .requestMatchers(HEALTH_ENDPOINTS).permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/commander/**").hasAnyRole("COMMANDER", "ADMIN")
                 .requestMatchers("/api/dispatcher/**").hasAnyRole("DISPATCHER", "COMMANDER", "ADMIN")
@@ -53,7 +54,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
         )
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);;
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
 

@@ -111,6 +111,7 @@ Lưu nhóm loại tội phạm.
 ```text
 crime_category
 - id
+- code
 - name
 - description
 - default_urgency_level
@@ -136,6 +137,7 @@ Lưu loại tội phạm cụ thể.
 crime_type
 - id
 - category_id
+- code
 - name
 - description
 - base_score
