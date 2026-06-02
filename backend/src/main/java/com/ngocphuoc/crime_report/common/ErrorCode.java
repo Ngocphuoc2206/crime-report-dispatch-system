@@ -10,6 +10,7 @@ public enum ErrorCode {
     // Case Report
     CRIME_NOT_FOUND(1002, "Crime type not found"),
     CRIME_NOT_ACTIVE(1003, "Crime type is not active"),
+    TRACKING_CODE_NOT_FOUND(1004, "Tracking code not found"),
     // Uncategorized
     UNCATEGORIZED_EXCEPTION  (9998, "UNCATEGORIZED_EXCEPTION!")
     ;

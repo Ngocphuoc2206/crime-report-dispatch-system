@@ -3,6 +3,7 @@ package com.ngocphuoc.crime_report.service;
 import com.ngocphuoc.crime_report.common.ErrorCode;
 import com.ngocphuoc.crime_report.dto.request.CreateReportRequest;
 import com.ngocphuoc.crime_report.dto.response.CreateReportResponse;
+import com.ngocphuoc.crime_report.dto.response.ReportStatusResponse;
 import com.ngocphuoc.crime_report.entity.CaseReport;
 import com.ngocphuoc.crime_report.entity.CrimeType;
 import com.ngocphuoc.crime_report.enums.CaseStatus;
@@ -59,6 +60,28 @@ public class CaseReportService {
                 saved.getUrgencyLevel().name(),
                 "Tin báo đã được tiếp nhận"
         );
+    }
+
+    public ReportStatusResponse getPublicReportStatus(String trackingCode){
+        CaseReport caseReport = caseReportRepository.findByTrackingCode(trackingCode)
+                .orElseThrow(() -> new AppException(ErrorCode.TRACKING_CODE_NOT_FOUND));
+
+        return new ReportStatusResponse(
+                caseReport.getTrackingCode(),
+                caseReport.getStatus().name(),
+                toPublicDisplayStatus(caseReport.getStatus()),
+                caseReport.getCreatedAt()
+        );
+    }
+
+    private String toPublicDisplayStatus(CaseStatus status) {
+        return switch (status){
+            case NEW_RECEIVED -> "Tin báo đã được tiếp nhận";
+            case UNDER_VERIFICATION -> "Tin báo đang được xác minh";
+            case TRANSFERRED_TO_INVESTIGATION -> "Tin báo đã được chuyển xử lý";
+            case RESOLVED -> "Tin báo đã được xử lý";
+            case SPAM_OR_FAKE -> "Tin báo đã được kiểm tra";
+        };
     }
 
     private UrgencyLevel resolveUrgencyLevel(int score) {
