@@ -68,7 +68,7 @@ public class EncryptionService {
         }
     }
 
-    public  String decrypt(String cipherTextBase64, String ivBase64){
+    public String decrypt(String cipherTextBase64, String ivBase64){
         if (cipherTextBase64 == null || ivBase64 == null) {
             return null;
         }

@@ -6,6 +6,7 @@ import com.ngocphuoc.crime_report.dto.response.CreateReportResponse;
 import com.ngocphuoc.crime_report.dto.response.ReportStatusResponse;
 import com.ngocphuoc.crime_report.entity.CaseReport;
 import com.ngocphuoc.crime_report.entity.CrimeType;
+import com.ngocphuoc.crime_report.entity.ReporterIdentity;
 import com.ngocphuoc.crime_report.enums.CaseStatus;
 import com.ngocphuoc.crime_report.enums.UrgencyLevel;
 import com.ngocphuoc.crime_report.exception.AppException;
@@ -21,6 +22,7 @@ public class CaseReportService {
     private final CaseReportRepository caseReportRepository;
     private final CrimeTypeRepository crimeTypeRepository;
     private final TrackingCodeGenerator trackingCodeGenerator;
+    private final ReporterIdentityService reporterIdentityService;
 
     @Transactional
     public CreateReportResponse createReport(CreateReportRequest request){
@@ -51,6 +53,7 @@ public class CaseReportService {
         caseReport.setUrgencyLevel(resolveUrgencyLevel(baseScore));
 
         CaseReport saved = caseReportRepository.save(caseReport);
+        reporterIdentityService.saveEncryptedReporterIdentity(saved, request);
 
         return new CreateReportResponse(
                 saved.getId(),
