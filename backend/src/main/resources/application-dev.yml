@@ -28,3 +28,6 @@ app:
     secret: ${JWT_SECRET:crime-report-dispatch-secret-key-must-be-at-least-32-bytes}
     # 24h
     expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  encryption:
+    secret-base64: ${APP_ENCRYPTION_SECRET_BASE64:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
+    key-version: ${APP_ENCRYPTION_KEY_VERSION:v1}

@@ -11,6 +11,9 @@ public enum ErrorCode {
     CRIME_NOT_FOUND(1002, "Crime type not found"),
     CRIME_NOT_ACTIVE(1003, "Crime type is not active"),
     TRACKING_CODE_NOT_FOUND(1004, "Tracking code not found"),
+
+    // AES-GCM
+    AES_NOT_FOUND(1005, "AES key must be 16, 24, or 32 bytes after Base64 decoding"),
     // Uncategorized
     UNCATEGORIZED_EXCEPTION  (9998, "UNCATEGORIZED_EXCEPTION!")
     ;
