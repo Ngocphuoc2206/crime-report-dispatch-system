@@ -32,6 +32,11 @@ public record CreateReportRequest(
         BigDecimal longitude,
 
         @NotBlank(message = "Address text is required")
-        String addressText
+        String addressText,
+
+        String reporterFullName,
+        String reporterPhone,
+        String reporterEmail,
+        String reporterAddress
 ) {
 }
