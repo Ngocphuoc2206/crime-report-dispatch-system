@@ -291,11 +291,26 @@ evidence_file
 - id
 - case_id
 - file_name
+- original_file_name
 - file_type
+- mime_type
 - file_url
 - file_size
 - checksum
 - uploaded_at
+```
+
+Giải thích các field
+
+```
+file_name          tên file sau khi hệ thống lưu
+original_file_name tên gốc người dân upload
+file_type          IMAGE / VIDEO / AUDIO / DOCUMENT / OTHER
+mime_type          image/png, video/mp4...
+file_url           đường dẫn file local/MinIO/S3
+file_size          dung lượng file
+checksum           mã kiểm tra toàn vẹn file
+uploaded_at        thời điểm upload
 ```
 
 Ghi chú:
