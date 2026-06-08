@@ -1,14 +1,21 @@
 package com.ngocphuoc.crime_report.evidence.service;
 
+import com.ngocphuoc.crime_report.common.ErrorCode;
+import com.ngocphuoc.crime_report.exception.AppException;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
 import com.ngocphuoc.crime_report.evidence.entity.EvidenceFile;
 import com.ngocphuoc.crime_report.evidence.enums.EvidenceFileType;
 import com.ngocphuoc.crime_report.evidence.repository.EvidenceFileRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,6 +65,36 @@ public class EvidenceFileService {
             }
             saveSingleFile(caseReport, file);
         }
+    }
+
+    public EvidenceFile getEvidenceByID(Long evidenceId){
+        return evidenceFileRepository.findById(evidenceId)
+                .orElseThrow(() -> new AppException(ErrorCode.EVIDENCE_NOT_FOUND));
+    }
+
+    public ResponseEntity<Resource> downloadEvidence(Long evidenceId) {
+        EvidenceFile evidence = getEvidenceByID(evidenceId);
+
+        Path path = Paths.get(evidence.getFileUrl()).toAbsolutePath().normalize();
+
+        Resource resource;
+        try {
+            resource = new UrlResource(path.toUri());
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException("Invalid evidence file path", e);
+        }
+
+        if (!resource.exists() || !resource.isReadable()) {
+            throw new AppException(ErrorCode.EVIDENCE_NOT_FOUND);
+        }
+
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + evidence.getOriginalFileName() + "\""
+                )
+                .header(HttpHeaders.CONTENT_TYPE, evidence.getMimeType())
+                .body(resource);
     }
 
     private void saveSingleFile(CaseReport caseReport, MultipartFile file) {
