@@ -14,6 +14,9 @@ public enum ErrorCode {
 
     // AES-GCM
     AES_NOT_FOUND(1005, "AES key must be 16, 24, or 32 bytes after Base64 decoding"),
+
+    // EVIDENCE
+    EVIDENCE_NOT_FOUND(1006, "Evidence not found"),
     // Uncategorized
     UNCATEGORIZED_EXCEPTION  (9998, "UNCATEGORIZED_EXCEPTION!")
     ;
