@@ -17,6 +17,10 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 200MB
 
 logging:
   level:
@@ -31,3 +35,6 @@ app:
   encryption:
     secret-base64: ${APP_ENCRYPTION_SECRET_BASE64:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
     key-version: ${APP_ENCRYPTION_KEY_VERSION:v1}
+
+  storage:
+    evidence-dir: ${EVIDENCE_STORAGE_DIR:uploads/evidences}
