@@ -1,7 +1,8 @@
 package com.ngocphuoc.crime_report.service;
 
 
-import com.ngocphuoc.crime_report.common.EncryptionResult;
+import com.ngocphuoc.crime_report.identity.dto.EncryptionResult;
+import com.ngocphuoc.crime_report.identity.service.EncryptionService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;

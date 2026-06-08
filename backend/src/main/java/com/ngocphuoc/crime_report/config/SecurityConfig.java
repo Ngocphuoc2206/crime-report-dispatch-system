@@ -1,9 +1,8 @@
 package com.ngocphuoc.crime_report.config;
 
-import com.ngocphuoc.crime_report.service.CustomUserDetailsService;
+import com.ngocphuoc.crime_report.auth.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
