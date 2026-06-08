@@ -1,7 +1,7 @@
 package com.ngocphuoc.crime_report.config;
 
-import com.ngocphuoc.crime_report.service.CustomUserDetailsService;
-import com.ngocphuoc.crime_report.service.JwtService;
+import com.ngocphuoc.crime_report.auth.service.CustomUserDetailsService;
+import com.ngocphuoc.crime_report.auth.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
