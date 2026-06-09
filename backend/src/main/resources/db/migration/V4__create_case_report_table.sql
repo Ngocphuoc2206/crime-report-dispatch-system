@@ -2,7 +2,7 @@
 -- Create case_report table for report case management.
 
 CREATE TABLE IF NOT EXISTS case_report (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     tracking_code VARCHAR(50) NOT NULL UNIQUE,
     crime_type_id BIGINT NOT NULL,
     description TEXT NOT NULL,

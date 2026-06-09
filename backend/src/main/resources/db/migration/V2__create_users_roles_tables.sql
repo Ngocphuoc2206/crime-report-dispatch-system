@@ -2,7 +2,7 @@
 -- Create users, roles, and user_roles schema for Auth & RBAC.
 
 CREATE TABLE IF NOT EXISTS users (
-                                     id BIGSERIAL PRIMARY KEY,
+                                     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                      username VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(255) NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
     );
 
 CREATE TABLE IF NOT EXISTS roles (
-                                     id BIGSERIAL PRIMARY KEY,
+                                     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                                      name VARCHAR(50) NOT NULL UNIQUE,
     description VARCHAR(255)
     );
@@ -42,46 +42,42 @@ CREATE INDEX IF NOT EXISTS idx_roles_name ON roles(name);
 CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON user_roles(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_roles_role_id ON user_roles(role_id);
 
-INSERT INTO roles (name, description)
+INSERT IGNORE INTO roles (name, description)
 VALUES
     ('DUTY_OFFICER', 'Cán bộ trực ban tiếp nhận và xác minh tin báo'),
     ('DISPATCHER', 'Cán bộ điều phối tin báo cho đơn vị hoặc cán bộ phù hợp'),
     ('COMMANDER', 'Chỉ huy theo dõi toàn hệ thống và dashboard'),
     ('ADMIN', 'Quản trị viên hệ thống')
-    ON CONFLICT (name) DO NOTHING;
+;
 
-INSERT INTO users (username, password_hash, full_name, email, phone, is_active)
+INSERT IGNORE INTO users (username, password_hash, full_name, email, phone, is_active)
 VALUES
     ('admin', '{noop}admin123', 'System Administrator', 'admin@example.com', '0900000001', TRUE),
     ('officer01', '{noop}officer123', 'Nguyễn Văn Trực Ban', 'officer01@example.com', '0900000002', TRUE),
     ('dispatcher01', '{noop}dispatcher123', 'Trần Văn Điều Phối', 'dispatcher01@example.com', '0900000003', TRUE),
     ('commander01', '{noop}commander123', 'Lê Văn Chỉ Huy', 'commander01@example.com', '0900000004', TRUE)
-    ON CONFLICT (username) DO NOTHING;
+;
 
-INSERT INTO user_roles (user_id, role_id)
+INSERT IGNORE INTO user_roles (user_id, role_id)
 SELECT u.id, r.id
 FROM users u
          JOIN roles r ON r.name = 'ADMIN'
-WHERE u.username = 'admin'
-    ON CONFLICT DO NOTHING;
+WHERE u.username = 'admin';
 
-INSERT INTO user_roles (user_id, role_id)
+INSERT IGNORE INTO user_roles (user_id, role_id)
 SELECT u.id, r.id
 FROM users u
          JOIN roles r ON r.name = 'DUTY_OFFICER'
-WHERE u.username = 'officer01'
-    ON CONFLICT DO NOTHING;
+WHERE u.username = 'officer01';
 
-INSERT INTO user_roles (user_id, role_id)
+INSERT IGNORE INTO user_roles (user_id, role_id)
 SELECT u.id, r.id
 FROM users u
          JOIN roles r ON r.name = 'DISPATCHER'
-WHERE u.username = 'dispatcher01'
-    ON CONFLICT DO NOTHING;
+WHERE u.username = 'dispatcher01';
 
-INSERT INTO user_roles (user_id, role_id)
+INSERT IGNORE INTO user_roles (user_id, role_id)
 SELECT u.id, r.id
 FROM users u
          JOIN roles r ON r.name = 'COMMANDER'
-WHERE u.username = 'commander01'
-    ON CONFLICT DO NOTHING;
+WHERE u.username = 'commander01';

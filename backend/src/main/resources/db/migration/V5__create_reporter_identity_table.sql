@@ -2,7 +2,7 @@
 -- Create reporter_identity table for encrypted reporter personal information.
 
 CREATE TABLE IF NOT EXISTS reporter_identity(
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     case_id BIGINT NOT NULL UNIQUE,
 
     encrypted_full_name TEXT,

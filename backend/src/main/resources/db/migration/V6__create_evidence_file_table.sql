@@ -2,7 +2,7 @@
 -- Create evidence_file table for report evidences.
 
 CREATE TABLE IF NOT EXISTS evidence_file (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     case_id BIGINT NOT NULL,
     file_name VARCHAR(255) NOT NULL,
     original_file_name VARCHAR(255),

@@ -1,6 +1,6 @@
-CREATE TABLE urgency_rule
+CREATE TABLE IF NOT EXISTS urgency_rule
 (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     rule_code VARCHAR(100) NOT NULL UNIQUE,
     score_value INTEGER NOT NULL,
     description VARCHAR(255),
@@ -8,7 +8,7 @@ CREATE TABLE urgency_rule
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO urgency_rule
+INSERT IGNORE INTO urgency_rule
 (rule_code, score_value, description)
 VALUES
     ('HAS_WEAPON',40,'Có vũ khí'),
