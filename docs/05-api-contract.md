@@ -4,6 +4,8 @@
 
 Tài liệu này mô tả các API cốt lõi của hệ thống Tiếp nhận và Điều phối Thông tin Tố giác Tội phạm.
 
+Theo kiến trúc microservice, frontend chỉ gọi API qua api-gateway. Các service phía sau không được expose trực tiếp cho frontend trong luồng chuẩn.
+
 API contract được thiết kế cho phiên bản MVP, tập trung vào luồng chính:
 
 ```text
@@ -25,6 +27,16 @@ Người dân gửi tin báo
 ```http
 /api
 ```
+
+Base URL trên là URL của api-gateway. Gateway route request đến các service:
+
+| Path | Service sở hữu |
+|---|---|
+| /api/auth/** | auth-service |
+| /api/public/reports/** | report-service |
+| /api/public/crime-types | report-service |
+| /api/officer/evidences/** | evidence-service |
+| /api/urgency/** | urgency-service |
 
 Ví dụ:
 
@@ -219,19 +231,17 @@ files=video.mp4
 
 ### Xử lý backend
 
-Khi nhận request, backend cần làm:
+Khi nhận request qua api-gateway, các service phối hợp theo luồng:
 
 ```text
-1. Validate dữ liệu đầu vào.
-2. Tạo tracking code.
-3. Tạo case_report.
-4. Mã hóa thông tin người tố giác.
-5. Lưu reporter_identity.
-6. Lưu file bằng chứng.
-7. Tính urgency_score và urgency_level.
-8. Điều phối tin báo.
-9. Ghi audit log.
-10. Trả tracking code cho người dân.
+1. api-gateway nhận request và route đến report-service.
+2. report-service validate dữ liệu đầu vào.
+3. report-service tạo tracking code và case_report.
+4. report-service mã hóa thông tin người tố giác và lưu reporter_identity.
+5. report-service gọi urgency-service hoặc sử dụng kết quả tính điểm để lưu urgency_score, urgency_level.
+6. evidence-service lưu metadata/file bằng chứng theo case_id.
+7. Các bước điều phối, audit và dashboard có thể được tách thêm thành service riêng ở các giai đoạn sau.
+8. report-service trả tracking code cho người dân.
 ```
 
 ---
@@ -940,6 +950,45 @@ ADMIN
     "conditionValue": "true",
     "score": 40,
     "isActive": true
+  }
+}
+```
+
+---
+
+## 8.5. Tính điểm nguy cấp
+
+```http
+POST /api/urgency/score
+```
+
+### Service sở hữu
+
+```text
+urgency-service
+```
+
+### Request
+
+```json
+{
+  "baseScore": 30,
+  "hasWeapon": true,
+  "isHappeningNow": true,
+  "hasInjuredPerson": false,
+  "hasVideoEvidence": true
+}
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "message": "Urgency score calculated successfully",
+  "data": {
+    "score": 110,
+    "level": "CRITICAL"
   }
 }
 ```
