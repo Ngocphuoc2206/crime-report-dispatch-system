@@ -1044,7 +1044,7 @@ REPORTER_IDENTITY_DECRYPTED
 
 # 12. API ưu tiên triển khai trong MVP
 
-Không cần code toàn bộ API ngay từ đầu. Thứ tự ưu tiên như sau:
+Thứ tự ưu tiên như sau:
 
 ## Phase 1 - Auth
 

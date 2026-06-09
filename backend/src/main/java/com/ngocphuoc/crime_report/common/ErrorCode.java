@@ -17,6 +17,9 @@ public enum ErrorCode {
 
     // EVIDENCE
     EVIDENCE_NOT_FOUND(1006, "Evidence not found"),
+
+    // Urgency Rule
+    URGENCY_RULE_NOT_FOUND(1007, "Urgency not found"),
     // Uncategorized
     UNCATEGORIZED_EXCEPTION  (9998, "UNCATEGORIZED_EXCEPTION!")
     ;
