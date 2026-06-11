@@ -33,6 +33,7 @@ public class CaseReportService {
     private final ReporterIdentityService reporterIdentityService;
     private final UrgencyClient urgencyClient;
     private final EvidenceClient evidenceClient;
+    private final EvidenceFileInspector evidenceFileInspector;
 
     @Transactional
     public CreateReportResponse createReport(CreateReportRequest request, List<MultipartFile> files){
@@ -65,7 +66,7 @@ public class CaseReportService {
                         request.hasWeapon(),
                         request.isHappeningNow(),
                         request.hasInjuredPerson(),
-                        hasVideoEvidence(files)
+                        evidenceFileInspector.hasVideoEvidence(files)
                 )
         );
 
@@ -112,20 +113,6 @@ public class CaseReportService {
                 toPublicDisplayStatus(caseReport.getStatus()),
                 caseReport.getCreatedAt()
         );
-    }
-
-    // Check has video evidence
-    private boolean hasVideoEvidence(List<MultipartFile> files){
-        if (files == null || files.isEmpty()){
-            return false;
-        }
-
-        return files.stream()
-                .filter(file -> file != null && !file.isEmpty())
-                .anyMatch(file -> {
-                    String contentType = file.getContentType();
-                    return contentType != null && contentType.startsWith("video/");
-                });
     }
 
     private String toPublicDisplayStatus(CaseStatus status) {
