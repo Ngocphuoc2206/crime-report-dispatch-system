@@ -1,8 +1,9 @@
 package com.ngocphuoc.crime_report.report.dto.response;
 
 public record UrgencyApiResponse<T>(
-        Integer code,
+        Boolean success,
         String message,
-        T results
+        T data,
+        String errorCode
 ) {
 }

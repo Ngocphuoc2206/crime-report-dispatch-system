@@ -28,10 +28,10 @@ public class UrgencyClient {
                         .body(new ParameterizedTypeReference<>() {
         });
 
-        if (response == null || response.results() == null) {
+        if (response == null || response.data() == null) {
             throw new IllegalStateException("Urgency service returned empty response");
         }
 
-        return response.results();
+        return response.data();
     }
 }

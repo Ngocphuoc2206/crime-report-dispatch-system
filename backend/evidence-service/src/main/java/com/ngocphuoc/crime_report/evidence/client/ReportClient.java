@@ -26,10 +26,10 @@ public class ReportClient {
                 .body(new ParameterizedTypeReference<>() {
                 });
 
-        if (response == null || response.results() == null) {
+        if (response == null || response.data() == null) {
             throw new IllegalStateException("Report service returned empty response");
         }
 
-        return response.results();
+        return response.data();
     }
 }
