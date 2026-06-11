@@ -1,6 +1,9 @@
 spring:
   application:
     name: api-gateway
+  servlet:
+    multipart:
+      enabled: false
 
 server:
   port: ${SERVER_PORT:8080}

@@ -28,7 +28,7 @@ public class UrgencyController {
 
         return ApiResponse.<UrgencyScoreResult>builder()
                 .message("Urgency score calculated successfully")
-                .results(result)
+                .data(result)
                 .build();
     }
 }

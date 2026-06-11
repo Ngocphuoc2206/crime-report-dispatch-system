@@ -29,7 +29,7 @@ public class PublicReportController {
 
         return ApiResponse.<ReportStatusResponse>builder()
                 .message("Report status retrieved successfully")
-                .results(response)
+                .data(response)
                 .build();
     }
 
@@ -39,12 +39,12 @@ public class PublicReportController {
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) throws Exception {
         CreateReportRequest request = objectMapper.readValue(reportJson, CreateReportRequest.class);
-
+    
         CreateReportResponse response = caseReportService.createReport(request, files);
-
+    
         return ApiResponse.<CreateReportResponse>builder()
-                .message("Tin báo đã được tiếp nhận")
-                .results(response)
+                .message("Tin bao da duoc tiep nhan")
+                .data(response)
                 .build();
     }
 }

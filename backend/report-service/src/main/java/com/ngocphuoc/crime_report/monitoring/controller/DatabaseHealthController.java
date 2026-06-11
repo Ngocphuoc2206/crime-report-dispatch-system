@@ -21,7 +21,7 @@ public class DatabaseHealthController {
     public ApiResponse<Map<String, Object>> databaseHealth() {
         Integer result = jdbcTemplate.queryForObject("SELECT 1", Integer.class);
 
-        return ApiResponse.<Map<String, Object>>builder().results(Map.of(
+        return ApiResponse.<Map<String, Object>>builder().data(Map.of(
                 "status", "OK",
                 "database", "MariaDB",
                 "result", Objects.requireNonNull(result)

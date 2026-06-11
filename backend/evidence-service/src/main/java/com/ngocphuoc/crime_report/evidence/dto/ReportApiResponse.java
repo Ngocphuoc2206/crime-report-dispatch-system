@@ -1,8 +1,9 @@
 package com.ngocphuoc.crime_report.evidence.dto;
 
 public record ReportApiResponse<T>(
-        Integer code,
+        Boolean success,
         String message,
-        T results
+        T data,
+        String errorCode
 ) {
 }

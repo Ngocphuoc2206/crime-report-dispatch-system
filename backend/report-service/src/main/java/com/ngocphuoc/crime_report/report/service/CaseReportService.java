@@ -1,6 +1,7 @@
 package com.ngocphuoc.crime_report.report.service;
 
 import com.ngocphuoc.crime_report.common.ErrorCode;
+import com.ngocphuoc.crime_report.report.client.evidence.EvidenceClient;
 import com.ngocphuoc.crime_report.report.client.urgency.UrgencyClient;
 import com.ngocphuoc.crime_report.report.dto.request.CreateReportRequest;
 import com.ngocphuoc.crime_report.report.dto.request.UrgencyScoreRequest;
@@ -12,10 +13,10 @@ import com.ngocphuoc.crime_report.report.entity.CaseReport;
 import com.ngocphuoc.crime_report.crimecatalog.entity.CrimeType;
 import com.ngocphuoc.crime_report.enums.CaseStatus;
 import com.ngocphuoc.crime_report.enums.UrgencyLevel;
-import com.ngocphuoc.crime_report.exception.AppException;
 import com.ngocphuoc.crime_report.report.repository.CaseReportRepository;
 import com.ngocphuoc.crime_report.crimecatalog.repository.CrimeTypeRepository;
 import com.ngocphuoc.crime_report.identity.service.ReporterIdentityService;
+import com.ngocphuoc.crime_report.shared.exception.AppException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,8 @@ public class CaseReportService {
     private final TrackingCodeGenerator trackingCodeGenerator;
     private final ReporterIdentityService reporterIdentityService;
     private final UrgencyClient urgencyClient;
+    private final EvidenceClient evidenceClient;
+    private final EvidenceFileInspector evidenceFileInspector;
 
     @Transactional
     public CreateReportResponse createReport(CreateReportRequest request, List<MultipartFile> files){
@@ -63,7 +66,7 @@ public class CaseReportService {
                         request.hasWeapon(),
                         request.isHappeningNow(),
                         request.hasInjuredPerson(),
-                        hasVideoEvidence(files)
+                        evidenceFileInspector.hasVideoEvidence(files)
                 )
         );
 
@@ -72,6 +75,9 @@ public class CaseReportService {
 
         CaseReport saved = caseReportRepository.save(caseReport);
         reporterIdentityService.saveEncryptedReporterIdentity(saved, request);
+
+        // Add file evidence
+        evidenceClient.uploadEvidence(saved.getTrackingCode(), files);
 
         return new CreateReportResponse(
                 saved.getId(),
@@ -107,20 +113,6 @@ public class CaseReportService {
                 toPublicDisplayStatus(caseReport.getStatus()),
                 caseReport.getCreatedAt()
         );
-    }
-
-    // Check has video evidence
-    private boolean hasVideoEvidence(List<MultipartFile> files){
-        if (files == null || files.isEmpty()){
-            return false;
-        }
-
-        return files.stream()
-                .filter(file -> file != null && !file.isEmpty())
-                .anyMatch(file -> {
-                    String contentType = file.getContentType();
-                    return contentType != null && contentType.startsWith("video/");
-                });
     }
 
     private String toPublicDisplayStatus(CaseStatus status) {

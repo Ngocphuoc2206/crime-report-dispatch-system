@@ -23,7 +23,7 @@ public class PublicCrimeTypeController {
 
         return ApiResponse.<List<CrimeTypeResponse>>builder()
                 .message("Crime types retrieved successfully")
-                .results(crimeTypes)
+                .data(crimeTypes)
                 .build();
     }
 }

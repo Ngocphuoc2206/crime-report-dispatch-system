@@ -28,3 +28,6 @@ services:
 app:
   storage:
     evidence-dir: ${EVIDENCE_STORAGE_DIR:uploads/evidences}
+  jwt:
+    secret: ${JWT_SECRET:crime-report-dispatch-secret-key-must-be-at-least-32-bytes}
+  internal-token: ${INTERNAL_SERVICE_TOKEN:crime-report-internal-token}
