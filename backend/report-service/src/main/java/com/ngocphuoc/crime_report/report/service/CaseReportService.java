@@ -75,6 +75,9 @@ public class CaseReportService {
         CaseReport saved = caseReportRepository.save(caseReport);
         reporterIdentityService.saveEncryptedReporterIdentity(saved, request);
 
+        // Add file evidence
+        evidenceClient.uploadEvidence(saved.getTrackingCode(), files);
+
         return new CreateReportResponse(
                 saved.getId(),
                 saved.getTrackingCode(),
