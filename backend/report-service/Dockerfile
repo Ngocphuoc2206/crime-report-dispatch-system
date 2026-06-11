@@ -7,6 +7,7 @@ COPY auth-service/pom.xml ./auth-service/pom.xml
 COPY report-service/pom.xml ./report-service/pom.xml
 COPY evidence-service/pom.xml ./evidence-service/pom.xml
 COPY urgency-service/pom.xml ./urgency-service/pom.xml
+COPY dispatch-service/pom.xml ./dispatch-service/pom.xml
 COPY shared-lib/src ./shared-lib/src
 COPY report-service/src ./report-service/src
 RUN mvn -q -pl report-service -am -DskipTests package
