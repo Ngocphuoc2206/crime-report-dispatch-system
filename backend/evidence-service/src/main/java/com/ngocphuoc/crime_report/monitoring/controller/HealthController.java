@@ -13,7 +13,7 @@ public class HealthController {
     @GetMapping("/api/health")
     public ApiResponse<Map<String, Object>> health(){
         return ApiResponse.<Map<String, Object>>builder()
-                .results(Map.of(
+                .data(Map.of(
                         "status", "OK",
                         "service", "evidence-service",
                         "timeStamp", LocalDateTime.now().toString()

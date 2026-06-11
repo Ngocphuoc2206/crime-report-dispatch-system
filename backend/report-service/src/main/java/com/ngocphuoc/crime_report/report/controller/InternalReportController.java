@@ -23,7 +23,7 @@ public class InternalReportController {
     ) {
         return ApiResponse.<InternalReportLookupResponse>builder()
                 .message("Report retrieved successfully")
-                .results(caseReportService.getInternalReportByTrackingCode(trackingCode))
+                .data(caseReportService.getInternalReportByTrackingCode(trackingCode))
                 .build();
     }
 }

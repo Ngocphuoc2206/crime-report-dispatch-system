@@ -29,7 +29,7 @@ public class PublicReportController {
 
         return ApiResponse.<ReportStatusResponse>builder()
                 .message("Report status retrieved successfully")
-                .results(response)
+                .data(response)
                 .build();
     }
 
@@ -44,7 +44,7 @@ public class PublicReportController {
 
         return ApiResponse.<CreateReportResponse>builder()
                 .message("Tin báo đã được tiếp nhận")
-                .results(response)
+                .data(response)
                 .build();
     }
 }

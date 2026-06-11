@@ -25,7 +25,7 @@ public class AuthController {
 
         return ApiResponse.<LoginResponse>builder()
                 .message("Login successfully")
-                .results(response)
+                .data(response)
                 .build();
     }
 }
