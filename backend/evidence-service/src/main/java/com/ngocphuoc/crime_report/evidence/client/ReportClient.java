@@ -1,7 +1,7 @@
 package com.ngocphuoc.crime_report.evidence.client;
 
-import com.ngocphuoc.crime_report.evidence.dto.ReportApiResponse;
 import com.ngocphuoc.crime_report.evidence.dto.ReportLookupResponse;
+import com.ngocphuoc.crime_report.shared.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -24,7 +24,7 @@ public class ReportClient {
     public ReportLookupResponse findByTrackingCode(String trackingCode){
         RestClient restClient = restClientBuilder.baseUrl(reportBaseUrl).build();
 
-        ReportApiResponse<ReportLookupResponse> response = restClient
+        ApiResponse<ReportLookupResponse> response = restClient
                 .get()
                 .uri("/api/internal/reports/tracking/{trackingCode}", trackingCode)
                 .header(INTERNAL_TOKEN_HEADER, internalToken)
@@ -32,10 +32,10 @@ public class ReportClient {
                 .body(new ParameterizedTypeReference<>() {
                 });
 
-        if (response == null || response.data() == null) {
+        if (response == null || response.getData() == null) {
             throw new IllegalStateException("Report service returned empty response");
         }
 
-        return response.data();
+        return response.getData();
     }
 }

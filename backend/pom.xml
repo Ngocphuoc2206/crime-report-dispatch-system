@@ -22,6 +22,7 @@
         <module>report-service</module>
         <module>evidence-service</module>
         <module>urgency-service</module>
+        <module>dispatch-service</module>
     </modules>
 
     <properties>

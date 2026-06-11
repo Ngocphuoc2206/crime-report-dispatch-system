@@ -1,7 +1,6 @@
-package com.ngocphuoc.crime_report.exception;
+package com.ngocphuoc.crime_report.shared.exception;
 
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
-import com.ngocphuoc.crime_report.shared.exception.AppException;
 import com.ngocphuoc.crime_report.shared.response.ErrorResponseFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -14,9 +13,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(ErrorResponseFactory.from(exception.getErrorCode()));
     }
 
-    // Catch handling runtime exception
     @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ApiResponse<String>> handlingRuntimeException(Exception exception){
+    ResponseEntity<ApiResponse<String>> handlingRuntimeException(Exception exception) {
         return ResponseEntity.badRequest().body(ErrorResponseFactory.internalServerError(exception.getMessage()));
     }
 }

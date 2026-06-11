@@ -413,6 +413,7 @@ Lưu đơn vị hành chính theo dạng cây.
 ```text
 administrative_area
 - id
+- code
 - name
 - area_type
 - parent_id
@@ -422,11 +423,9 @@ administrative_area
 
 Ví dụ:
 
-| id | name | area_type | parent_id |
-|---|---:|---|---|
-| 1 | TP. Hồ Chí Minh | CITY | null |
-| 2 | Quận 1 | DISTRICT | 1 |
-| 3 | Phường Bến Nghé | WARD | 2 |
+| id | code | name | area_type | parent_id |
+|---|---:| ---|---|---|
+| 1 | HCM_Q1_BEN_NGHE | Phường Bến Nghé | WARD | null |
 
 Quan hệ:
 
@@ -441,6 +440,7 @@ Lưu thông tin đơn vị công an.
 ```text
 police_unit
 - id
+- code
 - name
 - area_id
 - address
