@@ -2,7 +2,7 @@ package com.ngocphuoc.crime_report.identity.service;
 
 import com.ngocphuoc.crime_report.identity.dto.EncryptionResult;
 import com.ngocphuoc.crime_report.common.ErrorCode;
-import com.ngocphuoc.crime_report.exception.AppException;
+import com.ngocphuoc.crime_report.shared.exception.AppException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

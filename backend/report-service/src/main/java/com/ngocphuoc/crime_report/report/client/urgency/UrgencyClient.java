@@ -9,6 +9,8 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import static com.ngocphuoc.crime_report.shared.security.InternalTokenAuthenticationFilter.INTERNAL_TOKEN_HEADER;
+
 @Component
 @RequiredArgsConstructor
 public class UrgencyClient {
@@ -17,12 +19,16 @@ public class UrgencyClient {
     @Value("${services.urgency.base-url}")
     private String urgencyBaseUrl;
 
+    @Value("${app.internal-token}")
+    private String internalToken;
+
     public UrgencyScoreResponse calculateScore(UrgencyScoreRequest request){
         RestClient restClient = restClientBuilder.baseUrl(urgencyBaseUrl).build();
 
         UrgencyApiResponse<UrgencyScoreResponse> response =
                 restClient.post()
                         .uri("/api/urgency/score")
+                        .header(INTERNAL_TOKEN_HEADER, internalToken)
                         .body(request)
                         .retrieve()
                         .body(new ParameterizedTypeReference<>() {
