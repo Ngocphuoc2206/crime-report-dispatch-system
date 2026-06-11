@@ -96,7 +96,6 @@ Luồng MVP:
 - Livestream video hiện trường theo thời gian thực.
 - Chat realtime giữa người tố giác và điều tra viên.
 - Dự báo xu hướng tội phạm bằng mô hình machine learning phức tạp.
-- Microservices.
 - Mobile application riêng.
 - Tích hợp bản đồ nâng cao với PostGIS.
 - Hệ thống thông báo SMS/Email thực tế.
@@ -222,7 +221,7 @@ Backend
 - Spring Security
 - Spring Data JPA
 - JWT Authentication
-- PostgreSQL
+- MariaDB
 - Flyway
 - Docker
 
@@ -237,34 +236,36 @@ Frontend
 Infrastructure
 - Docker
 - Docker Compose
-- PostgreSQL
+- MariaDB
 - Redis
 - MinIO
 
 ## 12. Kiến trúc triển khai
 
-Trong phạm vi MVP, hệ thống sử dụng kiến trúc modular monolith.
+Trong phạm vi hiện tại, backend được tổ chức theo hướng microservice.
 
-Backend được chia thành các module nghiệp vụ:
+Backend được chia thành các service:
 
-- Auth module
-- User module
-- Report module
-- Evidence module
-- Identity Encryption module
-- Urgency Scoring module
-- Dispatch module
-- Officer Workflow module
-- Dashboard module
-- Audit module
+- api-gateway
+- auth-service
+- report-service
+- evidence-service
+- urgency-service
 
-Lý do chọn modular monolith:
+Vai trò chính:
 
-- Phù hợp với quy mô đề tài.
-- Dễ phát triển và kiểm thử.
-- Dễ triển khai bằng Docker Compose.
-- Vẫn đảm bảo khả năng mở rộng về sau.
-- Có thể tách thành microservices nếu hệ thống phát triển lớn hơn.
+- api-gateway là điểm vào duy nhất cho frontend và route request đến các service phía sau.
+- auth-service quản lý đăng nhập, user, role và JWT.
+- report-service quản lý tin báo, danh mục tội phạm và thông tin định danh đã mã hóa.
+- evidence-service quản lý metadata và file bằng chứng.
+- urgency-service quản lý rule và API tính điểm nguy cấp.
+
+Dữ liệu được tách theo database/schema sở hữu của từng service:
+
+- crime_auth
+- crime_report
+- crime_evidence
+- crime_urgency
 
 ## 13. Tiêu chí hoàn thành MVP
 
