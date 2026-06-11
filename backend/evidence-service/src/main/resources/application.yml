@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: evidence-service
+  datasource:
+    url: jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:crime_evidence}?useUnicode=true&characterEncoding=utf8
+    username: ${DB_USERNAME:crime_user}
+    password: ${DB_PASSWORD:crime_password}
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 200MB
+
+server:
+  port: ${SERVER_PORT:8083}
+
+services:
+  report:
+    base-url: ${REPORT_SERVICE_URL:http://localhost:8082}
+
+app:
+  storage:
+    evidence-dir: ${EVIDENCE_STORAGE_DIR:uploads/evidences}

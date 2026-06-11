@@ -298,12 +298,13 @@ case_report 1 - 1 reporter_identity
 
 ### 4.3. Bảng evidence_file
 
-Lưu metadata của file bằng chứng.
+Lưu metadata của file bằng chứng.z
 
 ```text
 evidence_file
 - id
 - case_id
+- trackingCode
 - file_name
 - original_file_name
 - file_type
