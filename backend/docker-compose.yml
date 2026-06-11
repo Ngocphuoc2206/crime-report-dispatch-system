@@ -75,6 +75,8 @@ services:
       DB_PASSWORD: crime_password
       JWT_SECRET: crime-report-dispatch-secret-key-must-be-at-least-32-bytes
       INTERNAL_SERVICE_TOKEN: crime-report-internal-token
+      EVIDENCE_SERVICE_URL: http://evidence-service:8083
+      URGENCY_SERVICE_URL: http://urgency-service:8084
     expose:
       - "8082"
     depends_on:

@@ -1,6 +1,7 @@
 package com.ngocphuoc.crime_report.report.service;
 
 import com.ngocphuoc.crime_report.common.ErrorCode;
+import com.ngocphuoc.crime_report.report.client.evidence.EvidenceClient;
 import com.ngocphuoc.crime_report.report.client.urgency.UrgencyClient;
 import com.ngocphuoc.crime_report.report.dto.request.CreateReportRequest;
 import com.ngocphuoc.crime_report.report.dto.request.UrgencyScoreRequest;
@@ -31,6 +32,7 @@ public class CaseReportService {
     private final TrackingCodeGenerator trackingCodeGenerator;
     private final ReporterIdentityService reporterIdentityService;
     private final UrgencyClient urgencyClient;
+    private final EvidenceClient evidenceClient;
 
     @Transactional
     public CreateReportResponse createReport(CreateReportRequest request, List<MultipartFile> files){

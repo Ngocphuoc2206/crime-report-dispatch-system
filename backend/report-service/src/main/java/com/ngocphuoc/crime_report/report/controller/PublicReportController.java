@@ -39,11 +39,11 @@ public class PublicReportController {
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) throws Exception {
         CreateReportRequest request = objectMapper.readValue(reportJson, CreateReportRequest.class);
-
+    
         CreateReportResponse response = caseReportService.createReport(request, files);
-
+    
         return ApiResponse.<CreateReportResponse>builder()
-                .message("Tin báo đã được tiếp nhận")
+                .message("Tin bao da duoc tiep nhan")
                 .data(response)
                 .build();
     }

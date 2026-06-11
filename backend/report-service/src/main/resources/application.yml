@@ -30,5 +30,7 @@ app:
   internal-token: ${INTERNAL_SERVICE_TOKEN:crime-report-internal-token}
 
 services:
+  evidence:
+    base-url: ${EVIDENCE_SERVICE_URL:http://localhost:8083}
   urgency:
     base-url: ${URGENCY_SERVICE_URL:http://localhost:8084}
