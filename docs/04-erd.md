@@ -503,19 +503,20 @@ Lưu ca trực.
 ```text
 duty_shift
 - id
-- unit_id
-- shift_date
-- start_time
-- end_time
+- code
+- name
+- shift_status
+- start_at
+- end_at
 - created_at
 - updated_at
 ```
 
 Ví dụ:
 
-| unit | shift_date | start_time | end_time |
+| code | name | start_at | end_at | shift_status
 |---|---|---|---|
-| Công an Phường Bến Nghé | 2026-05-25 | 08:00 | 16:00 |
+| SHIFT_DEMO_ACTIVE | Ca trực demo đang hoạt động | 06/12/2026T08:00 | 06/12/2026T00:00 |
 
 Quan hệ:
 
@@ -533,7 +534,9 @@ duty_assignment
 - shift_id
 - officer_id
 - availability_status
-- current_case_count
+- current_case_id
+- note
+- last_status_at
 - created_at
 - updated_at
 ```
