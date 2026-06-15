@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: api-gateway
+  servlet:
+    multipart:
+      enabled: false
+
+server:
+  port: ${SERVER_PORT:8080}
+
+services:
+  auth-url: ${AUTH_SERVICE_URL:http://localhost:8081}
+  report-url: ${REPORT_SERVICE_URL:http://localhost:8082}
+  evidence-url: ${EVIDENCE_SERVICE_URL:http://localhost:8083}
+  urgency-url: ${URGENCY_SERVICE_URL:http://localhost:8084}
+  dispatch-url: ${DISPATCH_SERVICE_URL:http://localhost:8085}

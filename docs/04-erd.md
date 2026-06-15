@@ -4,6 +4,13 @@
 
 Tài liệu này mô tả thiết kế cơ sở dữ liệu cho hệ thống Tiếp nhận và Điều phối Thông tin Tố giác Tội phạm.
 
+Ghi chú cập nhật theo kiến trúc microservice:
+
+- ERD này mô tả quan hệ logic của toàn hệ thống.
+- Khi triển khai microservice, mỗi service sở hữu database/schema riêng.
+- Không tạo foreign key vật lý xuyên database của các service khác nhau.
+- Các field như `case_id` trong `evidence_file` là tham chiếu logic đến report-service, không phải FK vật lý trong evidence-service.
+
 Thiết kế ERD tập trung vào phiên bản MVP, bao gồm các nhóm dữ liệu chính:
 
 - Người dùng và phân quyền
@@ -42,6 +49,15 @@ Thiết kế ERD tập trung vào phiên bản MVP, bao gồm các nhóm dữ li
 | Dispatch | duty_assignment | Phân công cán bộ theo ca |
 | Dispatch | dispatch_task | Nhiệm vụ điều phối |
 | Audit | audit_log | Lịch sử thao tác hệ thống |
+
+Phân tách database theo service hiện tại:
+
+| Service | Database/schema | Bảng chính |
+|---|---|---|
+| auth-service | crime_auth | users, roles, user_roles |
+| report-service | crime_report | crime_category, crime_type, case_report, reporter_identity |
+| evidence-service | crime_evidence | evidence_file |
+| urgency-service | crime_urgency | urgency_rule |
 
 ---
 
@@ -168,23 +184,21 @@ Lưu rule tính điểm nguy cấp.
 ```text
 urgency_rule
 - id
-- rule_name
-- condition_key
-- condition_value
-- score
+- rule_code
+- score_value
+- description
 - is_active
 - created_at
-- updated_at
 ```
 
 Ví dụ dữ liệu:
 
-| condition_key | condition_value | score |
+| rule_code | score_value | description |
 |---|---:|---|
-| HAS_WEAPON | true | 40 |
-| HAPPENING_NOW | true | 30 |
-| HAS_INJURED_PERSON | true | 30 |
-| EVIDENCE_TYPE | VIDEO | 10 |
+| HAS_WEAPON | 40 | Có vũ khí |
+| HAPPENING_NOW | 30 | Đang diễn ra |
+| HAS_INJURED_PERSON | 30 | Có người bị thương |
+| EVIDENCE_TYPE_VIDEO | 10 | Có video |
 
 Ghi chú:
 
@@ -284,12 +298,13 @@ case_report 1 - 1 reporter_identity
 
 ### 4.3. Bảng evidence_file
 
-Lưu metadata của file bằng chứng.
+Lưu metadata của file bằng chứng.z
 
 ```text
 evidence_file
 - id
 - case_id
+- trackingCode
 - file_name
 - original_file_name
 - file_type
@@ -324,6 +339,8 @@ Quan hệ:
 ```
 case_report 1 - n evidence_file
 ```
+
+Trong microservice, quan hệ này là quan hệ logic qua `case_id`. Evidence-service không tạo foreign key vật lý sang database của report-service.
 
 ### 4.4. Bảng case_status_history
 
@@ -396,6 +413,7 @@ Lưu đơn vị hành chính theo dạng cây.
 ```text
 administrative_area
 - id
+- code
 - name
 - area_type
 - parent_id
@@ -405,11 +423,9 @@ administrative_area
 
 Ví dụ:
 
-| id | name | area_type | parent_id |
-|---|---:|---|---|
-| 1 | TP. Hồ Chí Minh | CITY | null |
-| 2 | Quận 1 | DISTRICT | 1 |
-| 3 | Phường Bến Nghé | WARD | 2 |
+| id | code | name | area_type | parent_id |
+|---|---:| ---|---|---|
+| 1 | HCM_Q1_BEN_NGHE | Phường Bến Nghé | WARD | null |
 
 Quan hệ:
 
@@ -424,6 +440,7 @@ Lưu thông tin đơn vị công an.
 ```text
 police_unit
 - id
+- code
 - name
 - area_id
 - address
@@ -486,19 +503,20 @@ Lưu ca trực.
 ```text
 duty_shift
 - id
-- unit_id
-- shift_date
-- start_time
-- end_time
+- code
+- name
+- shift_status
+- start_at
+- end_at
 - created_at
 - updated_at
 ```
 
 Ví dụ:
 
-| unit | shift_date | start_time | end_time |
+| code | name | start_at | end_at | shift_status
 |---|---|---|---|
-| Công an Phường Bến Nghé | 2026-05-25 | 08:00 | 16:00 |
+| SHIFT_DEMO_ACTIVE | Ca trực demo đang hoạt động | 06/12/2026T08:00 | 06/12/2026T00:00 |
 
 Quan hệ:
 
@@ -516,7 +534,9 @@ duty_assignment
 - shift_id
 - officer_id
 - availability_status
-- current_case_count
+- current_case_id
+- note
+- last_status_at
 - created_at
 - updated_at
 ```
@@ -549,10 +569,10 @@ dispatch_task
 - case_id
 - assigned_unit_id
 - assigned_officer_id
+- duty_assignment_id
 - dispatch_status
-- dispatch_reason
+- failure_reason
 - distance_km
-- created_by
 - created_at
 - updated_at
 ```
@@ -564,12 +584,6 @@ ASSIGNED
 WAITING_ASSIGNMENT
 REASSIGNED
 CANCELLED
-```
-
-Ví dụ dispatch_reason:
-
-```text
-Tin báo mức CRITICAL, đơn vị gần nhất có cán bộ trực rảnh.
 ```
 
 Quan hệ:
@@ -682,13 +696,11 @@ erDiagram
 
     urgency_rule {
         bigint id PK
-        string rule_name
-        string condition_key
-        string condition_value
-        int score
+        string rule_code
+        int score_value
+        string description
         boolean is_active
         datetime created_at
-        datetime updated_at
     }
 
     case_report {
@@ -727,7 +739,7 @@ erDiagram
 
     evidence_file {
         bigint id PK
-        bigint case_id FK
+        bigint case_id "logical reference"
         string file_name
         string file_type
         string file_url

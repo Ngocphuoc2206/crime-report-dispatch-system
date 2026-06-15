@@ -1,21 +1,22 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: crime-report-postgres
+  mariadb:
+    image: mariadb:11.4
+    container_name: crime-report-mariadb
     restart: unless-stopped
     environment:
-      POSTGRES_DB: crime_report_dispatch
-      POSTGRES_USER: crime_user
-      POSTGRES_PASSWORD: crime_password
+      MARIADB_DATABASE: crime_report_dispatch
+      MARIADB_USER: crime_user
+      MARIADB_PASSWORD: crime_password
+      MARIADB_ROOT_PASSWORD: root_password
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mariadb_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U crime_user -d crime_report_dispatch"]
+      test: ["CMD-SHELL", "healthcheck.sh --connect --innodb_initialized"]
       interval: 10s
       timeout: 5s
       retries: 5
 
 volumes:
-  postgres_data:
+  mariadb_data:
