@@ -34,12 +34,14 @@ public class InternalTokenAuthenticationFilter extends OncePerRequestFilter {
         if (isProtectedInternalPath(request)
                 && internalToken != null
                 && !internalToken.isBlank()
-                && internalToken.equals(request.getHeader(INTERNAL_TOKEN_HEADER))
-                && SecurityContextHolder.getContext().getAuthentication() == null) {
+                && internalToken.equals(request.getHeader(INTERNAL_TOKEN_HEADER))) {
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     "internal-service",
                     null,
-                    List.of(new SimpleGrantedAuthority("ROLE_INTERNAL_SERVICE"))
+                    List.of(
+                            new SimpleGrantedAuthority("ROLE_INTERNAL_SERVICE"),
+                            new SimpleGrantedAuthority("INTERNAL_SERVICE")
+                    )
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

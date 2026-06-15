@@ -569,10 +569,10 @@ dispatch_task
 - case_id
 - assigned_unit_id
 - assigned_officer_id
+- duty_assignment_id
 - dispatch_status
-- dispatch_reason
+- failure_reason
 - distance_km
-- created_by
 - created_at
 - updated_at
 ```
@@ -584,12 +584,6 @@ ASSIGNED
 WAITING_ASSIGNMENT
 REASSIGNED
 CANCELLED
-```
-
-Ví dụ dispatch_reason:
-
-```text
-Tin báo mức CRITICAL, đơn vị gần nhất có cán bộ trực rảnh.
 ```
 
 Quan hệ:

@@ -1,9 +1,7 @@
 package com.ngocphuoc.crime_report.report.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.ngocphuoc.crime_report.report.dto.request.UpdateReportAssignmentRequest;
+import org.springframework.web.bind.annotation.*;
 
 import com.ngocphuoc.crime_report.report.dto.response.InternalReportLookupResponse;
 import com.ngocphuoc.crime_report.report.service.CaseReportService;
@@ -25,5 +23,19 @@ public class InternalReportController {
                 .message("Report retrieved successfully")
                 .data(caseReportService.getInternalReportByTrackingCode(trackingCode))
                 .build();
+    }
+
+    @PatchMapping("/{caseId}/assignment")
+    public ApiResponse<Void> updateAssignment(
+            @PathVariable Long caseId,
+            @RequestBody UpdateReportAssignmentRequest request
+    ) {
+        caseReportService.updateAssignment(
+                caseId,
+                request.assignedUnitId(),
+                request.assignedOfficerId()
+        );
+
+        return ApiResponse.<Void>builder().build();
     }
 }
