@@ -1,6 +1,7 @@
 package com.ngocphuoc.crime_report.report.service;
 
 import com.ngocphuoc.crime_report.common.ErrorCode;
+import com.ngocphuoc.crime_report.report.client.dispatch.DispatchClient;
 import com.ngocphuoc.crime_report.report.client.evidence.EvidenceClient;
 import com.ngocphuoc.crime_report.report.client.urgency.UrgencyClient;
 import com.ngocphuoc.crime_report.report.dto.request.CreateReportRequest;
@@ -20,6 +21,7 @@ import com.ngocphuoc.crime_report.shared.exception.AppException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -34,50 +36,62 @@ public class CaseReportService {
     private final UrgencyClient urgencyClient;
     private final EvidenceClient evidenceClient;
     private final EvidenceFileInspector evidenceFileInspector;
+    private final DispatchClient dispatchClient;
+    private final TransactionTemplate transactionTemplate;
 
-    @Transactional
     public CreateReportResponse createReport(CreateReportRequest request, List<MultipartFile> files){
-        CrimeType crimeType = crimeTypeRepository.findById(request.crimeTypeId())
-                .orElseThrow(() -> new AppException(ErrorCode.CRIME_NOT_FOUND));
+        CaseReport saved = transactionTemplate.execute(status -> {
+            CrimeType crimeType = crimeTypeRepository.findById(request.crimeTypeId())
+                    .orElseThrow(() -> new AppException(ErrorCode.CRIME_NOT_FOUND));
 
-        if (!Boolean.TRUE.equals(crimeType.getIsActive())){
-            throw new AppException(ErrorCode.CRIME_NOT_ACTIVE);
+            if (!Boolean.TRUE.equals(crimeType.getIsActive())){
+                throw new AppException(ErrorCode.CRIME_NOT_ACTIVE);
+            }
+
+            CaseReport caseReport = new CaseReport();
+
+            caseReport.setTrackingCode(trackingCodeGenerator.generate());
+            caseReport.setCrimeType(crimeType);
+            caseReport.setDescription(request.description());
+            caseReport.setIncidentTime(request.incidentTime());
+            caseReport.setIsHappeningNow(request.isHappeningNow());
+            caseReport.setHasWeapon(request.hasWeapon());
+            caseReport.setHasInjuredPerson(request.hasInjuredPerson());
+            caseReport.setLatitude(request.latitude());
+            caseReport.setLongitude(request.longitude());
+            caseReport.setAddressText(request.addressText());
+
+            caseReport.setStatus(CaseStatus.NEW_RECEIVED);
+
+            // Calculate follow request
+            UrgencyScoreResponse urgencyScoreResponse = urgencyClient.calculateScore(
+                    new UrgencyScoreRequest(
+                            crimeType.getBaseScore() == null ? 0 : crimeType.getBaseScore(),
+                            request.hasWeapon(),
+                            request.isHappeningNow(),
+                            request.hasInjuredPerson(),
+                            evidenceFileInspector.hasVideoEvidence(files)
+                    )
+            );
+
+            caseReport.setUrgencyScore(urgencyScoreResponse.score());
+            caseReport.setUrgencyLevel(UrgencyLevel.valueOf(urgencyScoreResponse.level()));
+
+            CaseReport persisted = caseReportRepository.save(caseReport);
+            reporterIdentityService.saveEncryptedReporterIdentity(persisted, request);
+
+            return persisted;
+        });
+
+        if (saved == null) {
+            throw new IllegalStateException("Failed to create case report");
         }
-
-        CaseReport caseReport = new CaseReport();
-
-        caseReport.setTrackingCode(trackingCodeGenerator.generate());
-        caseReport.setCrimeType(crimeType);
-        caseReport.setDescription(request.description());
-        caseReport.setIncidentTime(request.incidentTime());
-        caseReport.setIsHappeningNow(request.isHappeningNow());
-        caseReport.setHasWeapon(request.hasWeapon());
-        caseReport.setHasInjuredPerson(request.hasInjuredPerson());
-        caseReport.setLatitude(request.latitude());
-        caseReport.setLongitude(request.longitude());
-        caseReport.setAddressText(request.addressText());
-
-        caseReport.setStatus(CaseStatus.NEW_RECEIVED);
-
-        // Calculate follow request
-        UrgencyScoreResponse urgencyScoreResponse = urgencyClient.calculateScore(
-                new UrgencyScoreRequest(
-                        crimeType.getBaseScore() == null ? 0 : crimeType.getBaseScore(),
-                        request.hasWeapon(),
-                        request.isHappeningNow(),
-                        request.hasInjuredPerson(),
-                        evidenceFileInspector.hasVideoEvidence(files)
-                )
-        );
-
-        caseReport.setUrgencyScore(urgencyScoreResponse.score());
-        caseReport.setUrgencyLevel(UrgencyLevel.valueOf(urgencyScoreResponse.level()));
-
-        CaseReport saved = caseReportRepository.save(caseReport);
-        reporterIdentityService.saveEncryptedReporterIdentity(saved, request);
 
         // Add file evidence
         evidenceClient.uploadEvidence(saved.getTrackingCode(), files);
+
+        // After created case report then create dispatch smart
+        dispatchClient.smartDispatch(saved.getId(), saved.getLatitude(), saved.getLongitude());
 
         return new CreateReportResponse(
                 saved.getId(),
@@ -113,6 +127,19 @@ public class CaseReportService {
                 toPublicDisplayStatus(caseReport.getStatus()),
                 caseReport.getCreatedAt()
         );
+    }
+
+    @Transactional
+    public void updateAssignment(
+            Long caseId,
+            Long assignedUnitId,
+            Long assignedOfficerId
+    ) {
+        CaseReport caseReport = caseReportRepository.findById(caseId)
+                .orElseThrow(() -> new AppException(ErrorCode.CASE_NOT_FOUND));
+
+        caseReport.setAssignedUnitId(assignedUnitId);
+        caseReport.setAssignedOfficerId(assignedOfficerId);
     }
 
     private String toPublicDisplayStatus(CaseStatus status) {

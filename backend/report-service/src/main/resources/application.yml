@@ -34,3 +34,5 @@ services:
     base-url: ${EVIDENCE_SERVICE_URL:http://localhost:8083}
   urgency:
     base-url: ${URGENCY_SERVICE_URL:http://localhost:8084}
+  dispatch:
+    base-url: ${DISPATCH_SERVICE_URL:http://localhost:8085}

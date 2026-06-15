@@ -20,6 +20,10 @@ spring:
 server:
   port: ${SERVER_PORT:8085}
 
+services:
+  report-url:
+    base-url: ${REPORT_SERVICE_URL:http://localhost:8082}
+
 app:
   jwt:
     secret: ${JWT_SECRET:crime-report-dispatch-secret-key-must-be-at-least-32-bytes}

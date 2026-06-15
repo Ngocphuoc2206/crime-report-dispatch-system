@@ -19,6 +19,10 @@ public class NearestPoliceUnitService {
     private final PoliceUnitRepository policeUnitRepository;
     private final HaversineDistanceService haversineDistanceService;
 
+    // Constant
+    private static final double SEARCH_RADIUS_KM = 20.0;
+    private static final double KM_PER_LAT_DEGREE = 111.0;
+
     @Transactional(readOnly = true)
     public List<PoliceUnitDistanceResponse> findNearestPoliceUnits(
             double incidentLatitude,
@@ -29,9 +33,13 @@ public class NearestPoliceUnitService {
         int safeLimit = normalizeLimit(limit);
 
         // 1 độ vĩ độ ~= 111.0km
-        double deltaLat = 20.0 / 111.0; // ~ 0.1801
+        double deltaLat = SEARCH_RADIUS_KM / KM_PER_LAT_DEGREE;
 
-        double deltaLon = deltaLat / Math.cos(Math.toRadians(incidentLatitude));
+        double cosLat = Math.cos(Math.toRadians(incidentLatitude));
+
+        double deltaLon = Math.abs(cosLat) < 0.000001
+                ? 180.0
+                : deltaLat / cosLat;
         // bán kính 20km = 20/111 ~= 0.18
         double minLat = incidentLatitude - deltaLat;
         double maxLat = incidentLatitude + deltaLat;
