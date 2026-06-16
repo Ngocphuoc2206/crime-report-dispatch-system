@@ -13,7 +13,7 @@ Mục tiêu của tài liệu là xác định rõ các actor, hành động, đ
 | Actor | Mô tả |
 |---|---|
 | Citizen | Người dân gửi tin báo và tra cứu tiến độ xử lý |
-| Duty Officer | Cán bộ trực ban tiếp nhận và xác minh tin báo |
+| Officer | Cán bộ trực ban tiếp nhận và xác minh tin báo |
 | Dispatcher | Cán bộ điều phối, gán tin báo cho đơn vị hoặc cán bộ phù hợp |
 | Commander | Chỉ huy theo dõi tình hình toàn hệ thống |
 | Admin | Quản trị viên quản lý danh mục, người dùng và rule nghiệp vụ |
@@ -321,7 +321,7 @@ System
 
 ## 3. Actor liên quan
 
-Dispatcher, Duty Officer
+Dispatcher, Officer
 
 ## 4. Tiền điều kiện
 
@@ -394,7 +394,7 @@ Cho phép cán bộ trực ban nhận xử lý tin báo được giao và chuy�
 
 ## 2. Actor chính
 
-Duty Officer
+Officer
 
 ## 3. Actor liên quan
 
