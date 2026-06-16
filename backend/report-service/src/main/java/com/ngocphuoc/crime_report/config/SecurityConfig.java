@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/internal/**").hasRole("INTERNAL_SERVICE")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/commander/**").hasAnyRole("COMMANDER", "ADMIN")
+                        .requestMatchers("/api/officer/**").hasAnyRole("OFFICER", "COMMANDER", "ADMIN")
                         .requestMatchers("/api/dispatcher/**").hasAnyRole("DISPATCHER", "COMMANDER", "ADMIN")
                         .requestMatchers("/api/officer/**").hasAnyRole("DUTY_OFFICER", "DISPATCHER", "COMMANDER", "ADMIN")
                         .anyRequest().authenticated()

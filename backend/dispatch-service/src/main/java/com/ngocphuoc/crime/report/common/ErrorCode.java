@@ -16,6 +16,7 @@ public enum ErrorCode implements com.ngocphuoc.crime_report.shared.error.ErrorCo
     CASE_ID_REQUIRED("CASE_1001", "CaseId is required"),
     CASE_ALREADY_DISPATCHED("CASE_1002","Case have already dispatched" ),
     NO_AVAILABLE_OFFICER("CASE_1003", "Officer is not available"),
+    OFFICER_NOT_FOUND("CASE_1004", "Officer not found"),
     // Uncategorized
     UNCATEGORIZED_EXCEPTION("EVIDENCE_9998", "UNCATEGORIZED_EXCEPTION!");
     ErrorCode(String code, String message){
