@@ -1,5 +1,6 @@
 package com.ngocphuoc.crime_report.auth.service;
 
+import com.ngocphuoc.crime_report.auth.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -24,12 +25,13 @@ public class JwtService {
     @Value("${app.jwt.expiration-ms}")
     private long expirationMs;
 
-    public String generateToken(String userName, List<String> roles){
+    public String generateToken(User user, List<String> roles){
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
-                .subject(userName)
+                .subject(user.getId().toString())
+                .claim("username", user.getUsername())
                 .claim("roles", roles)
                 .issuedAt(now)
                 .expiration(expiryDate)
@@ -38,7 +40,7 @@ public class JwtService {
     }
 
     public String extractUsername(String token) {
-        return extractAllClaims(token).getSubject();
+        return extractAllClaims(token).get("username", String.class);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

@@ -16,7 +16,7 @@ import java.util.Objects;
 public class DispatchClient {
     private static final String INTERNAL_TOKEN_HEADER = "X-Internal-Token";
     private static final String SMART_DISPATCH_PATH = "/api/dispatch/smart-dispatch";
-    private static final String OFFICER_BY_USER_ID = "/api/dispatch/by-user/{userId}";
+    private static final String OFFICER_BY_USER_ID = "/api/internal/officers/by-user/{userId}";
 
     private final RestClient.Builder restClientBuilder;
 

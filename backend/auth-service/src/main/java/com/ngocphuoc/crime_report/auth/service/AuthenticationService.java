@@ -43,7 +43,7 @@ public class AuthenticationService {
 
         List<String> roles = user.getRoles().stream().map(Role::getName).toList();
 
-        String accessToken = jwtService.generateToken(user.getUsername(), roles);
+        String accessToken = jwtService.generateToken(user, roles);
 
         AuthUserResponse userResponse = new AuthUserResponse(
                 user.getId(),
