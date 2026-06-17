@@ -1,0 +1,3 @@
+UPDATE roles
+SET name = 'OFFICER'
+WHERE name = 'DUTY_OFFICER';

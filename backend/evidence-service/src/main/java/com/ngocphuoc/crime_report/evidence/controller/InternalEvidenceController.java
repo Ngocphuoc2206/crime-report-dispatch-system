@@ -1,6 +1,9 @@
 package com.ngocphuoc.crime_report.evidence.controller;
 
+import com.ngocphuoc.crime_report.evidence.dto.EvidenceMetadataResponse;
 import com.ngocphuoc.crime_report.evidence.service.EvidenceFileService;
+import com.ngocphuoc.crime_report.evidence.service.EvidenceMetadataService;
+import com.ngocphuoc.crime_report.shared.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -10,13 +13,14 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/internal/reports")
+@RequestMapping("/api/internal")
 @RequiredArgsConstructor
 public class InternalEvidenceController {
     private final EvidenceFileService evidenceFileService;
+    private final EvidenceMetadataService evidenceMetadataService;
 
     @PostMapping(
-            value = "/{trackingCode}/evidences",
+            value = "/reports/{trackingCode}/evidences",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public Map<String, Object> uploadEvidence(
@@ -29,5 +33,14 @@ public class InternalEvidenceController {
                 "message", "Evidence files uploaded successfully",
                 "trackingCode", trackingCode
         );
+    }
+
+    @GetMapping("/evidences/cases/{caseId}/metadata")
+    public ApiResponse<List<EvidenceMetadataResponse>> getEvidenceMetaByCaseId(
+            @PathVariable Long caseId
+    ){
+        return ApiResponse.<List<EvidenceMetadataResponse>>builder()
+                .data(evidenceMetadataService.getEvidenceMetadataByCaseId(caseId))
+                .build();
     }
 }

@@ -19,6 +19,7 @@ import com.ngocphuoc.crime_report.crimecatalog.repository.CrimeTypeRepository;
 import com.ngocphuoc.crime_report.identity.service.ReporterIdentityService;
 import com.ngocphuoc.crime_report.shared.exception.AppException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -28,6 +29,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CaseReportService {
     private final CaseReportRepository caseReportRepository;
     private final CrimeTypeRepository crimeTypeRepository;
@@ -40,6 +42,7 @@ public class CaseReportService {
     private final TransactionTemplate transactionTemplate;
 
     public CreateReportResponse createReport(CreateReportRequest request, List<MultipartFile> files){
+        log.info("[INFO] Process creating report.....");
         CaseReport saved = transactionTemplate.execute(status -> {
             CrimeType crimeType = crimeTypeRepository.findById(request.crimeTypeId())
                     .orElseThrow(() -> new AppException(ErrorCode.CRIME_NOT_FOUND));
@@ -84,6 +87,7 @@ public class CaseReportService {
         });
 
         if (saved == null) {
+            log.warn("[WARN] Failed to create case report");
             throw new IllegalStateException("Failed to create case report");
         }
 
