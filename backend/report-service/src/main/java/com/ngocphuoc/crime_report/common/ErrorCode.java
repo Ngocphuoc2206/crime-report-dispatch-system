@@ -16,8 +16,8 @@ public enum ErrorCode implements com.ngocphuoc.crime_report.shared.error.ErrorCo
     // AES-GCM
     AES_NOT_FOUND("REPORT_1008", "AES key must be 16, 24, or 32 bytes after Base64 decoding"),
     // Uncategorized
-    UNCATEGORIZED_EXCEPTION("REPORT_9998", "UNCATEGORIZED_EXCEPTION!")
-    ;
+    UNCATEGORIZED_EXCEPTION("REPORT_9998", "UNCATEGORIZED_EXCEPTION!"),
+    INTERNAL_SERVER_ERROR("REPORT_INTERNAL_SERVER", "Server is not response");
     ErrorCode(String code, String message){
         this.code = code;
         this.message = message;
