@@ -83,11 +83,13 @@ public class SmartDispatchService {
 
                 DispatchTask savedTask = dispatchTaskRepository.save(dispatchTask);
 
-                reportAssignmentClient.updateAssignment(
-                        request.caseId(),
-                        selectedAssignment.getOfficer().getUnit().getId(),
-                        selectedAssignment.getOfficer().getId()
-                );
+                if (request.shouldUpdateReportAssignment()) {
+                    reportAssignmentClient.updateAssignment(
+                            request.caseId(),
+                            selectedAssignment.getOfficer().getUnit().getId(),
+                            selectedAssignment.getOfficer().getId()
+                    );
+                }
                 return toResponse(savedTask, unit);
             }
         }

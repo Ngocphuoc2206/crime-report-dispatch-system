@@ -23,6 +23,7 @@ public class ProxyController {
     private static final List<String> HOP_BY_HOP_HEADERS = List.of(
             "connection",
             "content-length",
+            "expect",
             "host",
             "transfer-encoding"
     );

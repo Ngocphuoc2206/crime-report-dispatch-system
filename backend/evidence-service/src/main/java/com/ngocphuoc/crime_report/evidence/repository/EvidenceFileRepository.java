@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface EvidenceFileRepository extends JpaRepository<EvidenceFile, Long> {
 
-    List<EvidenceFile> findByCaseIdOrderByUploadedAtDesc(Long caseId);
+    List<EvidenceFile> findByCaseIdOrderByUploadedAtAsc(Long caseId);
 
     List<EvidenceFile> findByTrackingCodeOrderByUploadedAtDesc(String trackingCode);
 }

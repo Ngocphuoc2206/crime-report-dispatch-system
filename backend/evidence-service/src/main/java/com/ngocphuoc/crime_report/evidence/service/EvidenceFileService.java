@@ -7,6 +7,7 @@ import com.ngocphuoc.crime_report.evidence.entity.EvidenceFile;
 import com.ngocphuoc.crime_report.evidence.enums.EvidenceFileType;
 import com.ngocphuoc.crime_report.evidence.repository.EvidenceFileRepository;
 import com.ngocphuoc.crime_report.shared.exception.AppException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class EvidenceFileService {
 
     private final EvidenceFileRepository evidenceFileRepository;
@@ -51,6 +53,7 @@ public class EvidenceFileService {
     }
 
     public void saveEvidenceFiles(String trackingCode, List<MultipartFile> files) {
+        log.info("Process upload evidence files....");
         if (files == null || files.isEmpty()) {
             return;
         }
@@ -62,6 +65,7 @@ public class EvidenceFileService {
                 Files.createDirectories(evidenceStorageDir);
             }
         } catch (Exception e) {
+            log.warn("Failed to create evidence storage....");
             throw new IllegalStateException("Failed to create evidence storage directory", e);
         }
 
@@ -71,6 +75,7 @@ public class EvidenceFileService {
             }
             saveSingleFile(report.caseId(), report.trackingCode(), file);
         }
+        log.info("Successfully upload evidence files....");
     }
 
     public EvidenceFile getEvidenceByID(Long evidenceId){
