@@ -3,9 +3,11 @@ package com.ngocphuoc.crime_report.report.repository;
 import com.ngocphuoc.crime_report.enums.CaseStatus;
 import com.ngocphuoc.crime_report.enums.UrgencyLevel;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -17,6 +19,13 @@ public interface CaseReportRepository extends JpaRepository<CaseReport, Long> {
 
     Optional<CaseReport> findByTrackingCode(String trackingCode);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        SELECT c
+        FROM CaseReport c
+        WHERE c.id = :caseId
+        """)
+    Optional<CaseReport> findByIdForUpdate(@Param("caseId") Long caseId);
 
     @Query("""
             SELECT c

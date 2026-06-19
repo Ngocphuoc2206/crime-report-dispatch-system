@@ -15,6 +15,11 @@ public enum ErrorCode implements com.ngocphuoc.crime_report.shared.error.ErrorCo
     ACCESS_DENIED("REPORT_1007", "Access is denied"),
     // AES-GCM
     AES_NOT_FOUND("REPORT_1008", "AES key must be 16, 24, or 32 bytes after Base64 decoding"),
+    //CASE LOCK
+    CASE_ALREADY_LOCKED("REPORT_1009", "Case is already locked by another officer"),
+    CASE_LOCK_EXPIRED("REPORT_1010", "Case lock has expired"),
+    LOCK_NOT_FOUD("REPORT_1011", "Case lock not found"),
+    CASE_LOCK_OWNER_REQUIRED("REPORT_1012", "Only lock owner can release or renew this lock"),
     // Uncategorized
     UNCATEGORIZED_EXCEPTION("REPORT_9998", "UNCATEGORIZED_EXCEPTION!"),
     INTERNAL_SERVER_ERROR("REPORT_INTERNAL_SERVER", "Server is not response");
