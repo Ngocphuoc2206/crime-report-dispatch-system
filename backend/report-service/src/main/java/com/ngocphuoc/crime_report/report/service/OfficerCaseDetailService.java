@@ -28,6 +28,7 @@ public class OfficerCaseDetailService {
     private final DispatchClient dispatchClient;
     private final EvidenceClient evidenceClient;
     private final ReporterIdentityRepository reporterIdentityRepository;
+    private final OfficerPermissionService officerPermissionService;
 
     @Transactional(readOnly = true)
     public OfficerCaseDetailResponse getCaseDetail(
@@ -38,53 +39,12 @@ public class OfficerCaseDetailService {
         CaseReport caseReport = caseReportRepository.findById(caseId)
                 .orElseThrow(() -> new AppException(ErrorCode.CASE_NOT_FOUND));
 
-        validateScope(currentUserId, authentication, caseReport);
+        officerPermissionService.validateCanViewCase(currentUserId, authentication, caseReport);
 
         List<EvidenceMetadataResponse> evidences =
                 evidenceClient.getEvidenceMetadataByCaseId(caseReport.getId());
 
         return toResponse(caseReport, evidences);
-    }
-
-    private void validateScope(Long currentUserId, Authentication authentication, CaseReport caseReport) {
-        if (hasRole(authentication, "ROLE_ADMIN")){
-            return;
-        }
-
-        OfficerProfileResponse officerProfile = dispatchClient.getOfficerByUserId(currentUserId);
-
-        if (hasRole(authentication, "ROLE_COMMANDER")){
-            boolean sameUnit = Objects.equals(
-                    caseReport.getAssignedUnitId(),
-                    officerProfile.unitId()
-            );
-
-            if (!sameUnit){
-                throw new AppException(ErrorCode.ACCESS_DENIED);
-            }
-
-            return;
-        }
-
-        boolean assignedToOfficer = Objects.equals(
-                caseReport.getAssignedOfficerId(),
-                officerProfile.officerId()
-        );
-
-        boolean sameUnit = Objects.equals(
-                caseReport.getAssignedUnitId(),
-                officerProfile.unitId()
-        );
-
-        if (!assignedToOfficer && !sameUnit){
-            throw new AppException(ErrorCode.ACCESS_DENIED);
-        }
-    }
-
-    private boolean hasRole(Authentication authentication, String role){
-        return authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .anyMatch(role::equals);
     }
 
     private OfficerCaseDetailResponse toResponse(
