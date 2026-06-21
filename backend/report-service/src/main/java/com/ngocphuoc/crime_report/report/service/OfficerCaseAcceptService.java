@@ -8,6 +8,7 @@ import com.ngocphuoc.crime_report.report.dto.response.AcceptCaseResponse;
 import com.ngocphuoc.crime_report.report.dto.response.CaseLockResponse;
 import com.ngocphuoc.crime_report.report.dto.response.OfficerProfileResponse;
 import com.ngocphuoc.crime_report.report.entity.CaseHistory;
+import com.ngocphuoc.crime_report.report.entity.CaseLock;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
 import com.ngocphuoc.crime_report.report.repository.CaseHistoryRepository;
 import com.ngocphuoc.crime_report.report.repository.CaseReportRepository;
@@ -35,30 +36,27 @@ public class OfficerCaseAcceptService {
         Authentication authentication,
         Long caseId
     ){
+        // Find case report
         CaseReport caseReport = caseReportRepository.findById(caseId)
                 .orElseThrow(() -> new AppException(ErrorCode.CASE_NOT_FOUND));
 
-        OfficerProfileResponse officerProfileResponse = dispatchClient.getOfficerByUserId(currentUserId);
-
-        // Check permission user
+        // Check permission officer
         officerPermissionService.validateCanViewCase(currentUserId, authentication, caseReport);
 
-        // check status is new_received
-        if (caseReport.getStatus() != CaseStatus.NEW_RECEIVED){
+        CaseStatus oldStatus = caseReport.getStatus();
+        // Check status of case report
+        if (oldStatus != CaseStatus.NEW_RECEIVED){
             throw new AppException(ErrorCode.CASE_STATUS_NOT_ACCEPTABLE);
         }
-
-        // Lock case_report for userId
+        // Lock case report for officer
         CaseLockResponse caseLockResponse = caseLockService.acquireLock(currentUserId, authentication, caseId);
 
-        // Update status NEW_CEIVED -> UNDER_VERIFICATION
-        CaseStatus oldStatus = caseReport.getStatus();
+        // Update status NEW_RECEIVED -> UNDER_VERIFICATION
         caseReport.setStatus(CaseStatus.UNDER_VERIFICATION);
-
         saveHistory(
                 caseReport,
                 currentUserId,
-                officerProfileResponse,
+                caseLockResponse,
                 oldStatus
         );
 
@@ -75,14 +73,14 @@ public class OfficerCaseAcceptService {
     private void saveHistory(
             CaseReport caseReport,
             Long currentUserId,
-            OfficerProfileResponse officerProfile,
+            CaseLockResponse caseLockResponse,
             CaseStatus oldStatus
     ) {
         CaseHistory history = new CaseHistory();
         history.setCaseId(caseReport.getId());
         history.setActorUserId(currentUserId);
-        history.setActorOfficerId(officerProfile.officerId());
-        history.setActorUnitId(officerProfile.unitId());
+        history.setActorOfficerId(caseLockResponse.lockedByOfficerId());
+        history.setActorUnitId(caseLockResponse.lockedByUnitId());
         history.setAction(CaseHistoryAction.CASE_ACCEPTED.name());
         history.setOldStatus(oldStatus.name());
         history.setNewStatus(CaseStatus.UNDER_VERIFICATION.name());

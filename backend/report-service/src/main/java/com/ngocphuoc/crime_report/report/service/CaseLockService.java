@@ -39,27 +39,27 @@ public class CaseLockService {
             Long caseId
     ){
         LocalDateTime now = LocalDateTime.now();
-
         // Get information officer
-        OfficerProfileResponse officerProfileResponse = dispatchClient.getOfficerByUserId(currentUserId);
+        OfficerProfileResponse officerProfileResponse = dispatchClient.getOfficerByUserId(caseId);
 
-        //Get case reportById
+        // Get case report by id
         CaseReport caseReport = caseReportRepository.findByIdForUpdate(caseId)
                 .orElseThrow(() -> new AppException(ErrorCode.CASE_NOT_FOUND));
-
-        // Check role has permission view this case
+        // Validate permission role
         officerPermissionService.validateCanViewCase(currentUserId, authentication, caseReport);
 
         CaseLock caseLock = caseLockRepository.findByCaseIdForUpdate(caseId).orElse(null);
 
-        if (caseLock == null) {
-            CaseLock newLock = new CaseLock();
-            newLock.setCaseId(caseId);
-            setCaseLock(currentUserId, now, officerProfileResponse, newLock);
+        // Check case lock
+        if (caseLock == null){
+            CaseLock newCaseLock = new CaseLock();
+            newCaseLock.setCaseId(caseId);
+            setCaseLock(currentUserId, now, officerProfileResponse, newCaseLock);
 
-            return toResponse(caseLockRepository.save(newLock), currentUserId, now);
+            return toResponse(newCaseLock, currentUserId, now);
         }
 
+        // != null
         if (isActive(caseLock, now)){
             boolean lockedByMe = Objects.equals(caseLock.getLockedByUserId(), currentUserId);
 
@@ -157,7 +157,8 @@ public class CaseLockService {
                 .orElse(null);
     }
 
-    private void setCaseLock(Long currentUserId, LocalDateTime now, OfficerProfileResponse officerProfileResponse, CaseLock caseLock) {
+    private void setCaseLock(Long currentUserId, LocalDateTime now, OfficerProfileResponse officerProfileResponse,
+                             CaseLock caseLock) {
         caseLock.setLockedByUserId(currentUserId);
         caseLock.setLockedByOfficerId(officerProfileResponse.officerId());
         caseLock.setLockedByUnitId(officerProfileResponse.unitId());
@@ -191,5 +192,23 @@ public class CaseLockService {
                 lockedByMe,
                 active
         );
+    }
+
+    @Transactional(readOnly = true)
+    public void validateActiveLockOwnedByUser(Long currentUserId, Long caseId){
+        LocalDateTime now = LocalDateTime.now();
+
+        CaseLock caseLock = caseLockRepository.findByCaseId(caseId)
+                .orElseThrow(() -> new AppException(ErrorCode.LOCK_NOT_FOUD));
+
+        boolean isActive = isActive(caseLock, now);
+
+        if (!isActive){
+            throw new AppException(ErrorCode.CASE_LOCK_EXPIRED);
+        }
+
+        if (!Objects.equals(caseLock.getLockedByUserId(), currentUserId)){
+            throw new AppException(ErrorCode.CASE_ALREADY_LOCKED);
+        }
     }
 }
