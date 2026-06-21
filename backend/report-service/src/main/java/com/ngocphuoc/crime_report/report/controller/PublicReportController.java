@@ -5,6 +5,7 @@ import com.ngocphuoc.crime_report.report.dto.request.CreateReportRequest;
 import com.ngocphuoc.crime_report.report.dto.response.CreateReportResponse;
 import com.ngocphuoc.crime_report.report.dto.response.ReportStatusResponse;
 import com.ngocphuoc.crime_report.report.service.CaseReportService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -36,11 +37,12 @@ public class PublicReportController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<CreateReportResponse> createReport(
             @RequestParam("report") String reportJson,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            HttpServletRequest httpServletRequest
     ) throws Exception {
         CreateReportRequest request = objectMapper.readValue(reportJson, CreateReportRequest.class);
     
-        CreateReportResponse response = caseReportService.createReport(request, files);
+        CreateReportResponse response = caseReportService.createReport(request, files, httpServletRequest);
     
         return ApiResponse.<CreateReportResponse>builder()
                 .message("Tin bao da duoc tiep nhan")

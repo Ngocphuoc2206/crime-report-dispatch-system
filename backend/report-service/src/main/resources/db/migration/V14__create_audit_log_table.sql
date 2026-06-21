@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS audit_log (
     note VARCHAR(500) NULL,
     ip_address VARCHAR(100) NULL,
     user_agent VARCHAR(500) NULL,
-    detail TEXT NULL;
+    detail TEXT NULL,
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     );

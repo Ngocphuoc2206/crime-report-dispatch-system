@@ -1,10 +1,16 @@
 package com.ngocphuoc.crime_report.identity.service;
 
+import com.ngocphuoc.crime_report.enums.AuditAction;
+import com.ngocphuoc.crime_report.enums.AuditResourceType;
 import com.ngocphuoc.crime_report.identity.dto.EncryptionResult;
 import com.ngocphuoc.crime_report.report.dto.request.CreateReportRequest;
+import com.ngocphuoc.crime_report.report.dto.response.AuditLogCommand;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
 import com.ngocphuoc.crime_report.identity.entity.ReporterIdentity;
 import com.ngocphuoc.crime_report.identity.repository.ReporterIdentityRepository;
+import com.ngocphuoc.crime_report.report.service.AuditLogService;
+import com.ngocphuoc.crime_report.report.service.AuditRequestMetadataResolver;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,8 +25,14 @@ public class ReporterIdentityService {
     private final ReporterIdentityRepository reporterIdentityRepository;
     private final EncryptionService encryptionService;
     private final ObjectMapper objectMapper;
+    private final AuditLogService auditLogService;
+    private final AuditRequestMetadataResolver auditRequestMetadataResolver;
 
-    public void saveEncryptedReporterIdentity(CaseReport caseReport, CreateReportRequest request){
+    public void saveEncryptedReporterIdentity(
+            CaseReport caseReport,
+            CreateReportRequest request,
+            HttpServletRequest httpServletRequest
+    ){
         log.info("[INFO] Process save encrypt reporter identity...");
         // Check user is anonymous
         if (!hasReporterInfo(request)){
@@ -42,7 +54,22 @@ public class ReporterIdentityService {
         reporterIdentity.setIv(encryptionResult.iv());
         reporterIdentity.setEncryptionKeyVersion(encryptionResult.keyVersion());
 
-        reporterIdentityRepository.save(reporterIdentity);
+        ReporterIdentity savedIdentity = reporterIdentityRepository.save(reporterIdentity);
+
+        auditLogService.writeLog(new AuditLogCommand(
+                null,
+                "PUBLIC",
+                AuditAction.REPORTER_IDENTITY_ENCRYPTED,
+                AuditResourceType.REPORTER_IDENTITY,
+                savedIdentity.getId(),
+                null,
+                null,
+                "Reporter identity was encrypted and stored",
+                auditRequestMetadataResolver.getIpAddress(httpServletRequest),
+                auditRequestMetadataResolver.getUserAgent(httpServletRequest),
+                "caseId=" + caseReport.getId()
+                        + ", fields=reporterName,reporterPhone,reporterEmail,reporterAddress"
+        ));
     }
 
     private String toReporterJson(CreateReportRequest request){
