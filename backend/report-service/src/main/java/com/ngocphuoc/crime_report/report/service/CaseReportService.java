@@ -9,6 +9,7 @@ import com.ngocphuoc.crime_report.report.dto.request.UrgencyScoreRequest;
 import com.ngocphuoc.crime_report.report.dto.response.CreateReportResponse;
 import com.ngocphuoc.crime_report.report.dto.response.InternalReportLookupResponse;
 import com.ngocphuoc.crime_report.report.dto.response.ReportStatusResponse;
+import com.ngocphuoc.crime_report.report.dto.response.SmartDispatchResponse;
 import com.ngocphuoc.crime_report.report.dto.response.UrgencyScoreResponse;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
 import com.ngocphuoc.crime_report.crimecatalog.entity.CrimeType;
@@ -19,15 +20,16 @@ import com.ngocphuoc.crime_report.crimecatalog.repository.CrimeTypeRepository;
 import com.ngocphuoc.crime_report.identity.service.ReporterIdentityService;
 import com.ngocphuoc.crime_report.shared.exception.AppException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CaseReportService {
     private final CaseReportRepository caseReportRepository;
     private final CrimeTypeRepository crimeTypeRepository;
@@ -37,61 +39,67 @@ public class CaseReportService {
     private final EvidenceClient evidenceClient;
     private final EvidenceFileInspector evidenceFileInspector;
     private final DispatchClient dispatchClient;
-    private final TransactionTemplate transactionTemplate;
 
+    @Transactional
     public CreateReportResponse createReport(CreateReportRequest request, List<MultipartFile> files){
-        CaseReport saved = transactionTemplate.execute(status -> {
-            CrimeType crimeType = crimeTypeRepository.findById(request.crimeTypeId())
-                    .orElseThrow(() -> new AppException(ErrorCode.CRIME_NOT_FOUND));
+        log.info("[INFO] Process creating report.....");
+        log.info("[INFO] Size evidence files {}", files.size());
+        CrimeType crimeType = crimeTypeRepository.findById(request.crimeTypeId())
+                .orElseThrow(() -> new AppException(ErrorCode.CRIME_NOT_FOUND));
 
-            if (!Boolean.TRUE.equals(crimeType.getIsActive())){
-                throw new AppException(ErrorCode.CRIME_NOT_ACTIVE);
-            }
-
-            CaseReport caseReport = new CaseReport();
-
-            caseReport.setTrackingCode(trackingCodeGenerator.generate());
-            caseReport.setCrimeType(crimeType);
-            caseReport.setDescription(request.description());
-            caseReport.setIncidentTime(request.incidentTime());
-            caseReport.setIsHappeningNow(request.isHappeningNow());
-            caseReport.setHasWeapon(request.hasWeapon());
-            caseReport.setHasInjuredPerson(request.hasInjuredPerson());
-            caseReport.setLatitude(request.latitude());
-            caseReport.setLongitude(request.longitude());
-            caseReport.setAddressText(request.addressText());
-
-            caseReport.setStatus(CaseStatus.NEW_RECEIVED);
-
-            // Calculate follow request
-            UrgencyScoreResponse urgencyScoreResponse = urgencyClient.calculateScore(
-                    new UrgencyScoreRequest(
-                            crimeType.getBaseScore() == null ? 0 : crimeType.getBaseScore(),
-                            request.hasWeapon(),
-                            request.isHappeningNow(),
-                            request.hasInjuredPerson(),
-                            evidenceFileInspector.hasVideoEvidence(files)
-                    )
-            );
-
-            caseReport.setUrgencyScore(urgencyScoreResponse.score());
-            caseReport.setUrgencyLevel(UrgencyLevel.valueOf(urgencyScoreResponse.level()));
-
-            CaseReport persisted = caseReportRepository.save(caseReport);
-            reporterIdentityService.saveEncryptedReporterIdentity(persisted, request);
-
-            return persisted;
-        });
-
-        if (saved == null) {
-            throw new IllegalStateException("Failed to create case report");
+        if (!Boolean.TRUE.equals(crimeType.getIsActive())){
+            throw new AppException(ErrorCode.CRIME_NOT_ACTIVE);
         }
 
-        // Add file evidence
-        evidenceClient.uploadEvidence(saved.getTrackingCode(), files);
+        CaseReport caseReport = new CaseReport();
 
-        // After created case report then create dispatch smart
-        dispatchClient.smartDispatch(saved.getId(), saved.getLatitude(), saved.getLongitude());
+        caseReport.setTrackingCode(trackingCodeGenerator.generate());
+        caseReport.setCrimeType(crimeType);
+        caseReport.setDescription(request.description());
+        caseReport.setIncidentTime(request.incidentTime());
+        caseReport.setIsHappeningNow(request.isHappeningNow());
+        caseReport.setHasWeapon(request.hasWeapon());
+        caseReport.setHasInjuredPerson(request.hasInjuredPerson());
+        caseReport.setLatitude(request.latitude());
+        caseReport.setLongitude(request.longitude());
+        caseReport.setAddressText(request.addressText());
+
+        caseReport.setStatus(CaseStatus.NEW_RECEIVED);
+
+        // Calculate follow request
+        UrgencyScoreResponse urgencyScoreResponse = urgencyClient.calculateScore(
+                new UrgencyScoreRequest(
+                        crimeType.getBaseScore() == null ? 0 : crimeType.getBaseScore(),
+                        request.hasWeapon(),
+                        request.isHappeningNow(),
+                        request.hasInjuredPerson(),
+                        evidenceFileInspector.hasVideoEvidence(files)
+                )
+        );
+
+        caseReport.setUrgencyScore(urgencyScoreResponse.score());
+        caseReport.setUrgencyLevel(UrgencyLevel.valueOf(urgencyScoreResponse.level()));
+
+        CaseReport saved = caseReportRepository.save(caseReport);
+        reporterIdentityService.saveEncryptedReporterIdentity(saved, request);
+
+        try{
+            // After created case report then create dispatch smart
+            SmartDispatchResponse dispatchResponse =
+                    dispatchClient.smartDispatch(saved.getId(), saved.getLatitude(), saved.getLongitude());
+            saved.setAssignedUnitId(dispatchResponse.assignedUnitId());
+            saved.setAssignedOfficerId(dispatchResponse.assignedOfficerId());
+
+            // Upload files evidence
+            if (!files.isEmpty()) {
+                evidenceClient.uploadEvidence(saved.getTrackingCode(), files);
+            }
+
+        } catch (Exception e){
+            log.error("[ERROR] Lỗi gọi dịch vụ ngoài (Dispatch/Evidence), kích hoạt Rollback dữ liệu. Chi tiết: ", e);
+            throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR.getCode(),
+                    "Không thể điều phối đơn vị hoặc tải bằng chứng: " + e.getMessage());
+        }
 
         return new CreateReportResponse(
                 saved.getId(),

@@ -29,6 +29,7 @@ public class NearestPoliceUnitService {
             double incidentLongitude,
             int limit
     ){
+        // Haversine distance
         validateCoordinate(incidentLatitude, incidentLongitude);
         int safeLimit = normalizeLimit(limit);
 

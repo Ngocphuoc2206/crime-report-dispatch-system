@@ -380,7 +380,10 @@ Lưu khóa hồ sơ tạm thời.
 case_lock
 - id
 - case_id
-- locked_by
+- locked_by_user
+- locked_by_officer_id
+- locked_by_unit_id
+- locked_status
 - locked_until
 - lock_reason
 - created_at

@@ -23,6 +23,7 @@ public class ProxyController {
     private static final List<String> HOP_BY_HOP_HEADERS = List.of(
             "connection",
             "content-length",
+            "expect",
             "host",
             "transfer-encoding"
     );
@@ -55,7 +56,12 @@ public class ProxyController {
             "/api/public/reports",
             "/api/public/reports/{trackingCode}/status",
             "/api/public/crime-types",
-            "/api/officer/reports/**"
+
+            "/api/officer/reports/**",
+            "/api/officer/cases",
+            "/api/officer/cases/**",
+
+            "/api/internal/reports/**"
     })
     public ResponseEntity<byte[]> reports(HttpServletRequest request) throws Exception {
         return forward(request, reportServiceUrl);

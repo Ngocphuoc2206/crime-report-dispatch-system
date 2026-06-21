@@ -27,7 +27,7 @@ public class SecurityConfig {
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(new JwtTokenVerifier(jwtSecret));
 
         InternalTokenAuthenticationFilter internalTokenAuthenticationFilter =
-                new InternalTokenAuthenticationFilter(internalToken, List.of("/api/dispatch/**"));
+                new InternalTokenAuthenticationFilter(internalToken, List.of("/api/internal/**", "/api/dispatch/**"));
 
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
@@ -35,6 +35,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/api/health", "/api/health/**").permitAll()
+                        .requestMatchers("/api/internal/**").hasRole("INTERNAL_SERVICE")
                         .requestMatchers("/api/dispatch/**").hasAnyRole("INTERNAL_SERVICE", "ADMIN")
                         .anyRequest().authenticated()
                 )
