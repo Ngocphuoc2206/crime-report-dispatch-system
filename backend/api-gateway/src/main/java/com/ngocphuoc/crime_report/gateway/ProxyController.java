@@ -13,13 +13,13 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
 @RestController
 public class ProxyController {
+    private static final String X_FORWARDED_FOR = "X-Forwarded-For";
     private static final List<String> HOP_BY_HOP_HEADERS = List.of(
             "connection",
             "content-length",
@@ -100,11 +100,14 @@ public class ProxyController {
                 .timeout(Duration.ofSeconds(30));
 
         Collections.list(request.getHeaderNames()).forEach(headerName -> {
-            if (!HOP_BY_HOP_HEADERS.contains(headerName.toLowerCase())) {
+            if (!HOP_BY_HOP_HEADERS.contains(headerName.toLowerCase())
+                    && !X_FORWARDED_FOR.equalsIgnoreCase(headerName)) {
                 Collections.list(request.getHeaders(headerName))
                         .forEach(headerValue -> requestBuilder.header(headerName, headerValue));
             }
         });
+
+        requestBuilder.header(X_FORWARDED_FOR, request.getRemoteAddr());
 
         requestBuilder.method(
                 request.getMethod(),

@@ -1,0 +1,13 @@
+package com.ngocphuoc.crime_report.enums;
+
+public enum AuditAction {
+    CASE_CREATED,
+    CASE_ASSIGNED,
+    CASE_ACCEPTED,
+    CASE_LOCKED,
+    CASE_UNLOCKED,
+    CASE_STATUS_CHANGED,
+    REPORTER_IDENTITY_ENCRYPTED,
+    REPORTER_IDENTITY_DECRYPTED,
+    URGENCY_SCORE_CALCULATED
+}
