@@ -1,18 +1,20 @@
 package com.ngocphuoc.crime_report.report.service;
 
 import com.ngocphuoc.crime_report.common.ErrorCode;
+import com.ngocphuoc.crime_report.enums.AuditAction;
+import com.ngocphuoc.crime_report.enums.AuditResourceType;
 import com.ngocphuoc.crime_report.enums.CaseHistoryAction;
 import com.ngocphuoc.crime_report.enums.CaseStatus;
-import com.ngocphuoc.crime_report.report.client.dispatch.DispatchClient;
 import com.ngocphuoc.crime_report.report.dto.response.AcceptCaseResponse;
+import com.ngocphuoc.crime_report.report.dto.response.AuditLogCommand;
 import com.ngocphuoc.crime_report.report.dto.response.CaseLockResponse;
-import com.ngocphuoc.crime_report.report.dto.response.OfficerProfileResponse;
 import com.ngocphuoc.crime_report.report.entity.CaseHistory;
-import com.ngocphuoc.crime_report.report.entity.CaseLock;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
+import com.ngocphuoc.crime_report.report.helper.GetFirstRole;
 import com.ngocphuoc.crime_report.report.repository.CaseHistoryRepository;
 import com.ngocphuoc.crime_report.report.repository.CaseReportRepository;
 import com.ngocphuoc.crime_report.shared.exception.AppException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -28,13 +30,16 @@ public class OfficerCaseAcceptService {
     private final CaseHistoryRepository caseHistoryRepository;
     private final OfficerPermissionService officerPermissionService;
     private final CaseLockService caseLockService;
-    private final DispatchClient dispatchClient;
+    private final AuditLogService auditLogService;
+    private final AuditRequestMetadataResolver auditRequestMetadataResolver;
+    private final GetFirstRole getRoleService;
 
     @Transactional
     public AcceptCaseResponse acceptCase(
         Long currentUserId,
         Authentication authentication,
-        Long caseId
+        Long caseId,
+        HttpServletRequest httpServletRequest
     ){
         // Find case report
         CaseReport caseReport = caseReportRepository.findById(caseId)
@@ -49,7 +54,8 @@ public class OfficerCaseAcceptService {
             throw new AppException(ErrorCode.CASE_STATUS_NOT_ACCEPTABLE);
         }
         // Lock case report for officer
-        CaseLockResponse caseLockResponse = caseLockService.acquireLock(currentUserId, authentication, caseId);
+        CaseLockResponse caseLockResponse = caseLockService
+                .acquireLock(currentUserId, authentication, caseId, httpServletRequest);
 
         // Update status NEW_RECEIVED -> UNDER_VERIFICATION
         caseReport.setStatus(CaseStatus.UNDER_VERIFICATION);
@@ -59,6 +65,22 @@ public class OfficerCaseAcceptService {
                 caseLockResponse,
                 oldStatus
         );
+
+        // Write Audit Log
+        auditLogService.writeLog(new AuditLogCommand(
+                currentUserId,
+                getRoleService.getFirstRole(authentication),
+                AuditAction.CASE_ACCEPTED,
+                AuditResourceType.CASE_REPORT,
+                caseReport.getId(),
+                oldStatus.name(),
+                CaseStatus.UNDER_VERIFICATION.name(),
+                "Officer accepted case",
+                auditRequestMetadataResolver.getIpAddress(httpServletRequest),
+                auditRequestMetadataResolver.getUserAgent(httpServletRequest),
+                "officerId=" + caseLockResponse.lockedByOfficerId()
+                        + ", unitId=" + caseLockResponse.lockedByUnitId()
+        ));
 
         return new AcceptCaseResponse(
                 caseReport.getId(),

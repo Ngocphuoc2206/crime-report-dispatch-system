@@ -1,15 +1,20 @@
 package com.ngocphuoc.crime_report.report.service;
 
 import com.ngocphuoc.crime_report.common.ErrorCode;
+import com.ngocphuoc.crime_report.enums.AuditAction;
+import com.ngocphuoc.crime_report.enums.AuditResourceType;
 import com.ngocphuoc.crime_report.enums.CaseLockStatus;
 import com.ngocphuoc.crime_report.report.client.dispatch.DispatchClient;
+import com.ngocphuoc.crime_report.report.dto.response.AuditLogCommand;
 import com.ngocphuoc.crime_report.report.dto.response.CaseLockResponse;
 import com.ngocphuoc.crime_report.report.dto.response.OfficerProfileResponse;
 import com.ngocphuoc.crime_report.report.entity.CaseLock;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
+import com.ngocphuoc.crime_report.report.helper.GetFirstRole;
 import com.ngocphuoc.crime_report.report.repository.CaseLockRepository;
 import com.ngocphuoc.crime_report.report.repository.CaseReportRepository;
 import com.ngocphuoc.crime_report.shared.exception.AppException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +33,9 @@ public class CaseLockService {
     private final CaseReportRepository caseReportRepository;
     private final DispatchClient dispatchClient;
     private final OfficerPermissionService officerPermissionService;
+    private final AuditLogService auditLogService;
+    private final GetFirstRole getRoleService;
+    private final AuditRequestMetadataResolver auditRequestMetadataResolver;
 
     @Value("${app.case-lock.ttl-minutes}")
     private long ttlMinutes;
@@ -36,11 +44,12 @@ public class CaseLockService {
     public CaseLockResponse acquireLock(
             Long currentUserId,
             Authentication authentication,
-            Long caseId
+            Long caseId,
+            HttpServletRequest httpServletRequest
     ){
         LocalDateTime now = LocalDateTime.now();
         // Get information officer
-        OfficerProfileResponse officerProfileResponse = dispatchClient.getOfficerByUserId(caseId);
+        OfficerProfileResponse officerProfileResponse = dispatchClient.getOfficerByUserId(currentUserId);
 
         // Get case report by id
         CaseReport caseReport = caseReportRepository.findByIdForUpdate(caseId)
@@ -55,6 +64,8 @@ public class CaseLockService {
             CaseLock newCaseLock = new CaseLock();
             newCaseLock.setCaseId(caseId);
             setCaseLock(currentUserId, now, officerProfileResponse, newCaseLock);
+            caseLockRepository.save(newCaseLock);
+            writeLockAudit(currentUserId, authentication, caseId, httpServletRequest, newCaseLock);
 
             return toResponse(newCaseLock, currentUserId, now);
         }
@@ -76,6 +87,8 @@ public class CaseLockService {
 
         setCaseLock(currentUserId, now, officerProfileResponse, caseLock);
         caseLockRepository.save(caseLock);
+
+        writeLockAudit(currentUserId, authentication, caseId, httpServletRequest, caseLock);
         return toResponse(caseLock, currentUserId, now);
     }
 
@@ -118,7 +131,8 @@ public class CaseLockService {
     public void releaseLock(
             Long currentUserId,
             Authentication authentication,
-            Long caseId
+            Long caseId,
+            HttpServletRequest httpServletRequest
     ){
         LocalDateTime now = LocalDateTime.now();
 
@@ -138,9 +152,25 @@ public class CaseLockService {
             throw new AppException(ErrorCode.CASE_LOCK_OWNER_REQUIRED);
         }
 
+        CaseLockStatus oldLockStatus = caseLock.getLockStatus();
         caseLock.setLockStatus(CaseLockStatus.RELEASED);
         caseLock.setReleasedAt(now);
         caseLock.setExpiresAt(now);
+
+        auditLogService.writeLog(new AuditLogCommand(
+                currentUserId,
+                getRoleService.getFirstRole(authentication),
+                AuditAction.CASE_UNLOCKED,
+                AuditResourceType.CASE_REPORT,
+                caseId,
+                oldLockStatus.name(),
+                CaseLockStatus.RELEASED.name(),
+                "Officer released case lock",
+                auditRequestMetadataResolver.getIpAddress(httpServletRequest),
+                auditRequestMetadataResolver.getUserAgent(httpServletRequest),
+                "officerId=" + caseLock.getLockedByOfficerId()
+                        + ", releasedAt=" + now
+        ));
     }
 
     @Transactional
@@ -166,6 +196,30 @@ public class CaseLockService {
         caseLock.setLockedAt(now);
         caseLock.setExpiresAt(now.plusMinutes(ttlMinutes));
         caseLock.setReleasedAt(null);
+    }
+
+    private void writeLockAudit(
+            Long currentUserId,
+            Authentication authentication,
+            Long caseId,
+            HttpServletRequest httpServletRequest,
+            CaseLock caseLock
+    ) {
+        auditLogService.writeLog(new AuditLogCommand(
+                currentUserId,
+                getRoleService.getFirstRole(authentication),
+                AuditAction.CASE_LOCKED,
+                AuditResourceType.CASE_REPORT,
+                caseId,
+                null,
+                CaseLockStatus.ACTIVE.name(),
+                "Officer locked case",
+                auditRequestMetadataResolver.getIpAddress(httpServletRequest),
+                auditRequestMetadataResolver.getUserAgent(httpServletRequest),
+                "officerId=" + caseLock.getLockedByOfficerId()
+                        + ", unitId=" + caseLock.getLockedByUnitId()
+                        + ", expiresAt=" + caseLock.getExpiresAt()
+        ));
     }
 
     private boolean isActive(CaseLock caseLock, LocalDateTime now) {

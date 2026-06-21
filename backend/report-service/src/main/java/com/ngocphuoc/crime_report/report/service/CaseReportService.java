@@ -1,16 +1,14 @@
 package com.ngocphuoc.crime_report.report.service;
 
 import com.ngocphuoc.crime_report.common.ErrorCode;
+import com.ngocphuoc.crime_report.enums.AuditAction;
+import com.ngocphuoc.crime_report.enums.AuditResourceType;
 import com.ngocphuoc.crime_report.report.client.dispatch.DispatchClient;
 import com.ngocphuoc.crime_report.report.client.evidence.EvidenceClient;
 import com.ngocphuoc.crime_report.report.client.urgency.UrgencyClient;
 import com.ngocphuoc.crime_report.report.dto.request.CreateReportRequest;
 import com.ngocphuoc.crime_report.report.dto.request.UrgencyScoreRequest;
-import com.ngocphuoc.crime_report.report.dto.response.CreateReportResponse;
-import com.ngocphuoc.crime_report.report.dto.response.InternalReportLookupResponse;
-import com.ngocphuoc.crime_report.report.dto.response.ReportStatusResponse;
-import com.ngocphuoc.crime_report.report.dto.response.SmartDispatchResponse;
-import com.ngocphuoc.crime_report.report.dto.response.UrgencyScoreResponse;
+import com.ngocphuoc.crime_report.report.dto.response.*;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
 import com.ngocphuoc.crime_report.crimecatalog.entity.CrimeType;
 import com.ngocphuoc.crime_report.enums.CaseStatus;
@@ -19,8 +17,10 @@ import com.ngocphuoc.crime_report.report.repository.CaseReportRepository;
 import com.ngocphuoc.crime_report.crimecatalog.repository.CrimeTypeRepository;
 import com.ngocphuoc.crime_report.identity.service.ReporterIdentityService;
 import com.ngocphuoc.crime_report.shared.exception.AppException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,9 +39,15 @@ public class CaseReportService {
     private final EvidenceClient evidenceClient;
     private final EvidenceFileInspector evidenceFileInspector;
     private final DispatchClient dispatchClient;
+    private final AuditLogService auditLogService;
+    private final AuditRequestMetadataResolver auditRequestMetadataResolver;
 
     @Transactional
-    public CreateReportResponse createReport(CreateReportRequest request, List<MultipartFile> files){
+    public CreateReportResponse createReport(
+            CreateReportRequest request,
+            List<MultipartFile> files,
+            HttpServletRequest httpServletRequest
+    ){
         log.info("[INFO] Process creating report.....");
         log.info("[INFO] Size evidence files {}", files.size());
         CrimeType crimeType = crimeTypeRepository.findById(request.crimeTypeId())
@@ -81,7 +87,22 @@ public class CaseReportService {
         caseReport.setUrgencyLevel(UrgencyLevel.valueOf(urgencyScoreResponse.level()));
 
         CaseReport saved = caseReportRepository.save(caseReport);
-        reporterIdentityService.saveEncryptedReporterIdentity(saved, request);
+
+        auditLogService.writeLog(new AuditLogCommand(
+                null,
+                "PUBLIC",
+                AuditAction.URGENCY_SCORE_CALCULATED,
+                AuditResourceType.CASE_REPORT,
+                saved.getId(),
+                null,
+                String.valueOf(saved.getUrgencyScore()),
+                "Urgency score calculated for case report",
+                auditRequestMetadataResolver.getIpAddress(httpServletRequest),
+                auditRequestMetadataResolver.getUserAgent(httpServletRequest),
+                "urgencyLevel=" + saved.getUrgencyLevel().name()
+        ));
+
+        reporterIdentityService.saveEncryptedReporterIdentity(saved, request, httpServletRequest);
 
         try{
             // After created case report then create dispatch smart
@@ -94,6 +115,20 @@ public class CaseReportService {
             if (!files.isEmpty()) {
                 evidenceClient.uploadEvidence(saved.getTrackingCode(), files);
             }
+
+            auditLogService.writeLog(new AuditLogCommand(
+                    null,
+                    "PUBLIC",
+                    AuditAction.CASE_CREATED,
+                    AuditResourceType.CASE_REPORT,
+                    saved.getId(),
+                    null,
+                    saved.getStatus().name(),
+                    "Citizen created a new case report",
+                    auditRequestMetadataResolver.getIpAddress(httpServletRequest),
+                    auditRequestMetadataResolver.getUserAgent(httpServletRequest),
+                    "trackingCode=" + saved.getTrackingCode()
+            ));
 
         } catch (Exception e){
             log.error("[ERROR] Lỗi gọi dịch vụ ngoài (Dispatch/Evidence), kích hoạt Rollback dữ liệu. Chi tiết: ", e);
@@ -141,10 +176,25 @@ public class CaseReportService {
     public void updateAssignment(
             Long caseId,
             Long assignedUnitId,
-            Long assignedOfficerId
+            Long assignedOfficerId,
+            HttpServletRequest httpServletRequest
     ) {
         CaseReport caseReport = caseReportRepository.findById(caseId)
                 .orElseThrow(() -> new AppException(ErrorCode.CASE_NOT_FOUND));
+
+        auditLogService.writeLog(new AuditLogCommand(
+                null,
+                "INTERNAL_SERVICE",
+                AuditAction.CASE_ASSIGNED,
+                AuditResourceType.CASE_REPORT,
+                caseReport.getId(),
+                "unit=" + caseReport.getAssignedUnitId() + ", officer=" + caseReport.getAssignedOfficerId(),
+                "unit=" + assignedUnitId + ", officer=" + assignedOfficerId,
+                "Case assigned by smart dispatch service",
+                auditRequestMetadataResolver.getIpAddress(httpServletRequest),
+                auditRequestMetadataResolver.getUserAgent(httpServletRequest),
+                "source=dispatch-service"
+        ));
 
         caseReport.setAssignedUnitId(assignedUnitId);
         caseReport.setAssignedOfficerId(assignedOfficerId);
