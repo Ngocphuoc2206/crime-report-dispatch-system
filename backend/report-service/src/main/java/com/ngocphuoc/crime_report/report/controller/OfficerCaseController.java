@@ -12,6 +12,7 @@ import com.ngocphuoc.crime_report.report.service.OfficerCaseDetailService;
 import com.ngocphuoc.crime_report.report.service.OfficerCaseQueryService;
 import com.ngocphuoc.crime_report.report.service.OfficerCaseStatusService;
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -78,7 +79,8 @@ public class OfficerCaseController {
     public ApiResponse<UpdateCaseStatusResponse> updateCaseStatus(
             @PathVariable Long caseId,
             @Valid @RequestBody UpdateCaseStatusRequest request,
-            Authentication authentication
+            Authentication authentication,
+            HttpServletRequest httpServletRequest
     ) {
         Long currentUserId = Long.valueOf(authentication.getName());
 
@@ -87,7 +89,8 @@ public class OfficerCaseController {
                         currentUserId,
                         authentication,
                         caseId,
-                        request
+                        request,
+                        httpServletRequest
                 ))
                 .build();
     }
@@ -95,7 +98,8 @@ public class OfficerCaseController {
     @PostMapping("/{caseId}/accept")
     public ApiResponse<AcceptCaseResponse> acceptCase(
             @PathVariable Long caseId,
-            Authentication authentication
+            Authentication authentication,
+            HttpServletRequest httpServletRequest
     ) {
         Long currentUserId = Long.valueOf(authentication.getName());
 
@@ -103,7 +107,8 @@ public class OfficerCaseController {
                 .data(officerCaseAcceptService.acceptCase(
                         currentUserId,
                         authentication,
-                        caseId
+                        caseId,
+                        httpServletRequest
                 ))
                 .build();
     }

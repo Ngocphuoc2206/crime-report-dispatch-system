@@ -1,25 +1,27 @@
 package com.ngocphuoc.crime_report.report.service;
 
 import com.ngocphuoc.crime_report.common.ErrorCode;
+import com.ngocphuoc.crime_report.enums.AuditAction;
+import com.ngocphuoc.crime_report.enums.AuditResourceType;
 import com.ngocphuoc.crime_report.enums.CaseStatus;
 import com.ngocphuoc.crime_report.report.client.dispatch.DispatchClient;
 import com.ngocphuoc.crime_report.report.dto.request.UpdateCaseStatusRequest;
+import com.ngocphuoc.crime_report.report.dto.response.AuditLogCommand;
 import com.ngocphuoc.crime_report.report.dto.response.OfficerProfileResponse;
 import com.ngocphuoc.crime_report.report.dto.response.UpdateCaseStatusResponse;
-import com.ngocphuoc.crime_report.report.entity.AuditLog;
 import com.ngocphuoc.crime_report.report.entity.CaseHistory;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
-import com.ngocphuoc.crime_report.report.repository.AuditLogRepository;
 import com.ngocphuoc.crime_report.report.repository.CaseHistoryRepository;
 import com.ngocphuoc.crime_report.report.repository.CaseReportRepository;
 import com.ngocphuoc.crime_report.shared.exception.AppException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -34,14 +36,17 @@ public class OfficerCaseStatusService {
     private final CaseStatusStateMachine caseStatusStateMachine;
     private final DispatchClient dispatchClient;
     private final CaseHistoryRepository caseHistoryRepository;
-    private final AuditLogRepository auditLogRepository;
+    private final AuditLogService auditLogService;
+    private final AuditRequestMetadataResolver auditRequestMetadataResolver;
 
+    @Transactional
     public UpdateCaseStatusResponse updateStatus(
             Long currentUserId,
             Authentication authentication,
             Long caseId,
-            UpdateCaseStatusRequest updateCaseStatusRequest)
-    {
+            UpdateCaseStatusRequest updateCaseStatusRequest,
+            HttpServletRequest httpServletRequest
+    ) {
         // Find caseReportById
         CaseReport caseReport = caseReportRepository.findById(caseId)
                 .orElseThrow(() -> new AppException(ErrorCode.CASE_NOT_FOUND));
@@ -74,14 +79,23 @@ public class OfficerCaseStatusService {
                 updateCaseStatusRequest.note()
         );
 
-        saveAuditLog(
+        // Save auditLog
+        auditLogService.writeLog(
+                new AuditLogCommand(
                 currentUserId,
-                authentication,
-                caseReport.getId(),
-                oldStatus,
-                newStatus,
-                updateCaseStatusRequest.note()
+                getFirstRole(authentication),
+                AuditAction.CASE_STATUS_CHANGED,
+                AuditResourceType.CASE_REPORT,
+                caseId,
+                oldStatus.name(),
+                newStatus.name(),
+                updateCaseStatusRequest.note(),
+                auditRequestMetadataResolver.getIpAddress(httpServletRequest),
+                auditRequestMetadataResolver.getUserAgent(httpServletRequest),
+                "trackingCode=" + caseReport.getTrackingCode()
+                )
         );
+
         return new UpdateCaseStatusResponse(
                 caseReport.getId(),
                 caseReport.getTrackingCode(),
@@ -111,27 +125,6 @@ public class OfficerCaseStatusService {
         history.setNote(note);
 
         caseHistoryRepository.save(history);
-    }
-
-    private void saveAuditLog(
-            Long currentUserId,
-            Authentication authentication,
-            Long caseId,
-            CaseStatus oldStatus,
-            CaseStatus newStatus,
-            String note
-    ) {
-        AuditLog auditLog = new AuditLog();
-        auditLog.setActorUserId(currentUserId);
-        auditLog.setActorRole(getFirstRole(authentication));
-        auditLog.setAction("CASE_STATUS_CHANGED");
-        auditLog.setResourceType("CASE_REPORT");
-        auditLog.setResourceId(caseId);
-        auditLog.setOldValue(oldStatus.name());
-        auditLog.setNewValue(newStatus.name());
-        auditLog.setNote(note);
-
-        auditLogRepository.save(auditLog);
     }
 
     private void validateRoleTransition(Authentication authentication, CaseStatus oldStatus, CaseStatus newStatus) {

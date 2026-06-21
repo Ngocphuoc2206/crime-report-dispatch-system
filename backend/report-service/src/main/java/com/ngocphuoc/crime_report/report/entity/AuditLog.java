@@ -40,6 +40,15 @@ public class AuditLog {
     @Column(length = 500)
     private String note;
 
+    @Column(name = "ip_address", length = 100)
+    private String ipAddress;
+
+    @Column(name = "user_agent", length = 500)
+    private String userAgent;
+
+    @Column(columnDefinition = "TEXT")
+    private String detail;
+
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private LocalDateTime createdAt;
 }
