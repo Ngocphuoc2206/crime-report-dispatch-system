@@ -11,4 +11,8 @@ public interface OfficerRepository extends JpaRepository<Officer, Long> {
     Optional<Officer> findByUserId(Long userId);
 
     List<Officer> findByOfficerStatusOrderByIdAsc(OfficerStatus officerStatus);
+
+    boolean existsByUserId(Long userId);
+
+    boolean existsByBadgeNumberIgnoreCase(String badgeNumber);
 }
