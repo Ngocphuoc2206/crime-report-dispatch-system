@@ -73,4 +73,8 @@ public interface CaseReportRepository extends JpaRepository<CaseReport, Long> {
             @Param("urgencyLevel") UrgencyLevel urgencyLevel,
             Pageable pageable
     );
+
+    long countByStatus(CaseStatus status);
+
+    long countByUrgencyLevel(UrgencyLevel urgencyLevel);
 }
