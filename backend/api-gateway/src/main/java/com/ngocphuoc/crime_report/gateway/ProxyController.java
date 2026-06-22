@@ -68,6 +68,9 @@ public class ProxyController {
             "/api/admin/crime-types",
             "/api/admin/crime-types/**",
 
+            "/api/commander/dashboard",
+            "/api/commander/dashboard/**",
+
             "/api/internal/reports/**"
     })
     public ResponseEntity<byte[]> reports(HttpServletRequest request) throws Exception {
