@@ -1,4 +1,4 @@
-package com.ngocphuoc.crime_report.urgency.dto;
+package com.ngocphuoc.crime_report.urgency.dto.request;
 
 public record UrgencyScoreRequest(
         Integer baseScore,

@@ -78,7 +78,11 @@ public class ProxyController {
         return forward(request, evidenceServiceUrl);
     }
 
-    @RequestMapping("/api/urgency/**")
+    @RequestMapping({
+        "/api/urgency/**",
+        "/api/admin/urgency-rules",
+        "/api/admin/urgency-rules/**"
+    })
     public ResponseEntity<byte[]> urgency(HttpServletRequest request) throws Exception {
         return forward(request, urgencyServiceUrl);
     }
