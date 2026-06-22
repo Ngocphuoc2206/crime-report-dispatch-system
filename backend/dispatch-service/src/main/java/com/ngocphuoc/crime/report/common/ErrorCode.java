@@ -5,18 +5,34 @@ import lombok.Getter;
 @Getter
 public enum ErrorCode implements com.ngocphuoc.crime_report.shared.error.ErrorCode {
     // EVIDENCE
-    EVIDENCE_NOT_FOUND("EVIDENCE_1006", "Evidence not found"),
+    EVIDENCE_NOT_FOUND("DISPATCH_1001", "Evidence not found"),
 
     // DISPATCH
-    LATITUDE_NOT_SUITABLE("DISPATCH_1001", "Latitude is between -90 and 90"),
-    LONGITUDE_NOT_SUITABLE("DISPATCH_1002", "Longitude is between -180 and 180"),
-    NO_POLICE_UNIT_FOUND_NEARBY("DISPATCH_1003", "No active police unit with location found"),
+    LATITUDE_NOT_SUITABLE("DISPATCH_1002", "Latitude is between -90 and 90"),
+    LONGITUDE_NOT_SUITABLE("DISPATCH_1003", "Longitude is between -180 and 180"),
+    NO_POLICE_UNIT_FOUND_NEARBY("DISPATCH_1004", "No active police unit with location found"),
 
     // Case
-    CASE_ID_REQUIRED("CASE_1001", "CaseId is required"),
-    CASE_ALREADY_DISPATCHED("CASE_1002","Case have already dispatched" ),
-    NO_AVAILABLE_OFFICER("CASE_1003", "Officer is not available"),
-    OFFICER_NOT_FOUND("CASE_1004", "Officer not found"),
+    CASE_ID_REQUIRED("DISPATCH_1005", "CaseId is required"),
+    CASE_ALREADY_DISPATCHED("DISPATCH_1006","Case have already dispatched" ),
+    NO_AVAILABLE_OFFICER("DISPATCH_1007", "Officer is not available"),
+    OFFICER_NOT_FOUND("DISPATCH_1008", "Officer not found"),
+    OFFICER_USER_ALREADY_EXISTS(
+            "DISPATCH_1009",
+            "Officer profile already exists for this user"
+    ),
+    BADGE_NUMBER_ALREADY_EXISTS(
+            "DISPATCH_1010",
+            "Badge number already exists"
+    ),
+    POLICE_UNIT_NOT_FOUND(
+            "DISPATCH_1011",
+            "Police unit not found"
+    ),
+    POLICE_UNIT_INACTIVE(
+            "DISPATCH_1012",
+            "Police unit is inactive"
+    ),
     // Uncategorized
     UNCATEGORIZED_EXCEPTION("EVIDENCE_9998", "UNCATEGORIZED_EXCEPTION!");
     ErrorCode(String code, String message){
