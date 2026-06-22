@@ -1,7 +1,7 @@
 package com.ngocphuoc.crime_report.urgency.service;
 
 import com.ngocphuoc.crime_report.enums.UrgencyLevel;
-import com.ngocphuoc.crime_report.urgency.dto.UrgencyScoreResult;
+import com.ngocphuoc.crime_report.urgency.dto.response.UrgencyScoreResult;
 import com.ngocphuoc.crime_report.urgency.entity.UrgencyRule;
 import com.ngocphuoc.crime_report.urgency.enums.UrgencyRuleCode;
 import com.ngocphuoc.crime_report.urgency.repository.UrgencyRuleRepository;

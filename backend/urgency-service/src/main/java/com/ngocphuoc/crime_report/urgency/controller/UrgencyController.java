@@ -1,8 +1,8 @@
 package com.ngocphuoc.crime_report.urgency.controller;
 
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
-import com.ngocphuoc.crime_report.urgency.dto.UrgencyScoreRequest;
-import com.ngocphuoc.crime_report.urgency.dto.UrgencyScoreResult;
+import com.ngocphuoc.crime_report.urgency.dto.request.UrgencyScoreRequest;
+import com.ngocphuoc.crime_report.urgency.dto.response.UrgencyScoreResult;
 import com.ngocphuoc.crime_report.urgency.service.UrgencyScoringService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;

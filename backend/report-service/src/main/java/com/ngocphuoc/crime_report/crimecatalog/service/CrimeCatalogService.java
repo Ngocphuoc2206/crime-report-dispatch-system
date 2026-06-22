@@ -35,6 +35,7 @@ public class CrimeCatalogService {
                 crimeType.getName(),
                 crimeType.getDescription(),
                 crimeType.getBaseScore(),
+                crimeType.getIsActive(),
                 categoryResponse
         );
     }

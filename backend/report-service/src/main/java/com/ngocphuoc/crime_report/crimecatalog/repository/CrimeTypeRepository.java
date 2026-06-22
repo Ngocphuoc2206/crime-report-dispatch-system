@@ -17,4 +17,8 @@ public interface CrimeTypeRepository extends JpaRepository<CrimeType, Long> {
             ORDER BY c.id ASC, ct.id ASC
             """)
     List<CrimeType> findAllActiveWithCategory();
+
+    boolean existsByCodeIgnoreCase(String code);
+
+    boolean existsByCodeIgnoreCaseAndIdNot(String code, Long id);
 }

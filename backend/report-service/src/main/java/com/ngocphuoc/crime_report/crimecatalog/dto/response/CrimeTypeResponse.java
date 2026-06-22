@@ -6,6 +6,7 @@ public record CrimeTypeResponse(
         String name,
         String description,
         Integer baseScore,
+        Boolean isActive,
         CrimeCategoryResponse category
 ) {
 }
