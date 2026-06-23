@@ -3,6 +3,7 @@ package com.ngocphuoc.crime_report.report.controller;
 import com.ngocphuoc.crime_report.enums.UrgencyLevel;
 import com.ngocphuoc.crime_report.report.dto.response.DashboardOverviewResponse;
 import com.ngocphuoc.crime_report.report.dto.response.HeatmapPointResponse;
+import com.ngocphuoc.crime_report.report.dto.response.TimelineEventResponse;
 import com.ngocphuoc.crime_report.report.service.DashboardService;
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,17 @@ public class CommanderDashboardController {
         return ApiResponse.<List<HeatmapPointResponse>>builder()
                 .message("Heatmap data retrieved successfully")
                 .data(dashboardService.getHeatmap(from, to, urgencyLevel))
+                .build();
+    }
+
+    @GetMapping("/timeline")
+    public ApiResponse<List<TimelineEventResponse>> getTimeline(
+            @RequestParam(required = false, defaultValue = "20")
+            Integer limit
+    ) {
+        return ApiResponse.<List<TimelineEventResponse>>builder()
+                .message("Timeline retrieved successfully")
+                .data(dashboardService.getTimeline(limit))
                 .build();
     }
 }

@@ -6,6 +6,7 @@ import com.ngocphuoc.crime_report.auth.dto.request.UpdateUserStatusRequest;
 import com.ngocphuoc.crime_report.auth.dto.response.AdminUserResponse;
 import com.ngocphuoc.crime_report.auth.service.AdminUserService;
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +29,7 @@ public class AdminUserController {
 
     @PostMapping
     public ApiResponse<AdminUserResponse> createUser(
-            @RequestBody CreateUserRequest request
+            @Valid @RequestBody CreateUserRequest request
     ) {
         return ApiResponse.<AdminUserResponse>builder()
                 .message("User created successfully")
@@ -39,7 +40,7 @@ public class AdminUserController {
     @PatchMapping("/{id}/roles")
     public ApiResponse<AdminUserResponse> updateRoles(
             @PathVariable Long id,
-            @RequestBody UpdateUserRolesRequest request
+            @Valid @RequestBody UpdateUserRolesRequest request
     ) {
         return ApiResponse.<AdminUserResponse>builder()
                 .message("User roles updated successfully")
@@ -50,7 +51,7 @@ public class AdminUserController {
     @PatchMapping("/{id}/status")
     public ApiResponse<AdminUserResponse> updateStatus(
             @PathVariable Long id,
-            @RequestBody UpdateUserStatusRequest request
+            @Valid @RequestBody UpdateUserStatusRequest request
     ) {
         return ApiResponse.<AdminUserResponse>builder()
                 .message("User status updated successfully")

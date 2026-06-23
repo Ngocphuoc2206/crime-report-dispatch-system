@@ -4,6 +4,7 @@ import com.ngocphuoc.crime.report.dispatch.dto.request.CreateOfficerRequest;
 import com.ngocphuoc.crime.report.dispatch.dto.response.OfficerProfileResponse;
 import com.ngocphuoc.crime.report.dispatch.service.OfficerProfileService;
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +20,7 @@ public class AdminOfficerController {
 
     @PostMapping
     public ApiResponse<OfficerProfileResponse> create(
-            @RequestBody CreateOfficerRequest request
+            @Valid @RequestBody CreateOfficerRequest request
     ) {
         return ApiResponse.<OfficerProfileResponse>builder()
                 .message("Officer profile created successfully")
