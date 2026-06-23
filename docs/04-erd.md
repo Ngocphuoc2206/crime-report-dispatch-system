@@ -40,7 +40,7 @@ Thiết kế ERD tập trung vào phiên bản MVP, bao gồm các nhóm dữ li
 | Report Case | case_report | Hồ sơ tin báo chính |
 | Report Case | reporter_identity | Thông tin định danh người tố giác đã mã hóa |
 | Report Case | evidence_file | File bằng chứng |
-| Report Case | case_status_history | Lịch sử thay đổi trạng thái |
+| Report Case | case_history | Lịch sử thay đổi trạng thái |
 | Report Case | case_lock | Khóa hồ sơ tạm thời |
 | Dispatch | administrative_area | Địa bàn hành chính |
 | Dispatch | police_unit | Đơn vị công an |
@@ -58,6 +58,7 @@ Phân tách database theo service hiện tại:
 | report-service | crime_report | crime_category, crime_type, case_report, reporter_identity |
 | evidence-service | crime_evidence | evidence_file |
 | urgency-service | crime_urgency | urgency_rule |
+| dispatch-service | crime_dispatch | administrative_area, police_unit, officer, duty_shift, duty_assignment, dispatch_task |
 
 ---
 
@@ -103,7 +104,7 @@ Dữ liệu mẫu:
 
 | name | description |
 |---|---|
-| DUTY_OFFICER | Cán bộ trực ban |
+| OFFICER | Cán bộ trực ban |
 | DISPATCHER | Cán bộ điều phối |
 | COMMANDER | Chỉ huy |
 | ADMIN | Quản trị viên |
@@ -342,34 +343,37 @@ case_report 1 - n evidence_file
 
 Trong microservice, quan hệ này là quan hệ logic qua `case_id`. Evidence-service không tạo foreign key vật lý sang database của report-service.
 
-### 4.4. Bảng case_status_history
+### 4.4. Bảng case_history
 
 Lưu lịch sử thay đổi trạng thái của tin báo.
 
 ```text
-case_status_history
+case_history
 - id
 - case_id
+- actor_user_id
+- actor_officer_id
+- actor_unit_id
+- action
 - old_status
 - new_status
-- changed_by
-- reason
+- note
 - created_at
 ```
 
 Ví dụ:
 
-| old_status | new_status | reason |
-|---|---:|---|
-| NEW_RECEIVED | UNDER_VERIFICATION | Cán bộ trực ban nhận xử lý |
-| UNDER_VERIFICATION | TRANSFERRED_TO_INVESTIGATION | Đã xác minh sơ bộ |
-| TRANSFERRED_TO_INVESTIGATION | RESOLVED | Hoàn tất xử lý |
+| action | old_status | new_status | note |
+|---|---|---|---|
+| CASE_ACCEPTED | NEW_RECEIVED | UNDER_VERIFICATION | Cán bộ trực ban nhận xử lý |
+| CASE_STATUS_CHANGED | UNDER_VERIFICATION | TRANSFERRED_TO_INVESTIGATION | Đã xác minh sơ bộ |
+| CASE_STATUS_CHANGED | TRANSFERRED_TO_INVESTIGATION | RESOLVED | Hoàn tất xử lý |
 
 Quan hệ:
 
 ```text
-case_report 1 - n case_status_history
-users 1 - n case_status_history
+case_report 1 - n case_history
+users 1 - n case_history
 ```
 
 ### 4.5. Bảng case_lock
@@ -752,13 +756,16 @@ erDiagram
         datetime uploaded_at
     }
 
-    case_status_history {
+    case_history {
         bigint id PK
         bigint case_id FK
+        bigint actor_user_id
+        bigint actor_officer_id
+        bigint actor_unit_id
+        string action
         string old_status
         string new_status
-        bigint changed_by FK
-        string reason
+        string note
         datetime created_at
     }
 
@@ -857,11 +864,11 @@ erDiagram
 
     case_report ||--|| reporter_identity : has
     case_report ||--o{ evidence_file : has
-    case_report ||--o{ case_status_history : has
+    case_report ||--o{ case_history : has
     case_report ||--o{ case_lock : has
     case_report ||--o{ dispatch_task : has
 
-    users ||--o{ case_status_history : changes
+    users ||--o{ case_history : changes
     users ||--o{ case_lock : locks
     users ||--o{ audit_log : performs
 

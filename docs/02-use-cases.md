@@ -403,7 +403,7 @@ System
 ## 4. Tiền điều kiện
 
 - Cán bộ đã đăng nhập.
-- Cán bộ có role DUTY_OFFICER.
+- Cán bộ có role OFFICER.
 - Tin báo đã được điều phối cho cán bộ hoặc đơn vị của cán bộ.
 - Tin báo chưa bị khóa bởi cán bộ khác.
 

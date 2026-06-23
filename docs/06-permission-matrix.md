@@ -5,7 +5,7 @@
 | Role | Mô tả |
 |---|---|
 | CITIZEN | Người dân gửi tin báo và tra cứu tiến độ |
-| DUTY_OFFICER | Cán bộ trực ban tiếp nhận và xác minh tin báo |
+| OFFICER | Cán bộ trực ban tiếp nhận và xác minh tin báo |
 | DISPATCHER | Cán bộ điều phối tin báo |
 | COMMANDER | Chỉ huy theo dõi toàn hệ thống |
 | ADMIN | Quản trị viên hệ thống |
@@ -14,7 +14,7 @@
 
 ## 2. Permission theo chức năng
 
-| Chức năng | Citizen | Duty Officer | Dispatcher | Commander | Admin |
+| Chức năng | Citizen | Officer | Dispatcher | Commander | Admin |
 |---|---:|---:|---:|---:|---:|
 | Gửi tin báo | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Tra cứu tiến độ bằng tracking code | ✅ | ❌ | ❌ | ❌ | ❌ |
@@ -25,6 +25,7 @@
 | Gán case cho đơn vị/cán bộ | ❌ | ❌ | ✅ | ✅ | ❌ |
 | Điều phối lại case | ❌ | ❌ | ✅ | ✅ | ❌ |
 | Xem dashboard tổng quan | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Xem timeline | ❌ | ❌ | ❌ | ✅ | ✅ |
 | Xem heatmap | ❌ | ❌ | ❌ | ✅ | ✅ |
 | Quản lý user | ❌ | ❌ | ❌ | ❌ | ✅ |
 | Quản lý role/RBAC | ❌ | ❌ | ❌ | ❌ | ✅ |
@@ -37,7 +38,7 @@
 
 ## 3. Permission theo API
 
-| API | Public | Duty Officer | Dispatcher | Commander | Admin |
+| API | Public | Officer | Dispatcher | Commander | Admin |
 |---|---:|---:|---:|---:|---:|
 | POST /api/public/reports | ✅ | ❌ | ❌ | ❌ | ❌ |
 | GET /api/public/reports/{trackingCode}/status | ✅ | ❌ | ❌ | ❌ | ❌ |
@@ -46,13 +47,25 @@
 | GET /api/officer/cases/{caseId} | ❌ | ✅ | ✅ | ✅ | ✅ |
 | POST /api/officer/cases/{caseId}/accept | ❌ | ✅ | ❌ | ❌ | ❌ |
 | PATCH /api/officer/cases/{caseId}/status | ❌ | ✅ | ✅ | ✅ | ❌ |
-| POST /api/dispatcher/cases/{caseId}/assign | ❌ | ❌ | ✅ | ✅ | ❌ |
+| POST /api/officer/cases/{caseId}/lock | ❌ | ✅ | ✅ | ✅ | ✅ |
+| POST /api/officer/cases/{caseId}/lock/renew | ❌ | ✅ | ✅ | ✅ | ✅ |
+| GET /api/officer/cases/{caseId}/lock | ❌ | ✅ | ✅ | ✅ | ✅ |
+| DELETE /api/officer/cases/{caseId}/lock | ❌ | ✅ | ✅ | ✅ | ✅ |
+| POST /api/dispatcher/cases/{caseId}/assign *(chưa triển khai)* | ❌ | ❌ | ✅ | ✅ | ❌ |
 | GET /api/commander/dashboard/overview | ❌ | ❌ | ❌ | ✅ | ✅ |
+| GET /api/commander/dashboard/timeline | ❌ | ❌ | ❌ | ✅ | ✅ |
 | GET /api/commander/dashboard/heatmap | ❌ | ❌ | ❌ | ✅ | ✅ |
 | GET /api/admin/crime-types | ❌ | ❌ | ❌ | ❌ | ✅ |
 | POST /api/admin/crime-types | ❌ | ❌ | ❌ | ❌ | ✅ |
+| PATCH /api/admin/crime-types/{id} | ❌ | ❌ | ❌ | ❌ | ✅ |
 | GET /api/admin/urgency-rules | ❌ | ❌ | ❌ | ❌ | ✅ |
 | POST /api/admin/urgency-rules | ❌ | ❌ | ❌ | ❌ | ✅ |
+| PATCH /api/admin/urgency-rules/{id} | ❌ | ❌ | ❌ | ❌ | ✅ |
+| GET /api/admin/users | ❌ | ❌ | ❌ | ❌ | ✅ |
+| POST /api/admin/users | ❌ | ❌ | ❌ | ❌ | ✅ |
+| PATCH /api/admin/users/{id}/roles | ❌ | ❌ | ❌ | ❌ | ✅ |
+| PATCH /api/admin/users/{id}/status | ❌ | ❌ | ❌ | ❌ | ✅ |
+| POST /api/admin/officers | ❌ | ❌ | ❌ | ❌ | ✅ |
 
 ---
 
@@ -64,7 +77,7 @@
 - Chỉ được tra cứu trạng thái rút gọn bằng tracking code.
 - Không được thấy thông tin cán bộ, đơn vị xử lý, ghi chú nghiệp vụ, audit log.
 
-### Duty Officer
+### Officer
 
 - Chỉ được xem case thuộc đơn vị mình hoặc được assign cho mình.
 - Được nhận xử lý case nếu case chưa bị lock.
