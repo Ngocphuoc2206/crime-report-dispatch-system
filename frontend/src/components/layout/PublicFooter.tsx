@@ -7,6 +7,15 @@ const footerLinks = [
   { label: "Sơ đồ trang", href: "/sitemap" },
 ];
 
+const footerColumns = [
+  [
+    { label: "Chính sách bảo mật", href: "/privacy" },
+    { label: "Điều khoản sử dụng", href: "/terms" },
+  ],
+  [{ label: "Liên hệ công tác", href: "/contact" }],
+  [{ label: "Sơ đồ trang", href: "/sitemap" }],
+];
+
 function FooterMiniIcon({ label }: { label: string }) {
   return (
     <span
@@ -39,16 +48,20 @@ export function PublicFooter() {
 
         <nav
           aria-label="Liên kết chân trang"
-          className="flex flex-wrap gap-x-8 gap-y-3"
+          className="grid w-full grid-cols-1 gap-6 sm:grid-cols-3 lg:w-auto lg:min-w-2xl"
         >
-          {footerLinks.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-sm text-slate-600 transition-colors hover:text-(--primary)"
-            >
-              {item.label}
-            </Link>
+          {footerColumns.map((column, index) => (
+            <div key={index} className="flex flex-col gap-3">
+              {column.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-sm text-slate-600 transition-colors hover:text-(--primary)"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
           ))}
         </nav>
       </div>
