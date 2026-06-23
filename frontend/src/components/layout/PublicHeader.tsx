@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const navigation = [
-  { label: "Trang chủ", href: "/", active: true },
+  { label: "Trang chủ", href: "/" },
   { label: "Tin báo", href: "/report" },
   { label: "Tra cứu", href: "/tracking" },
   { label: "Hỗ trợ", href: "/#help" },
@@ -32,6 +33,7 @@ function EmblemIcon() {
 
 export function PublicHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathName = usePathname();
   return (
     <header className="sticky top-0 z-50 border-b border-(--border) bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-6 px-5 md:h-20 md:px-6">
@@ -51,20 +53,29 @@ export function PublicHeader() {
           aria-label="Điều hướng chính"
           className="hidden items-center gap-7 md:flex"
         >
-          {navigation.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={[
-                "relative whitespace-nowrap py-2 text-sm font-semibold transition-colors",
-                item.active
-                  ? "text-(--primary) after:absolute after:inset-x-0 after:-bottom-2 after:h-0.5 after:bg-(--primary)"
-                  : "text-slate-600 hover:text-(--primary)",
-              ].join(" ")}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navigation.map((item) => {
+            const isActive =
+              item.href === "/"
+                ? pathName === "/"
+                : !item.href.startsWith("/#") &&
+                  (pathName === item.href ||
+                    pathName.startsWith(`${item.href}/`));
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={[
+                  "relative whitespace-nowrap py-2 text-sm font-semibold transition-colors",
+                  isActive
+                    ? "text-(--primary) after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:bg-(--primary)"
+                    : "text-slate-600 hover:text-(--primary)",
+                ].join(" ")}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
@@ -146,14 +157,14 @@ export function PublicHeader() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setIsMenuOpen(false)}
-                className="
-                relative rounded-md px-3 py-3 text-sm font-semibold text-slate-700
-                transition-colors hover:bg-red-50 hover:text-(--primary)
-                after:absolute after:inset-x-3 after:bottom-0 after:h-0.5
-                after:origin-left after:scale-x-0 after:bg-(--primary)
-                after:transition-transform after:duration-300
-                hover:after:scale-x-100
-              "
+                className={[
+                  "relative rounded-md px-3 py-3 text-sm font-semibold text-slate-700",
+                  "transition-colors hover:bg-red-50 hover:text-(--primary)",
+                  "after:absolute after:inset-x-3 after:bottom-0 after:h-0.5",
+                  "after:origin-left after:scale-x-0 after:bg-(--primary)",
+                  "after:transition-transform after:duration-300",
+                  "hover:after:scale-x-100",
+                ].join(" ")}
               >
                 {item.label}
               </Link>

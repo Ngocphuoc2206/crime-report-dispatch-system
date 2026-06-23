@@ -1,12 +1,5 @@
 import Link from "next/link";
 
-const footerLinks = [
-  { label: "Chính sách bảo mật", href: "/privacy" },
-  { label: "Điều khoản sử dụng", href: "/terms" },
-  { label: "Liên hệ công tác", href: "/contact" },
-  { label: "Sơ đồ trang", href: "/sitemap" },
-];
-
 const footerColumns = [
   [
     { label: "Chính sách bảo mật", href: "/privacy" },

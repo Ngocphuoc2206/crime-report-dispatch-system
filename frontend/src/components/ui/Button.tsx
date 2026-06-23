@@ -32,24 +32,41 @@ const variantClassNames: Record<ButtonVariant, string> = {
 };
 
 export function Button(props: ButtonAsButton | ButtonAsLink) {
-  const { children, variant = "primary", className = "", ...rest } = props;
+  if (typeof props.href === "string") {
+    const {
+      children,
+      variant = "primary",
+      className = "",
+      href,
+      ...anchorProps
+    } = props;
+    const classes = [
+      "inline-flex items-center justify-center rounded-md px-5 py-3 text-sm font-bold transition",
+      variantClassNames[variant],
+      className,
+    ].join(" ");
 
+    return (
+      <Link href={href} className={classes} {...anchorProps}>
+        {children}
+      </Link>
+    );
+  }
+
+  const {
+    children,
+    variant = "primary",
+    className = "",
+    ...buttonProps
+  } = props;
   const classes = [
     "inline-flex items-center justify-center rounded-md px-5 py-3 text-sm font-bold transition disabled:pointer-events-none disabled:opacity-60",
     variantClassNames[variant],
     className,
   ].join(" ");
 
-  if ("href" in rest && rest.href) {
-    return (
-      <Link href={rest.href} className={classes}>
-        {children}
-      </Link>
-    );
-  }
-
   return (
-    <button className={classes} {...rest}>
+    <button className={classes} {...buttonProps}>
       {children}
     </button>
   );

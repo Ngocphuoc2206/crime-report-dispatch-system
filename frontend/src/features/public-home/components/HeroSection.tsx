@@ -81,7 +81,7 @@ export function HeroSection() {
         <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
           <Link
             href="/report"
-            className="inline-flex items-center justify-center gap-3 rounded-md bg-(--primary) px-7 py-4 font-bold text-white shadow-lg shadow-red-900/20 transition hover:bg-[var(--primary-hover)]"
+            className="inline-flex items-center justify-center gap-3 rounded-md bg-(--primary) px-7 py-4 font-bold text-white shadow-lg shadow-red-900/20 transition hover:bg-(--primary-hover)"
           >
             <MegaphoneIcon />
             Gửi tin báo ngay
