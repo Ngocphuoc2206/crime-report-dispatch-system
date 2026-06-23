@@ -86,7 +86,7 @@ public class DashboardService {
         }
 
         return auditLogRepository.findLatestTimeline(
-                (Pageable) PageRequest.of(0, resolvedLimit)
+               PageRequest.of(0, resolvedLimit)
         );
     }
 }
