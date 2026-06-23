@@ -5,12 +5,16 @@ import com.ngocphuoc.crime_report.enums.CaseStatus;
 import com.ngocphuoc.crime_report.enums.UrgencyLevel;
 import com.ngocphuoc.crime_report.report.dto.response.DashboardOverviewResponse;
 import com.ngocphuoc.crime_report.report.dto.response.HeatmapPointResponse;
+import com.ngocphuoc.crime_report.report.dto.response.TimelineEventResponse;
+import com.ngocphuoc.crime_report.report.repository.AuditLogRepository;
 import com.ngocphuoc.crime_report.report.repository.CaseReportRepository;
 import com.ngocphuoc.crime_report.shared.exception.AppException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DashboardService {
     private final CaseReportRepository caseReportRepository;
+    private final AuditLogRepository auditLogRepository;
 
     @Transactional(readOnly = true)
     public DashboardOverviewResponse getOverview(){
@@ -69,6 +74,19 @@ public class DashboardService {
                 from,
                 to,
                 urgencyLevel
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<TimelineEventResponse> getTimeline(Integer limit) {
+        int resolvedLimit = limit == null ? 20 : limit;
+
+        if (resolvedLimit < 1 || resolvedLimit > 100) {
+            throw new AppException(ErrorCode.INVALID_TIMELINE_LIMIT);
+        }
+
+        return auditLogRepository.findLatestTimeline(
+                (Pageable) PageRequest.of(0, resolvedLimit)
         );
     }
 }
