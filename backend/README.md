@@ -9,6 +9,7 @@ backend/
 ├── report-service/
 ├── evidence-service/
 ├── urgency-service/
+├── dispatch-service/
 └── docker-compose.yml
 ```
 
@@ -21,6 +22,7 @@ backend/
 | report-service | 8082 |
 | evidence-service | 8083 |
 | urgency-service | 8084 |
+| dispatch-service | 8085 |
 | MariaDB | 3306 |
 
 ## Gateway Routes
@@ -28,10 +30,17 @@ backend/
 | Gateway path | Target service |
 | --- | --- |
 | `/api/auth/**` | auth-service |
+| `/api/admin/users/**` | auth-service |
 | `/api/public/reports/**` | report-service |
 | `/api/public/crime-types` | report-service |
+| `/api/officer/cases/**` | report-service |
+| `/api/commander/dashboard/**` | report-service |
+| `/api/admin/crime-types/**` | report-service |
 | `/api/officer/evidences/**` | evidence-service |
 | `/api/urgency/**` | urgency-service |
+| `/api/admin/urgency-rules/**` | urgency-service |
+| `/api/dispatch/**` | dispatch-service |
+| `/api/admin/officers/**` | dispatch-service |
 
 ## Run Locally
 

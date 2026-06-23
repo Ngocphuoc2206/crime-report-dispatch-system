@@ -127,7 +127,7 @@ Hệ thống có các vai trò chính sau:
 | Role | Mô tả |
 |---|---|
 | CITIZEN | Người dân gửi tin báo và tra cứu tiến độ |
-| DUTY_OFFICER | Cán bộ trực ban tiếp nhận và xác minh tin báo |
+| OFFICER | Cán bộ trực ban tiếp nhận và xác minh tin báo |
 | DISPATCHER | Cán bộ điều phối, gán tin báo cho đơn vị hoặc cán bộ phù hợp |
 | COMMANDER | Chỉ huy theo dõi toàn bộ tình hình qua dashboard |
 | ADMIN | Quản trị hệ thống, danh mục, người dùng và rule nghiệp vụ |
@@ -136,7 +136,7 @@ Hệ thống có các vai trò chính sau:
 
 ## 8. Phạm vi quyền hạn theo vai trò
 
-| Chức năng | Citizen | Duty Officer | Dispatcher | Commander | Admin |
+| Chức năng | Citizen | Officer | Dispatcher | Commander | Admin |
 |---|---:|---:|---:|---:|---:|
 | Gửi tin báo | Có | Không | Không | Không | Không |
 | Tra cứu tiến độ bằng mã ẩn danh | Có | Không | Không | Không | Không |
@@ -251,6 +251,7 @@ Backend được chia thành các service:
 - report-service
 - evidence-service
 - urgency-service
+- dispatch-service
 
 Vai trò chính:
 
@@ -259,6 +260,7 @@ Vai trò chính:
 - report-service quản lý tin báo, danh mục tội phạm và thông tin định danh đã mã hóa.
 - evidence-service quản lý metadata và file bằng chứng.
 - urgency-service quản lý rule và API tính điểm nguy cấp.
+- dispatch-service quản lý đơn vị, hồ sơ cán bộ và điều phối tin báo.
 
 Dữ liệu được tách theo database/schema sở hữu của từng service:
 
@@ -266,6 +268,7 @@ Dữ liệu được tách theo database/schema sở hữu của từng service:
 - crime_report
 - crime_evidence
 - crime_urgency
+- crime_dispatch
 
 ## 13. Tiêu chí hoàn thành MVP
 

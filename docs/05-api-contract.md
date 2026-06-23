@@ -33,10 +33,17 @@ Base URL trên là URL của api-gateway. Gateway route request đến các serv
 | Path | Service sở hữu |
 |---|---|
 | /api/auth/** | auth-service |
+| /api/admin/users/** | auth-service |
 | /api/public/reports/** | report-service |
 | /api/public/crime-types | report-service |
+| /api/officer/cases/** | report-service |
+| /api/commander/dashboard/** | report-service |
+| /api/admin/crime-types/** | report-service |
 | /api/officer/evidences/** | evidence-service |
 | /api/urgency/** | urgency-service |
+| /api/admin/urgency-rules/** | urgency-service |
+| /api/dispatch/** | dispatch-service |
+| /api/admin/officers/** | dispatch-service |
 
 Ví dụ:
 
@@ -118,7 +125,7 @@ POST /api/auth/login
 ### Role được gọi
 
 ```text
-DUTY_OFFICER
+OFFICER
 DISPATCHER
 COMMANDER
 ADMIN
@@ -146,7 +153,7 @@ ADMIN
       "id": 1,
       "username": "officer01",
       "fullName": "Nguyễn Văn A",
-      "roles": ["DUTY_OFFICER"]
+      "roles": ["OFFICER"]
     }
   }
 }
@@ -197,21 +204,32 @@ PUBLIC
 
 ### Ví dụ request dạng multipart
 
-```text
-crimeTypeId=1
-description=Có đối tượng dùng dao cướp tài sản
-incidentTime=2026-05-26T10:00:00
-isHappeningNow=true
-hasWeapon=true
-hasInjuredPerson=false
-latitude=10.7769
-longitude=106.7009
-addressText=Phường Bến Nghé, Quận 1, TP.HCM
-reporterFullName=Nguyễn Văn A
-reporterPhone=0900000000
-reporterEmail=a@example.com
-files=video.mp4
+Backend nhận hai multipart part:
+
+| Part | Content | Required |
+|---|---|---:|
+| report | Chuỗi JSON theo cấu trúc bên dưới | Có |
+| files | Một hoặc nhiều file bằng chứng | Không |
+
+```json
+{
+  "crimeTypeId": 1,
+  "description": "Có đối tượng dùng dao cướp tài sản",
+  "incidentTime": "2026-05-26T10:00:00",
+  "isHappeningNow": true,
+  "hasWeapon": true,
+  "hasInjuredPerson": false,
+  "latitude": 10.7769,
+  "longitude": 106.7009,
+  "addressText": "Phường Bến Nghé, Quận 1, TP.HCM",
+  "reporterFullName": "Nguyễn Văn A",
+  "reporterPhone": "0900000000",
+  "reporterEmail": "a@example.com",
+  "reporterAddress": "Quận 1, TP.HCM"
+}
 ```
+
+Frontend phải `JSON.stringify` object trên và append vào key `report`; mỗi file được append vào key `files`.
 
 ### Response
 
@@ -224,7 +242,8 @@ files=video.mp4
     "trackingCode": "TB-2026-000001",
     "status": "NEW_RECEIVED",
     "urgencyScore": 110,
-    "urgencyLevel": "CRITICAL"
+    "urgencyLevel": "CRITICAL",
+    "message": "Tin báo đã được tiếp nhận"
   }
 }
 ```
@@ -307,7 +326,7 @@ GET /api/officer/cases
 ### Role được gọi
 
 ```text
-DUTY_OFFICER
+OFFICER
 DISPATCHER
 COMMANDER
 ADMIN
@@ -333,32 +352,41 @@ GET /api/officer/cases?status=NEW_RECEIVED&urgencyLevel=CRITICAL&page=0&size=10
 ```json
 {
   "success": true,
-  "message": "Cases retrieved successfully",
+  "message": "Success",
   "data": {
-    "items": [
+    "content": [
       {
-        "caseId": 1,
+        "id": 1,
         "trackingCode": "TB-2026-000001",
-        "crimeTypeName": "Cướp giật",
+        "title": "Cướp giật",
         "description": "Có đối tượng dùng dao cướp tài sản",
-        "addressText": "Phường Bến Nghé, Quận 1",
-        "urgencyScore": 110,
-        "urgencyLevel": "CRITICAL",
         "status": "NEW_RECEIVED",
-        "createdAt": "2026-05-26T10:00:00"
+        "urgencyLevel": "CRITICAL",
+        "latitude": 10.7769,
+        "longitude": 106.7009,
+        "address": "Phường Bến Nghé, Quận 1",
+        "assignedUnitId": 1,
+        "assignedOfficerId": 2,
+        "createdAt": "2026-05-26T10:00:00",
+        "updatedAt": "2026-05-26T10:05:00"
       }
     ],
-    "page": 0,
+    "number": 0,
     "size": 10,
     "totalElements": 1,
-    "totalPages": 1
+    "totalPages": 1,
+    "first": true,
+    "last": true,
+    "empty": false
   }
 }
 ```
 
+`data` là JSON serialization của Spring `Page`, vì vậy frontend đọc danh sách từ `data.content`.
+
 ### Quy tắc phân quyền
 
-- `DUTY_OFFICER` chỉ xem tin báo thuộc đơn vị hoặc được giao cho mình.
+- `OFFICER` chỉ xem tin báo thuộc đơn vị hoặc được giao cho mình.
 - `DISPATCHER` xem các tin báo thuộc phạm vi điều phối.
 - `COMMANDER` xem toàn hệ thống.
 - `ADMIN` xem được dữ liệu phục vụ quản trị, nhưng không nên can thiệp nghiệp vụ nếu không cần.
@@ -374,7 +402,7 @@ GET /api/officer/cases/{caseId}
 ### Role được gọi
 
 ```text
-DUTY_OFFICER
+OFFICER
 DISPATCHER
 COMMANDER
 ADMIN
@@ -385,43 +413,34 @@ ADMIN
 ```json
 {
   "success": true,
-  "message": "Case detail retrieved successfully",
+  "message": "Success",
   "data": {
-    "caseId": 1,
+    "id": 1,
     "trackingCode": "TB-2026-000001",
-    "crimeType": {
-      "id": 1,
-      "name": "Cướp giật"
-    },
     "description": "Có đối tượng dùng dao cướp tài sản",
-    "incidentTime": "2026-05-26T10:00:00",
-    "isHappeningNow": true,
-    "hasWeapon": true,
-    "hasInjuredPerson": false,
+    "crimeType": "Cướp giật",
+    "status": "NEW_RECEIVED",
+    "urgencyLevel": "CRITICAL",
     "latitude": 10.7769,
     "longitude": 106.7009,
-    "addressText": "Phường Bến Nghé, Quận 1, TP.HCM",
-    "urgencyScore": 110,
-    "urgencyLevel": "CRITICAL",
-    "status": "NEW_RECEIVED",
-    "assignedUnit": {
-      "id": 1,
-      "name": "Công an Phường Bến Nghé"
-    },
-    "assignedOfficer": {
-      "id": 2,
-      "fullName": "Trần Văn B"
-    },
+    "address": "Phường Bến Nghé, Quận 1, TP.HCM",
+    "assignedUnitId": 1,
+    "assignedOfficerId": 2,
+    "anonymous": false,
+    "createdAt": "2026-05-26T10:00:00",
+    "updatedAt": "2026-05-26T10:05:00",
     "evidences": [
       {
         "id": 1,
-        "fileName": "video.mp4",
+        "caseId": 1,
+        "originalFilename": "video.mp4",
+        "contentType": "video/mp4",
+        "sizeBytes": 2048000,
         "fileType": "VIDEO",
-        "fileUrl": "/api/officer/evidences/1/download",
-        "fileSize": 2048000
+        "checksumSha256": "sha256-value",
+        "uploadedAt": "2026-05-26T10:00:05"
       }
-    ],
-    "createdAt": "2026-05-26T10:00:00"
+    ]
   }
 }
 ```
@@ -447,28 +466,36 @@ POST /api/officer/cases/{caseId}/accept
 ### Role được gọi
 
 ```text
-DUTY_OFFICER
+OFFICER
 ```
 
 ### Request
 
-```json
-{
-  "reason": "Cán bộ trực ban nhận xử lý tin báo"
-}
-```
+Không có request body.
 
 ### Response
 
 ```json
 {
   "success": true,
-  "message": "Đã nhận xử lý tin báo",
+  "message": "Success",
   "data": {
     "caseId": 1,
-    "status": "UNDER_VERIFICATION",
-    "lockedBy": 2,
-    "lockedUntil": "2026-05-26T10:15:00"
+    "trackingCode": "TB-2026-000001",
+    "caseStatus": "UNDER_VERIFICATION",
+    "assignedUnitId": 1,
+    "assignedOfficerId": 2,
+    "lockResponse": {
+      "caseId": 1,
+      "lockedByUserId": 2,
+      "lockedByOfficerId": 2,
+      "lockedByUnitId": 1,
+      "caseLockStatus": "ACTIVE",
+      "lockedAt": "2026-05-26T10:00:00",
+      "expiresAt": "2026-05-26T10:15:00",
+      "lockedByMe": true,
+      "active": true
+    }
   }
 }
 ```
@@ -477,14 +504,14 @@ DUTY_OFFICER
 
 ```text
 1. Kiểm tra user đã đăng nhập.
-2. Kiểm tra role DUTY_OFFICER.
+2. Kiểm tra role OFFICER.
 3. Kiểm tra case có tồn tại không.
 4. Kiểm tra case thuộc phạm vi xử lý của officer.
 5. Kiểm tra case đang ở trạng thái NEW_RECEIVED.
 6. Kiểm tra case có đang bị lock bởi người khác không.
 7. Tạo case_lock.
 8. Chuyển trạng thái sang UNDER_VERIFICATION.
-9. Ghi case_status_history.
+9. Ghi case_history.
 10. Ghi audit_log.
 ```
 
@@ -515,7 +542,7 @@ PATCH /api/officer/cases/{caseId}/status
 ### Role được gọi
 
 ```text
-DUTY_OFFICER
+OFFICER
 DISPATCHER
 COMMANDER
 ```
@@ -524,8 +551,8 @@ COMMANDER
 
 ```json
 {
-  "newStatus": "TRANSFERRED_TO_INVESTIGATION",
-  "reason": "Đã xác minh sơ bộ, chuyển cơ quan điều tra"
+  "caseStatus": "TRANSFERRED_TO_INVESTIGATION",
+  "note": "Đã xác minh sơ bộ, chuyển cơ quan điều tra"
 }
 ```
 
@@ -534,11 +561,13 @@ COMMANDER
 ```json
 {
   "success": true,
-  "message": "Case status updated successfully",
+  "message": "Success",
   "data": {
     "caseId": 1,
+    "trackingCode": "TB-2026-000001",
     "oldStatus": "UNDER_VERIFICATION",
     "newStatus": "TRANSFERRED_TO_INVESTIGATION",
+    "note": "Đã xác minh sơ bộ, chuyển cơ quan điều tra",
     "updatedAt": "2026-05-26T10:30:00"
   }
 }
@@ -559,38 +588,55 @@ SPAM_OR_FAKE → UNDER_VERIFICATION: không hợp lệ trong MVP
 
 ---
 
-## 5.5. Giải phóng khóa hồ sơ
+## 5.5. Quản lý khóa hồ sơ
+
+Các endpoint:
 
 ```http
-POST /api/officer/cases/{caseId}/release-lock
+POST   /api/officer/cases/{caseId}/lock
+POST   /api/officer/cases/{caseId}/lock/renew
+GET    /api/officer/cases/{caseId}/lock
+DELETE /api/officer/cases/{caseId}/lock
 ```
 
 ### Role được gọi
 
 ```text
-DUTY_OFFICER
+OFFICER
 DISPATCHER
 COMMANDER
+ADMIN
 ```
 
-### Response
+`POST`, `POST /renew` và `GET` trả về cấu trúc:
 
 ```json
 {
   "success": true,
-  "message": "Case lock released successfully",
+  "message": "Success",
   "data": {
     "caseId": 1,
-    "released": true
+    "lockedByUserId": 2,
+    "lockedByOfficerId": 2,
+    "lockedByUnitId": 1,
+    "caseLockStatus": "ACTIVE",
+    "lockedAt": "2026-05-26T10:00:00",
+    "expiresAt": "2026-05-26T10:15:00",
+    "lockedByMe": true,
+    "active": true
   }
 }
 ```
+
+`DELETE` trả `data: null`. Frontend chỉ được hiện nút gia hạn hoặc giải phóng khi `lockedByMe=true` và `active=true`.
 
 ---
 
 # 6. Dispatcher APIs
 
 ---
+
+> **Trạng thái triển khai:** Hai endpoint `/api/dispatcher/cases/pending` và `/api/dispatcher/cases/{caseId}/assign` trong chương này chưa có controller/gateway route ở backend hiện tại. Frontend không gọi các endpoint này cho đến khi backend hoàn thiện.
 
 ## 6.1. Xem danh sách tin báo chờ điều phối
 
@@ -737,7 +783,9 @@ ADMIN
 
 | Param | Type | Required | Mô tả |
 |---|---|---:|---|
-| limit | Integer | Không | Số lượng bản ghi mới nhất |
+| limit | Integer | Không | Số lượng bản ghi mới nhất, mặc định 20, hợp lệ từ 1 đến 100 |
+
+Timeline lấy các audit event của resource `CASE_REPORT`, sắp xếp theo `createdAt` giảm dần rồi theo audit ID giảm dần.
 
 ### Response
 
@@ -773,6 +821,22 @@ ADMIN
 ```http
 GET /api/commander/dashboard/heatmap
 ```
+
+### Query params
+
+| Param | Type | Required | Mô tả |
+|---|---|---:|---|
+| from | ISO DateTime | Không | Chỉ lấy case tạo từ thời điểm này, tính cả mốc `from` |
+| to | ISO DateTime | Không | Chỉ lấy case tạo đến thời điểm này, tính cả mốc `to` |
+| urgencyLevel | Enum | Không | `LOW`, `MEDIUM`, `HIGH`, `CRITICAL` |
+
+Ví dụ:
+
+```http
+GET /api/commander/dashboard/heatmap?from=2026-06-01T00:00:00&to=2026-06-30T23:59:59&urgencyLevel=HIGH
+```
+
+Nếu `from` lớn hơn `to`, backend trả lỗi `REPORT_1017`.
 
 ### Role được gọi
 
@@ -828,11 +892,17 @@ ADMIN
   "data": [
     {
       "id": 1,
-      "categoryId": 1,
+      "code": "ROBBERY",
       "name": "Cướp giật",
       "description": "Hành vi cướp giật tài sản",
       "baseScore": 30,
-      "isActive": true
+      "isActive": true,
+      "category": {
+        "id": 1,
+        "code": "SOCIAL_ORDER",
+        "name": "Trật tự xã hội",
+        "defaultUrgencyLevel": "HIGH"
+      }
     }
   ]
 }
@@ -857,9 +927,11 @@ ADMIN
 ```json
 {
   "categoryId": 1,
+  "code": "ROBBERY",
   "name": "Cướp giật",
   "description": "Hành vi cướp giật tài sản",
-  "baseScore": 30
+  "baseScore": 30,
+  "isActive": true
 }
 ```
 
@@ -871,10 +943,16 @@ ADMIN
   "message": "Crime type created successfully",
   "data": {
     "id": 1,
-    "categoryId": 1,
+    "code": "ROBBERY",
     "name": "Cướp giật",
     "baseScore": 30,
-    "isActive": true
+    "isActive": true,
+    "category": {
+      "id": 1,
+      "code": "SOCIAL_ORDER",
+      "name": "Trật tự xã hội",
+      "defaultUrgencyLevel": "HIGH"
+    }
   }
 }
 ```
@@ -902,10 +980,9 @@ ADMIN
   "data": [
     {
       "id": 1,
-      "ruleName": "Có vũ khí",
-      "conditionKey": "HAS_WEAPON",
-      "conditionValue": "true",
-      "score": 40,
+      "ruleCode": "HAS_WEAPON",
+      "scoreValue": 40,
+      "description": "Có vũ khí",
       "isActive": true
     }
   ]
@@ -930,10 +1007,10 @@ ADMIN
 
 ```json
 {
-  "ruleName": "Có vũ khí",
-  "conditionKey": "HAS_WEAPON",
-  "conditionValue": "true",
-  "score": 40
+  "ruleCode": "HAS_WEAPON",
+  "scoreValue": 40,
+  "description": "Có vũ khí",
+  "isActive": true
 }
 ```
 
@@ -945,10 +1022,9 @@ ADMIN
   "message": "Urgency rule created successfully",
   "data": {
     "id": 1,
-    "ruleName": "Có vũ khí",
-    "conditionKey": "HAS_WEAPON",
-    "conditionValue": "true",
-    "score": 40,
+    "ruleCode": "HAS_WEAPON",
+    "scoreValue": 40,
+    "description": "Có vũ khí",
     "isActive": true
   }
 }
@@ -995,6 +1071,149 @@ urgency-service
 
 ---
 
+## 8.6. Cập nhật loại tội phạm
+
+```http
+PATCH /api/admin/crime-types/{id}
+```
+
+Request có cùng cấu trúc với API tạo loại tội phạm và phải gửi đầy đủ `categoryId`, `code`, `name`, `description`, `baseScore`, `isActive`.
+
+---
+
+## 8.7. Cập nhật rule tính điểm nguy cấp
+
+```http
+PATCH /api/admin/urgency-rules/{id}
+```
+
+```json
+{
+  "id": 1,
+  "ruleCode": "HAS_WEAPON",
+  "scoreValue": 45,
+  "description": "Có vũ khí",
+  "isActive": true
+}
+```
+
+---
+
+## 8.8. Lấy danh sách user
+
+```http
+GET /api/admin/users
+```
+
+Role: `ADMIN`.
+
+```json
+{
+  "success": true,
+  "message": "Users retrieved successfully",
+  "data": [
+    {
+      "id": 2,
+      "username": "officer01",
+      "fullName": "Nguyễn Văn A",
+      "email": "officer01@example.com",
+      "phone": "0900000002",
+      "active": true,
+      "roles": ["OFFICER"],
+      "createdAt": "2026-05-26T09:00:00"
+    }
+  ]
+}
+```
+
+---
+
+## 8.9. Tạo user
+
+```http
+POST /api/admin/users
+Content-Type: application/json
+```
+
+```json
+{
+  "username": "officer02",
+  "password": "officer123",
+  "fullName": "Trần Văn B",
+  "email": "officer02@example.com",
+  "phone": "0900000005",
+  "roles": ["OFFICER"]
+}
+```
+
+Response là một `AdminUserResponse` như phần tử trong danh sách user. Backend mã hóa password và không bao giờ trả `password` hoặc `passwordHash`.
+
+---
+
+## 8.10. Cập nhật role user
+
+```http
+PATCH /api/admin/users/{id}/roles
+```
+
+```json
+{
+  "roles": ["OFFICER", "DISPATCHER"]
+}
+```
+
+---
+
+## 8.11. Bật hoặc tắt user
+
+```http
+PATCH /api/admin/users/{id}/status
+```
+
+```json
+{
+  "active": false
+}
+```
+
+User bị tắt không thể đăng nhập và JWT cũ không còn hợp lệ.
+
+---
+
+## 8.12. Tạo hồ sơ officer
+
+```http
+POST /api/admin/officers
+```
+
+```json
+{
+  "userId": 5,
+  "unitId": 1,
+  "badgeNumber": "CB002",
+  "rankName": "Trung úy"
+}
+```
+
+```json
+{
+  "success": true,
+  "message": "Officer profile created successfully",
+  "data": {
+    "officerId": 5,
+    "userId": 5,
+    "unitId": 1,
+    "unitName": "Công an Phường Bến Nghé",
+    "badgeNumber": "CB002",
+    "rankName": "Trung úy"
+  }
+}
+```
+
+Luồng tạo cán bộ gồm hai bước: tạo user có role `OFFICER`, sau đó dùng `userId` để tạo hồ sơ officer. Backend hiện chưa có API lấy toàn bộ police unit; frontend chỉ có thể dùng `unitId` đã biết cho đến khi API danh sách đơn vị được bổ sung.
+
+---
+
 # 9. Evidence APIs
 
 ---
@@ -1008,7 +1227,7 @@ GET /api/officer/evidences/{evidenceId}/download
 ### Role được gọi
 
 ```text
-DUTY_OFFICER
+OFFICER
 DISPATCHER
 COMMANDER
 ADMIN
@@ -1032,6 +1251,8 @@ Binary file stream
 
 ---
 
+> **Trạng thái triển khai:** Endpoint giải mã danh tính bên dưới chưa có controller/gateway route ở backend hiện tại. Frontend không hiển thị chức năng này cho đến khi backend hoàn thiện.
+
 ## 10.1. Xem thông tin người tố giác đã giải mã
 
 ```http
@@ -1045,7 +1266,7 @@ COMMANDER
 ADMIN
 ```
 
-Trong MVP, nên hạn chế quyền API này. `DUTY_OFFICER` không mặc định được xem danh tính người tố giác nếu không thật sự cần.
+Trong MVP, nên hạn chế quyền API này. `OFFICER` không mặc định được xem danh tính người tố giác nếu không thật sự cần.
 
 ### Response
 
@@ -1077,17 +1298,29 @@ REPORTER_IDENTITY_DECRYPTED
 
 | Error Code | Ý nghĩa |
 |---|---|
-| VALIDATION_ERROR | Dữ liệu đầu vào không hợp lệ |
-| UNAUTHORIZED | Chưa đăng nhập |
-| FORBIDDEN | Không có quyền |
-| CASE_NOT_FOUND | Không tìm thấy tin báo |
-| CASE_LOCKED | Hồ sơ đang bị khóa |
-| INVALID_STATUS_TRANSITION | Chuyển trạng thái không hợp lệ |
-| ASSIGNMENT_CONFLICT | Có xung đột khi gán tin báo |
-| FILE_UPLOAD_ERROR | Lỗi upload file |
-| EVIDENCE_NOT_FOUND | Không tìm thấy bằng chứng |
-| TRACKING_CODE_NOT_FOUND | Không tìm thấy mã tra cứu |
-| INTERNAL_SERVER_ERROR | Lỗi hệ thống |
+| AUTH_1001 | Không tìm thấy user |
+| AUTH_1002 | Username đã tồn tại |
+| AUTH_1003 | Email đã tồn tại |
+| AUTH_1004 | Role không tồn tại |
+| REPORT_1002 | Không tìm thấy loại tội phạm |
+| REPORT_1003 | Loại tội phạm không hoạt động |
+| REPORT_1004 | Không tìm thấy tracking code |
+| REPORT_1005 | Không tìm thấy case |
+| REPORT_1009 | Case đang bị khóa |
+| REPORT_1010 | Khóa đã hết hạn |
+| REPORT_1011 | Không tìm thấy khóa |
+| REPORT_1012 | User hiện tại không phải chủ khóa |
+| REPORT_1014 | Chuyển trạng thái không hợp lệ |
+| REPORT_1015 | Role không được phép chuyển trạng thái |
+| REPORT_1017 | Khoảng thời gian heatmap không hợp lệ |
+| REPORT_1018 | Timeline limit phải từ 1 đến 100 |
+| EVIDENCE_1006 | Không tìm thấy file bằng chứng |
+| URGENCY_1001 | Không tìm thấy urgency rule |
+| URGENCY_1002 | Rule code đã được sử dụng |
+| DISPATCH_1004 | Không tìm thấy đơn vị phù hợp |
+| DISPATCH_1007 | Không có officer khả dụng |
+
+Response lỗi vẫn dùng wrapper `{success, message, errorCode}`. Global exception handler hiện ánh xạ phần lớn `AppException` về HTTP `400`; frontend nên ưu tiên đọc `errorCode` thay vì chỉ dựa vào HTTP status cho đến khi backend bổ sung mapping `404/409` chi tiết.
 
 ---
 
@@ -1115,9 +1348,15 @@ GET /api/officer/cases
 GET /api/officer/cases/{caseId}
 POST /api/officer/cases/{caseId}/accept
 PATCH /api/officer/cases/{caseId}/status
+POST /api/officer/cases/{caseId}/lock
+POST /api/officer/cases/{caseId}/lock/renew
+GET /api/officer/cases/{caseId}/lock
+DELETE /api/officer/cases/{caseId}/lock
 ```
 
 ## Phase 4 - Dispatcher
+
+Chưa sẵn sàng cho frontend ở phiên bản backend hiện tại.
 
 ```http
 GET /api/dispatcher/cases/pending
@@ -1137,8 +1376,15 @@ GET /api/commander/dashboard/heatmap
 ```http
 GET /api/admin/crime-types
 POST /api/admin/crime-types
+PATCH /api/admin/crime-types/{id}
 GET /api/admin/urgency-rules
 POST /api/admin/urgency-rules
+PATCH /api/admin/urgency-rules/{id}
+GET /api/admin/users
+POST /api/admin/users
+PATCH /api/admin/users/{id}/roles
+PATCH /api/admin/users/{id}/status
+POST /api/admin/officers
 ```
 
 ---
