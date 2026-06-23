@@ -146,13 +146,13 @@ UNDER_VERIFICATION
 
 | From Status | To Status | Actor được phép | Điều kiện |
 |---|---:|---|---|
-| NEW_RECEIVED | UNDER_VERIFICATION | DUTY_OFFICER | Tin báo thuộc phạm vi xử lý và chưa bị khóa bởi người khác |
-| NEW_RECEIVED | SPAM_OR_FAKE | DUTY_OFFICER, DISPATCHER | Tin báo có dấu hiệu giả, spam hoặc không hợp lệ |
+| NEW_RECEIVED | UNDER_VERIFICATION | OFFICER | Tin báo thuộc phạm vi xử lý và chưa bị khóa bởi người khác |
+| NEW_RECEIVED | SPAM_OR_FAKE | OFFICER, DISPATCHER | Tin báo có dấu hiệu giả, spam hoặc không hợp lệ |
 | NEW_RECEIVED | TRANSFERRED_TO_INVESTIGATION | DISPATCHER, COMMANDER | Tin báo nguy cấp cần chuyển thẳng đến bộ phận điều tra |
-| UNDER_VERIFICATION | TRANSFERRED_TO_INVESTIGATION | DUTY_OFFICER, DISPATCHER | Đã xác minh sơ bộ và cần chuyển cơ quan điều tra |
-| UNDER_VERIFICATION | RESOLVED | DUTY_OFFICER, COMMANDER | Tin báo đã được xử lý xong |
-| UNDER_VERIFICATION | SPAM_OR_FAKE | DUTY_OFFICER, DISPATCHER | Sau xác minh, tin báo không hợp lệ |
-| TRANSFERRED_TO_INVESTIGATION | RESOLVED | DUTY_OFFICER, COMMANDER | Cơ quan xử lý đã hoàn tất |
+| UNDER_VERIFICATION | TRANSFERRED_TO_INVESTIGATION | OFFICER, DISPATCHER | Đã xác minh sơ bộ và cần chuyển cơ quan điều tra |
+| UNDER_VERIFICATION | RESOLVED | OFFICER, COMMANDER | Tin báo đã được xử lý xong |
+| UNDER_VERIFICATION | SPAM_OR_FAKE | OFFICER, DISPATCHER | Sau xác minh, tin báo không hợp lệ |
+| TRANSFERRED_TO_INVESTIGATION | RESOLVED | OFFICER, COMMANDER | Cơ quan xử lý đã hoàn tất |
 
 ---
 
@@ -240,7 +240,7 @@ Hệ thống tạo temporary case lock khi:
 
 ## 10. Case status history
 
-Mỗi lần tin báo chuyển trạng thái, hệ thống phải lưu lịch sử vào bảng case_status_history.
+Mỗi lần tin báo chuyển trạng thái, hệ thống phải lưu lịch sử vào bảng case_history.
 
 ### 10.1. Thông tin cần lưu
 
@@ -265,7 +265,7 @@ Mỗi lần tin báo chuyển trạng thái, hệ thống phải lưu lịch s�
 
 ## 11. Audit log khi chuyển trạng thái
 
-Ngoài case_status_history, hệ thống cần ghi audit_log cho các thao tác nhạy cảm.
+Ngoài case_history, hệ thống cần ghi audit_log cho các thao tác nhạy cảm.
 
 Ví dụ action:
 
@@ -308,7 +308,7 @@ function changeCaseStatus(caseId, newStatus, currentUser, reason):
 
     update case.status = newStatus
 
-    create case_status_history record
+    create case_history record
 
     create audit_log record
 

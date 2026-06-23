@@ -2,6 +2,7 @@ package com.ngocphuoc.crime_report.report.repository;
 
 import com.ngocphuoc.crime_report.enums.CaseStatus;
 import com.ngocphuoc.crime_report.enums.UrgencyLevel;
+import com.ngocphuoc.crime_report.report.dto.response.HeatmapPointResponse;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,8 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface CaseReportRepository extends JpaRepository<CaseReport, Long> {
@@ -72,5 +75,34 @@ public interface CaseReportRepository extends JpaRepository<CaseReport, Long> {
             @Param("status") CaseStatus status,
             @Param("urgencyLevel") UrgencyLevel urgencyLevel,
             Pageable pageable
+    );
+
+    long countByStatus(CaseStatus status);
+
+    long countByUrgencyLevel(UrgencyLevel urgencyLevel);
+
+    @Query("""
+        SELECT new com.ngocphuoc.crime_report.report.dto.response.HeatmapPointResponse(
+                    c.id,
+                    c.latitude,
+                    c.longitude,
+                    c.urgencyLevel,
+                    ct.name,
+                    c.status,
+                    c.createdAt
+                )
+        FROM CaseReport c
+        JOIN c.crimeType ct
+        WHERE c.latitude IS NOT NULL
+            AND c.longitude IS NOT NULL
+            AND (:fromTime IS NULL OR c.createdAt >= :fromTime)
+            AND (:toTime IS NULL OR c.createdAt <= :toTime)
+            AND (:urgencyLevel IS NULL OR c.urgencyLevel = :urgencyLevel)
+        ORDER BY c.createdAt DESC
+    """)
+    List<HeatmapPointResponse> findHeatMapPoints(
+            @Param("fromTime") LocalDateTime fromTime,
+            @Param("toTime") LocalDateTime toTime,
+            @Param("urgencyLevel") UrgencyLevel urgencyLevel
     );
 }

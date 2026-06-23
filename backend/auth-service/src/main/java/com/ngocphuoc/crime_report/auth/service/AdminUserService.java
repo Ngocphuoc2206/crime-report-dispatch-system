@@ -39,7 +39,7 @@ public class AdminUserService {
     public AdminUserResponse createUser(CreateUserRequest createUserRequest){
         String username = createUserRequest.username().trim();
 
-        if (userRepository.existsByEmailIgnoreCase(username)) {
+        if (userRepository.existsByUsernameIgnoreCase(username)) {
             throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
         }
 

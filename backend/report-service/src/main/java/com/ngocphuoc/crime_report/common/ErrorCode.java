@@ -24,6 +24,11 @@ public enum ErrorCode implements com.ngocphuoc.crime_report.shared.error.ErrorCo
     INVALID_CASE_STATUS_TRANSITION("REPORT_1014", "Invalid case status transition"),
     ROLE_NOT_ALLOWED_FOR_TRANSITION("REPORT_1015", "Current role is not allowed for this status transition"),
     CRIME_TYPE_CODE_EXISTS("REPORT_1016", "CrimeType code is existed"),
+    INVALID_TIME_RANGE("REPORT_1017", "From time must be before or equal to time"),
+    INVALID_TIMELINE_LIMIT(
+            "REPORT_1018",
+            "Timeline limit must be between 1 and 100"
+    ),
     // Uncategorized
     UNCATEGORIZED_EXCEPTION("REPORT_9998", "UNCATEGORIZED_EXCEPTION!"),
     INTERNAL_SERVER_ERROR("REPORT_INTERNAL_SERVER", "Server is not response");
