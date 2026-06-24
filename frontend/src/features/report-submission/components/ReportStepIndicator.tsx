@@ -31,7 +31,10 @@ export function ReportStepIndicator({ currentStep }: ReportStepIndicatorProps) {
               {index < steps.length - 1 ? (
                 <span
                   aria-hidden="true"
-                  className="absolute left-[58%] top-5 hidden h-0.5 w-[85%] bg-slate-200 md:block"
+                  className={[
+                    "absolute left-[58%] top-5 hidden h-0.5 w-[85%] transition-colors duration-500 md:block",
+                    isCompleted ? "bg-(--primary)" : "bg-slate-200",
+                  ].join(" ")}
                 />
               ) : null}
 

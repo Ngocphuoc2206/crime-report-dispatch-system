@@ -12,7 +12,12 @@ async function request<T>(
   const url = `${env.apiBaseUrl}${path}`;
 
   const headers = new Headers(options.headers);
-  headers.set("Content-Type", "application/json");
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
+
+  if (options.body && !isFormData && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
 
   if (options.auth) {
     const token =
@@ -69,6 +74,13 @@ export const apiClient = {
       ...options,
       method: "POST",
       body: body ? JSON.stringify(body) : undefined,
+    }),
+
+  postForm: <T>(path: string, body: FormData, options?: RequestOptions) =>
+    request<T>(path, {
+      ...options,
+      method: "POST",
+      body,
     }),
 
   put: <T, B = unknown>(path: string, body?: B, options?: RequestOptions) =>
