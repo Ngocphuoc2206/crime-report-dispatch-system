@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,8 +39,7 @@ public class EvidenceFileService {
     private static final Map<String, EvidenceFileType> MIME_PREFIX = Map.of(
             "image/", EvidenceFileType.IMAGE,
             "video/", EvidenceFileType.VIDEO,
-            "audio/", EvidenceFileType.AUDIO,
-            "application/pdf", EvidenceFileType.DOCUMENT
+            "audio/", EvidenceFileType.AUDIO
     );
 
     public EvidenceFileService(
@@ -57,6 +57,8 @@ public class EvidenceFileService {
         if (files == null || files.isEmpty()) {
             return;
         }
+
+        validateFileTypes(files);
 
         ReportLookupResponse report = reportClient.findByTrackingCode(trackingCode);
 
@@ -166,6 +168,27 @@ public class EvidenceFileService {
             }
         }
         return EvidenceFileType.OTHER;
+    }
+
+    private void validateFileTypes(List<MultipartFile> files) {
+        for (MultipartFile file : files) {
+            if (file == null || file.isEmpty()) {
+                continue;
+            }
+
+            if (isPdfFile(file) || resolveFileType(file.getContentType()) == EvidenceFileType.OTHER) {
+                throw new AppException(ErrorCode.EVIDENCE_TYPE_NOT_SUPPORTED);
+            }
+        }
+    }
+
+    private boolean isPdfFile(MultipartFile file) {
+        try (InputStream inputStream = file.getInputStream()) {
+            byte[] signature = inputStream.readNBytes(5);
+            return "%PDF-".equals(new String(signature, StandardCharsets.US_ASCII));
+        } catch (Exception exception) {
+            throw new IllegalStateException("Failed to inspect evidence file", exception);
+        }
     }
 
     private String calculateSha256(Path path) {

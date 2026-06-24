@@ -1,4 +1,5 @@
 import type {
+  EvidenceUploadDraft,
   IncidentInformationDraft,
   ReportClassificationDraft,
   ReporterIdentityDraft,
@@ -7,6 +8,7 @@ import type {
 const REPORT_CLASSIFICATION_DRAFT_KEY = "reportClassificationDraft";
 const REPORTER_IDENTITY_DRAFT_KEY = "reporterIdentityDraft";
 const INCIDENT_INFORMATION_DRAFT_KEY = "incidentInformationDraft";
+const EVIDENCE_UPLOAD_DRAFT_KEY = "evidenceUploadDraft";
 
 function isReportClassificationDraft(
   value: unknown,
@@ -173,5 +175,32 @@ export const reportDraftStorage = {
     if (typeof window === "undefined") return;
 
     sessionStorage.removeItem(INCIDENT_INFORMATION_DRAFT_KEY);
+  },
+  // Step 4
+
+  saveEvidenceUpload: (draft: EvidenceUploadDraft) => {
+    if (typeof window === "undefined") return;
+
+    sessionStorage.setItem(EVIDENCE_UPLOAD_DRAFT_KEY, JSON.stringify(draft));
+  },
+
+  getEvidenceUpload: (): EvidenceUploadDraft | null => {
+    if (typeof window === "undefined") return null;
+
+    const rawValue = sessionStorage.getItem(EVIDENCE_UPLOAD_DRAFT_KEY);
+
+    if (!rawValue) return null;
+
+    try {
+      return JSON.parse(rawValue) as EvidenceUploadDraft;
+    } catch {
+      return null;
+    }
+  },
+
+  clearEvidenceUpload: () => {
+    if (typeof window === "undefined") return;
+
+    sessionStorage.removeItem(EVIDENCE_UPLOAD_DRAFT_KEY);
   },
 };

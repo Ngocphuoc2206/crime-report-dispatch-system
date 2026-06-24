@@ -203,6 +203,8 @@ PUBLIC
 | reporterAddress | String | Không | Địa chỉ liên hệ |
 | files | File[] | Không | File bằng chứng |
 
+Chỉ chấp nhận bằng chứng dạng ảnh, video hoặc âm thanh. File PDF và các loại tài liệu khác bị từ chối.
+
 ### Ví dụ request dạng multipart
 
 Backend nhận hai multipart part:
