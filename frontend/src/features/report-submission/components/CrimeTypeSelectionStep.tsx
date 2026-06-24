@@ -10,6 +10,7 @@ import { fallbackCrimeTypes } from "@/features/report-submission/data/fallbackCr
 import { crimeTypeService } from "@/features/report-submission/services/crimeTypeService";
 import { reportDraftStorage } from "@/features/report-submission/services/reportDraftStorage";
 import type { CrimeType } from "@/features/report-submission/types/reportSubmission.types";
+import { useRouter } from "next/navigation";
 
 function InfoIcon() {
   return (
@@ -61,6 +62,7 @@ export function CrimeTypeSelectionStep() {
   const [anonymous, setAnonymous] = useState(false);
   const [loading, setLoading] = useState(true);
   const [apiErrorMessage, setApiErrorMessage] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     let mounted = true;
@@ -140,9 +142,8 @@ export function CrimeTypeSelectionStep() {
       anonymous,
     });
 
-    alert(
-      "Đã lưu lựa chọn bước 1. Bước 2 sẽ được phát triển ở issue tiếp theo.",
-    );
+    // Change to step 2
+    router.push("/report/reporter");
   }
 
   return (

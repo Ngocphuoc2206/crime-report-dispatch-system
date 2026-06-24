@@ -55,6 +55,7 @@ System
 | longitude | Có | Kinh độ vị trí xảy ra vụ việc |
 | addressText | Có | Địa chỉ mô tả |
 | reporterFullName | Không | Họ tên người tố giác |
+| reporterCitizenId | Không | Số CCCD/định danh cá nhân |
 | reporterPhone | Không | Số điện thoại người tố giác |
 | reporterEmail | Không | Email người tố giác |
 | evidenceFiles | Không | File hình ảnh, video hoặc ghi âm |

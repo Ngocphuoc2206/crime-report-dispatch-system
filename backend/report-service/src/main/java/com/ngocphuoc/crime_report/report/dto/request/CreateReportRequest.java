@@ -35,6 +35,7 @@ public record CreateReportRequest(
         String addressText,
 
         String reporterFullName,
+        String reporterCitizenId,
         String reporterPhone,
         String reporterEmail,
         String reporterAddress

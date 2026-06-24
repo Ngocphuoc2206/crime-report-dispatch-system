@@ -197,6 +197,7 @@ PUBLIC
 | longitude | Decimal | Có | Kinh độ |
 | addressText | String | Có | Địa chỉ mô tả |
 | reporterFullName | String | Không | Họ tên người tố giác |
+| reporterCitizenId | String | Không | Số CCCD/định danh cá nhân |
 | reporterPhone | String | Không | Số điện thoại |
 | reporterEmail | String | Không | Email |
 | reporterAddress | String | Không | Địa chỉ liên hệ |
@@ -223,6 +224,7 @@ Backend nhận hai multipart part:
   "longitude": 106.7009,
   "addressText": "Phường Bến Nghé, Quận 1, TP.HCM",
   "reporterFullName": "Nguyễn Văn A",
+  "reporterCitizenId": "079123456789",
   "reporterPhone": "0900000000",
   "reporterEmail": "a@example.com",
   "reporterAddress": "Quận 1, TP.HCM"
@@ -1277,6 +1279,7 @@ Trong MVP, nên hạn chế quyền API này. `OFFICER` không mặc định đ�
   "data": {
     "caseId": 1,
     "fullName": "Nguyễn Văn A",
+    "citizenId": "079123456789",
     "phone": "0900000000",
     "email": "a@example.com",
     "address": "Quận 1, TP.HCM"

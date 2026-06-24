@@ -68,23 +68,25 @@ public class ReporterIdentityService {
                 auditRequestMetadataResolver.getIpAddress(httpServletRequest),
                 auditRequestMetadataResolver.getUserAgent(httpServletRequest),
                 "caseId=" + caseReport.getId()
-                        + ", fields=reporterName,reporterPhone,reporterEmail,reporterAddress"
+                        + ", fields=reporterName,reporterCitizenId,reporterPhone,reporterEmail,reporterAddress"
         ));
     }
 
     private String toReporterJson(CreateReportRequest request){
         Map<String, String> payload = Map.of(
                 "fullName", valueOrEmpty(request.reporterFullName()),
+                "citizenId", valueOrEmpty(request.reporterCitizenId()),
                 "phone", valueOrEmpty(request.reporterPhone()),
                 "email", valueOrEmpty(request.reporterEmail()),
                 "address", valueOrEmpty(request.reporterAddress())
         );
-        log.info("[INFO] Change Reporter to Json {}", payload);
+        log.info("[INFO] Prepared reporter identity payload for encryption");
         return objectMapper.writeValueAsString(payload);
     }
 
     private boolean hasReporterInfo(CreateReportRequest request) {
         return hasText(request.reporterFullName())
+                || hasText(request.reporterCitizenId())
                 || hasText(request.reporterPhone())
                 || hasText(request.reporterEmail())
                 || hasText(request.reporterAddress());
