@@ -64,24 +64,9 @@ export function EvidenceFileList({ files, onRemove }: EvidenceFileListProps) {
                 {formatFileSize(file.size)}
               </p>
 
-              {file.status === "uploading" ? (
-                <div className="mt-3">
-                  <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                    <div
-                      className="h-full rounded-full bg-sky-700 transition-all"
-                      style={{ width: `${file.progress}%` }}
-                    />
-                  </div>
-
-                  <p className="mt-1 text-xs text-slate-500">
-                    Đang xử lý và mã hóa... {file.progress}%
-                  </p>
-                </div>
-              ) : null}
-
-              {file.status === "uploaded" ? (
+              {file.status === "ready" ? (
                 <p className="mt-1 text-xs font-semibold text-green-700">
-                  Đã sẵn sàng đính kèm
+                  Đã kiểm tra, sẵn sàng gửi
                 </p>
               ) : null}
 

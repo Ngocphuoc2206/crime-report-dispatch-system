@@ -48,8 +48,10 @@ public class CaseReportService {
             List<MultipartFile> files,
             HttpServletRequest httpServletRequest
     ){
+        List<MultipartFile> evidenceFiles = files == null ? List.of() : files;
+
         log.info("[INFO] Process creating report.....");
-        log.info("[INFO] Size evidence files {}", files.size());
+        log.info("[INFO] Size evidence files {}", evidenceFiles.size());
         CrimeType crimeType = crimeTypeRepository.findById(request.crimeTypeId())
                 .orElseThrow(() -> new AppException(ErrorCode.CRIME_NOT_FOUND));
 
@@ -79,7 +81,7 @@ public class CaseReportService {
                         request.hasWeapon(),
                         request.isHappeningNow(),
                         request.hasInjuredPerson(),
-                        evidenceFileInspector.hasVideoEvidence(files)
+                        evidenceFileInspector.hasVideoEvidence(evidenceFiles)
                 )
         );
 
@@ -112,8 +114,8 @@ public class CaseReportService {
             saved.setAssignedOfficerId(dispatchResponse.assignedOfficerId());
 
             // Upload files evidence
-            if (!files.isEmpty()) {
-                evidenceClient.uploadEvidence(saved.getTrackingCode(), files);
+            if (!evidenceFiles.isEmpty()) {
+                evidenceClient.uploadEvidence(saved.getTrackingCode(), evidenceFiles);
             }
 
             auditLogService.writeLog(new AuditLogCommand(

@@ -1,16 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { EvidenceDropzone } from "@/features/report-submission/components/EvidenceDropzone";
 import { EvidenceFileList } from "@/features/report-submission/components/EvidenceFileList";
 import { EvidenceHelpPanel } from "@/features/report-submission/components/EvidenceHelpPanel";
 import { ReportStepIndicator } from "@/features/report-submission/components/ReportStepIndicator";
+import { useEvidenceFiles } from "@/features/report-submission/contexts/EvidenceFilesContext";
 import {
   allowedEvidenceMimeTypes,
   getMaxFileSizeByKind,
   MAX_EVIDENCE_FILES,
+  MAX_EVIDENCE_TOTAL_SIZE,
 } from "@/features/report-submission/data/evidenceUpload.config";
 import { reportDraftStorage } from "@/features/report-submission/services/reportDraftStorage";
 import type {
@@ -54,11 +56,20 @@ function validateFile(file: File): {
 
 export function EvidenceUploadStep() {
   const router = useRouter();
+  const {
+    files: evidenceBinaryFiles,
+    addFiles: addEvidenceBinaryFiles,
+    removeFile: removeEvidenceBinaryFile,
+  } = useEvidenceFiles();
+  const initialized = useRef(false);
   const [files, setFiles] = useState<EvidenceFileDraft[]>([]);
   const [pageError, setPageError] = useState<string | null>(null);
   const [missingPreviousStep, setMissingPreviousStep] = useState(false);
 
   useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+
     const classificationDraft = reportDraftStorage.getClassification();
     const reporterDraft = reportDraftStorage.getReporterIdentity();
     const incidentDraft = reportDraftStorage.getIncidentInformation();
@@ -70,54 +81,27 @@ export function EvidenceUploadStep() {
     }
 
     if (evidenceDraft) {
-      setFiles(evidenceDraft.files);
+      const availableFileIds = new Set(
+        evidenceBinaryFiles.map(({ id }) => id),
+      );
+      const availableDrafts = evidenceDraft.files.filter(({ id }) =>
+        availableFileIds.has(id),
+      );
+
+      setFiles(availableDrafts);
+
+      if (availableDrafts.length !== evidenceDraft.files.length) {
+        setPageError(
+          "Một số tệp đã mất sau khi tải lại trang. Vui lòng chọn lại tệp bằng chứng.",
+        );
+        reportDraftStorage.saveEvidenceUpload({ files: availableDrafts });
+      }
     }
-  }, []);
+  }, [evidenceBinaryFiles]);
 
   const validFiles = useMemo(() => {
-    return files.filter((file) => file.status === "uploaded");
+    return files.filter((file) => file.status === "ready");
   }, [files]);
-
-  const hasUploadingFile = useMemo(() => {
-    return files.some((file) => file.status === "uploading");
-  }, [files]);
-
-  function simulateProgress(fileIds: string[]) {
-    const timer = window.setInterval(() => {
-      setFiles((currentFiles) => {
-        let allDone = true;
-
-        const nextFiles = currentFiles.map((file) => {
-          if (!fileIds.includes(file.id) || file.status !== "uploading") {
-            return file;
-          }
-
-          const nextProgress = Math.min(file.progress + 20, 100);
-
-          if (nextProgress < 100) {
-            allDone = false;
-
-            return {
-              ...file,
-              progress: nextProgress,
-            };
-          }
-
-          return {
-            ...file,
-            progress: 100,
-            status: "uploaded" as const,
-          };
-        });
-
-        if (allDone) {
-          window.clearInterval(timer);
-        }
-
-        return nextFiles;
-      });
-    }, 350);
-  }
 
   function handleFilesSelected(selectedFiles: File[]) {
     setPageError(null);
@@ -127,12 +111,25 @@ export function EvidenceUploadStep() {
       return;
     }
 
+    const currentSize = validFiles.reduce((total, file) => total + file.size, 0);
+    const selectedSize = selectedFiles.reduce(
+      (total, file) => total + file.size,
+      0,
+    );
+
+    if (currentSize + selectedSize > MAX_EVIDENCE_TOTAL_SIZE) {
+      setPageError("Tổng dung lượng tệp không được vượt quá 190MB.");
+      return;
+    }
+
+    const binaryFilesToAdd: Array<{ id: string; file: File }> = [];
     const nextFiles: EvidenceFileDraft[] = selectedFiles.map((file) => {
       const result = validateFile(file);
+      const id = createEvidenceId();
 
       if (!result.valid || !result.kind) {
         return {
-          id: createEvidenceId(),
+          id,
           name: file.name,
           size: file.size,
           type: file.type || "unknown",
@@ -143,33 +140,31 @@ export function EvidenceUploadStep() {
         };
       }
 
+      binaryFilesToAdd.push({ id, file });
+
       return {
-        id: createEvidenceId(),
+        id,
         name: file.name,
         size: file.size,
         type: file.type,
         kind: result.kind,
-        progress: 0,
-        status: "uploading",
+        progress: 100,
+        status: "ready",
       };
     });
 
     setFiles((current) => [...current, ...nextFiles]);
-
-    const uploadingIds = nextFiles
-      .filter((file) => file.status === "uploading")
-      .map((file) => file.id);
-
-    if (uploadingIds.length > 0) {
-      simulateProgress(uploadingIds);
-    }
+    addEvidenceBinaryFiles(binaryFilesToAdd);
   }
 
   function handleRemoveFile(id: string) {
     setFiles((current) => current.filter((file) => file.id !== id));
+    removeEvidenceBinaryFile(id);
   }
 
   function handleContinue() {
+    if (missingPreviousStep) return;
+
     reportDraftStorage.saveEvidenceUpload({
       files: validFiles,
     });
@@ -240,7 +235,7 @@ export function EvidenceUploadStep() {
               <button
                 type="button"
                 onClick={handleContinue}
-                disabled={hasUploadingFile}
+                disabled={missingPreviousStep}
                 className="inline-flex items-center justify-center rounded-md bg-(--primary) px-8 py-4 
                 font-semibold text-white transition hover:bg-(--primary-hover) disabled:cursor-not-allowed disabled:bg-red-300"
               >

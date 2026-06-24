@@ -75,8 +75,7 @@ export type EvidenceFileKind = "image" | "video" | "audio";
 
 export type EvidenceUploadStatus =
   | "pending"
-  | "uploading"
-  | "uploaded"
+  | "ready"
   | "failed";
 
 export type EvidenceFileDraft = {
@@ -92,4 +91,22 @@ export type EvidenceFileDraft = {
 
 export type EvidenceUploadDraft = {
   files: EvidenceFileDraft[];
+};
+
+// Step 5
+export type SubmitReportPayload = {
+  classification: ReportClassificationDraft;
+  reporter: ReporterIdentityDraft;
+  incident: IncidentInformationDraft;
+  files: File[];
+};
+
+export type SubmittedReportResult = {
+  caseId: number;
+  trackingCode: string;
+  submittedAt: string;
+  status: string;
+  urgencyScore: number;
+  urgencyLevel: string;
+  mode: ReporterMode;
 };

@@ -2,7 +2,8 @@ import { EvidenceFileKind } from "../types/reportSubmission.types";
 
 export const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 export const MAX_AUDIO_SIZE = 50 * 1024 * 1024;
-export const MAX_VIDEO_SIZE = 500 * 1024 * 1024;
+export const MAX_VIDEO_SIZE = 100 * 1024 * 1024;
+export const MAX_EVIDENCE_TOTAL_SIZE = 190 * 1024 * 1024;
 export const MAX_EVIDENCE_FILES = 10;
 
 export const allowedEvidenceMimeTypes: Record<string, EvidenceFileKind> = {

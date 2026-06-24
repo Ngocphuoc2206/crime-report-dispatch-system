@@ -87,7 +87,8 @@ export function EvidenceDropzone({ onFilesSelected }: EvidenceDropzoneProps) {
       </div>
 
       <p className="mt-4 text-xs text-slate-500">
-        Tối đa 10 tệp. Ảnh tối đa 10MB, audio tối đa 50MB, video tối đa 500MB.
+        Tối đa 10 tệp và tổng dung lượng 190MB. Ảnh tối đa 10MB, audio tối đa
+        50MB, video tối đa 100MB.
       </p>
     </div>
   );
