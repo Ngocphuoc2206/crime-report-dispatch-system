@@ -8,7 +8,7 @@ const navigation = [
   { label: "Trang chủ", href: "/" },
   { label: "Tin báo", href: "/report" },
   { label: "Tra cứu", href: "/tracking" },
-  { label: "Hỗ trợ", href: "/#help" },
+  { label: "Hỗ trợ", href: "/support" },
 ];
 
 function EmblemIcon() {
