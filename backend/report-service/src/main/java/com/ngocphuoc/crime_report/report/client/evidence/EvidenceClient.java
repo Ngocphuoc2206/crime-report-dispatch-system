@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -14,8 +16,6 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
-import static com.ngocphuoc.crime_report.shared.security.InternalTokenAuthenticationFilter.INTERNAL_TOKEN_HEADER;
 
 @Component
 @RequiredArgsConstructor
@@ -55,7 +55,9 @@ public class EvidenceClient {
                     }
                 };
 
-                body.add("files", resource);
+                HttpHeaders partHeaders = new HttpHeaders();
+                partHeaders.setContentType(resolveContentType(file.getContentType()));
+                body.add("files", new HttpEntity<>(resource, partHeaders));
             } catch (Exception exception) {
                 throw new IllegalStateException("Failed to read evidence file", exception);
             }
@@ -75,6 +77,18 @@ public class EvidenceClient {
                 .body(body)
                 .retrieve()
                 .toBodilessEntity();
+    }
+
+    private MediaType resolveContentType(String contentType) {
+        if (contentType == null || contentType.isBlank()) {
+            return MediaType.APPLICATION_OCTET_STREAM;
+        }
+
+        try {
+            return MediaType.parseMediaType(contentType);
+        } catch (Exception exception) {
+            return MediaType.APPLICATION_OCTET_STREAM;
+        }
     }
 
     public List<EvidenceMetadataResponse> getEvidenceMetadataByCaseId(Long caseId){

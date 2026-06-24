@@ -68,3 +68,28 @@ export type CreateReportPayload = IncidentInformationPayload &
   ReporterIdentityPayload & {
     crimeTypeId: number;
   };
+
+// Step 4
+
+export type EvidenceFileKind = "image" | "video" | "audio";
+
+export type EvidenceUploadStatus =
+  | "pending"
+  | "uploading"
+  | "uploaded"
+  | "failed";
+
+export type EvidenceFileDraft = {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  kind: EvidenceFileKind;
+  progress: number;
+  status: EvidenceUploadStatus;
+  error?: string;
+};
+
+export type EvidenceUploadDraft = {
+  files: EvidenceFileDraft[];
+};
