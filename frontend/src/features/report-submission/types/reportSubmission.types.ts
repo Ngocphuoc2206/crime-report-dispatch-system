@@ -37,3 +37,34 @@ export type ReporterIdentityPayload = {
   reporterEmail: string | null;
   reporterAddress: string | null;
 };
+
+// Step 3
+export type IncidentInformationDraft = {
+  description: string;
+  incidentTime: string;
+  timeUnknown: boolean;
+  address: string;
+  latitude: string;
+  longitude: string;
+  estimatedCrimeType: string;
+  isHappeningNow: boolean;
+  hasWeapon: boolean;
+  hasInjured: boolean;
+  tags: string[];
+};
+
+export type IncidentInformationPayload = {
+  description: string;
+  incidentTime: string | null;
+  isHappeningNow: boolean;
+  hasWeapon: boolean;
+  hasInjuredPerson: boolean;
+  latitude: number;
+  longitude: number;
+  addressText: string;
+};
+
+export type CreateReportPayload = IncidentInformationPayload &
+  ReporterIdentityPayload & {
+    crimeTypeId: number;
+  };
