@@ -287,7 +287,7 @@ reporter_identity
 
 Ghi chú bảo mật:
 
-- Không lưu họ tên, số điện thoại, email dạng plaintext.
+- Không lưu họ tên, CCCD, số điện thoại, email dạng plaintext.
 - Mỗi bản ghi có IV riêng.
 - Dữ liệu định danh được tách khỏi bảng case_report.
 - Chỉ API nội bộ có quyền đặc biệt mới được giải mã.
