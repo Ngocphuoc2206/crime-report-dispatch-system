@@ -233,4 +233,158 @@ export const mockOfficerCases: OfficerCase[] = [
       },
     ],
   },
+  {
+    code: "TB-2023-0891",
+    title: "Nghi ngờ tổ chức đánh bạc qua mạng quy mô lớn",
+    summary:
+      "Nghi ngờ tổ chức đánh bạc qua mạng quy mô lớn tại khu vực quận Gò Vấp. Đã có dấu hiệu giao dịch bất thường.",
+    category: "Không gian mạng",
+    location: "Quận Gò Vấp, TP. Hồ Chí Minh",
+    priority: "URGENT",
+    status: "VERIFYING",
+    submittedAt: "2026-06-24T10:45:00.000Z",
+    assignedOfficerName: CURRENT_OFFICER_NAME,
+    reporterMode: "identified",
+    reporter: {
+      fullName: "Phạm Văn C",
+      citizenId: "001234567890",
+      phone: "0909123456",
+      address: "Quận Gò Vấp, TP. Hồ Chí Minh",
+    },
+    lock: {
+      lockedById: CURRENT_OFFICER_ID,
+      lockedByName: CURRENT_OFFICER_NAME,
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+    },
+    incident: {
+      description:
+        "Người dân phản ánh có một nhóm đối tượng sử dụng mạng xã hội để tổ chức đánh bạc trực tuyến, giao dịch qua nhiều tài khoản ngân hàng khác nhau. Hoạt động diễn ra thường xuyên vào ban đêm.",
+      timeText: "10:45 - 24/10/2023",
+      address: "Quận Gò Vấp, TP. Hồ Chí Minh",
+      estimatedDamage: "Chưa xác định",
+    },
+    evidence: [
+      {
+        id: "evidence-my-1",
+        name: "anh_chup_giao_dich.jpg",
+        type: "image",
+        size: "2.2 MB",
+        uploadedAt: "2026-06-24T10:46:00.000Z",
+      },
+    ],
+    timeline: [
+      {
+        id: "timeline-my-1",
+        title: "Tiếp nhận hồ sơ",
+        description: "Hồ sơ được tiếp nhận từ cổng công dân.",
+        actor: "Hệ thống",
+        occurredAt: "2026-06-24T10:45:00.000Z",
+      },
+      {
+        id: "timeline-my-2",
+        title: "Cán bộ nhận xử lý",
+        description: "Hồ sơ được khóa cho cán bộ trực ban.",
+        actor: CURRENT_OFFICER_NAME,
+        occurredAt: "2026-06-24T10:50:00.000Z",
+      },
+    ],
+  },
+  {
+    code: "TB-2023-0895",
+    title: "Phản ánh tiếng ồn sau 22h tại cơ sở kinh doanh",
+    summary:
+      "Cơ sở kinh doanh XYZ liên tục gây tiếng ồn vào ban đêm. Cần kiểm tra và xác minh phản ánh.",
+    category: "Trật tự đô thị",
+    location: "Quận Bình Thạnh, TP. Hồ Chí Minh",
+    priority: "MEDIUM",
+    status: "VERIFYING",
+    submittedAt: "2026-06-24T08:15:00.000Z",
+    assignedOfficerName: CURRENT_OFFICER_NAME,
+    reporterMode: "identified",
+    reporter: {
+      fullName: "Lê Thị D",
+      citizenId: "001987654321",
+      phone: "0911222333",
+      address: "Quận Bình Thạnh, TP. Hồ Chí Minh",
+    },
+    lock: {
+      lockedById: CURRENT_OFFICER_ID,
+      lockedByName: CURRENT_OFFICER_NAME,
+      expiresAt: new Date(Date.now() + 40 * 60 * 1000).toISOString(),
+    },
+    incident: {
+      description:
+        "Người dân phản ánh cơ sở kinh doanh XYZ thường xuyên mở nhạc lớn sau 22h, ảnh hưởng đến sinh hoạt của khu dân cư. Tình trạng đã kéo dài nhiều ngày.",
+      timeText: "08:15 - 24/10/2023",
+      address: "Quận Bình Thạnh, TP. Hồ Chí Minh",
+    },
+    evidence: [],
+    timeline: [
+      {
+        id: "timeline-my-3",
+        title: "Tiếp nhận hồ sơ",
+        description: "Hồ sơ được ghi nhận từ phản ánh trực tuyến.",
+        actor: "Hệ thống",
+        occurredAt: "2026-06-24T08:15:00.000Z",
+      },
+      {
+        id: "timeline-my-4",
+        title: "Đang xác minh",
+        description: "Cán bộ đang kiểm tra thông tin phản ánh.",
+        actor: CURRENT_OFFICER_NAME,
+        occurredAt: "2026-06-24T08:30:00.000Z",
+      },
+    ],
+  },
+  {
+    code: "TB-2023-0870",
+    title: "Tranh chấp đất đai tại phường Tân Định",
+    summary:
+      "Tranh chấp đất đai có biểu hiện xô xát nhẹ. Yêu cầu công an phường kiểm tra thêm thông tin.",
+    category: "Tranh chấp dân sự",
+    location: "Phường Tân Định, Quận 1",
+    priority: "MEDIUM",
+    status: "NEEDS_ADDITIONAL_EVIDENCE",
+    submittedAt: "2026-06-23T14:30:00.000Z",
+    assignedOfficerName: CURRENT_OFFICER_NAME,
+    reporterMode: "identified",
+    reporter: {
+      fullName: "Hoàng Văn E",
+      citizenId: "001111222333",
+      phone: "0988111222",
+      address: "Phường Tân Định, Quận 1",
+    },
+    incident: {
+      description:
+        "Người trình báo phản ánh có tranh chấp đất đai giữa hai hộ dân. Hai bên lời qua tiếng lại, có dấu hiệu xô xát nhẹ. Cần bổ sung giấy tờ liên quan đến quyền sử dụng đất.",
+      timeText: "14:30 - 23/10/2023",
+      address: "Phường Tân Định, Quận 1",
+    },
+    evidence: [
+      {
+        id: "evidence-my-5",
+        name: "anh_hien_truong.jpg",
+        type: "image",
+        size: "1.7 MB",
+        uploadedAt: "2026-06-23T14:40:00.000Z",
+      },
+    ],
+    timeline: [
+      {
+        id: "timeline-my-5",
+        title: "Tiếp nhận hồ sơ",
+        description: "Hồ sơ được tiếp nhận từ cổng công dân.",
+        actor: "Hệ thống",
+        occurredAt: "2026-06-23T14:30:00.000Z",
+      },
+      {
+        id: "timeline-my-6",
+        title: "Yêu cầu bổ sung tài liệu",
+        description:
+          "Cán bộ yêu cầu người dân bổ sung giấy tờ hoặc hình ảnh liên quan.",
+        actor: CURRENT_OFFICER_NAME,
+        occurredAt: "2026-06-23T15:00:00.000Z",
+      },
+    ],
+  },
 ];

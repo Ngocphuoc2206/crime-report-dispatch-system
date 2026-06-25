@@ -16,6 +16,8 @@ import type { OfficerCase } from "@/features/officer-cases/types/officerCase.typ
 
 type OfficerCaseDetailContentProps = {
   caseCode: string;
+  backHref?: string;
+  backLabel?: string;
 };
 
 function findCase(caseCode: string) {
@@ -34,6 +36,8 @@ function formatLockTime(expiresAt?: string) {
 
 export function OfficerCaseDetailContent({
   caseCode,
+  backHref = "/officer/cases",
+  backLabel = "Quay lại danh sách",
 }: OfficerCaseDetailContentProps) {
   const initialCase = useMemo(() => findCase(caseCode), [caseCode]);
   const [caseDetail, setCaseDetail] = useState<OfficerCase | undefined>(
@@ -244,10 +248,10 @@ export function OfficerCaseDetailContent({
       <section className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
         <div>
           <Link
-            href="/officer/cases"
+            href={backHref}
             className="text-sm font-semibold text-slate-600 hover:text-(--primary)"
           >
-            ← Quay lại danh sách
+            ← {backLabel}
           </Link>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
