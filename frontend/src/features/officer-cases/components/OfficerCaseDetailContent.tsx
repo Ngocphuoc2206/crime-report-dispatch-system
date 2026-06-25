@@ -1,18 +1,18 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   OfficerCasePriorityBadge,
   OfficerCaseStatusBadge,
 } from "@/features/officer-cases/components/OfficerCaseBadge";
 import { OfficerCaseTimeline } from "@/features/officer-cases/components/OfficerCaseTimeline";
-import {
-  CURRENT_OFFICER_ID,
-  CURRENT_OFFICER_NAME,
-  mockOfficerCases,
-} from "@/features/officer-cases/data/officerCases.data";
-import type { OfficerCase } from "@/features/officer-cases/types/officerCase.types";
+import { officerCaseService } from "@/features/officer-cases/services/officerCaseService";
+import type {
+  OfficerCase,
+  OfficerCaseStatus,
+} from "@/features/officer-cases/types/officerCase.types";
 
 type OfficerCaseDetailContentProps = {
   caseCode: string;
@@ -20,11 +20,7 @@ type OfficerCaseDetailContentProps = {
   backLabel?: string;
 };
 
-function findCase(caseCode: string) {
-  return mockOfficerCases.find((item) => item.code === caseCode);
-}
-
-function formatLockTime(expiresAt?: string) {
+function formatLockTime(expiresAt?: string | null) {
   if (!expiresAt) return "";
 
   const diff = new Date(expiresAt).getTime() - Date.now();
@@ -34,16 +30,81 @@ function formatLockTime(expiresAt?: string) {
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
+function getStatusNote(status: OfficerCaseStatus) {
+  const notes: Record<OfficerCaseStatus, string> = {
+    NEW_RECEIVED: "Hồ sơ mới được tiếp nhận.",
+    UNDER_VERIFICATION: "Cán bộ đang xác minh thông tin.",
+    TRANSFERRED_TO_INVESTIGATION: "Chuyển hồ sơ sang cơ quan điều tra.",
+    RESOLVED: "Đã xác minh và xử lý xong tin báo.",
+    SPAM_OR_FAKE: "Hồ sơ được đánh dấu không hợp lệ.",
+  };
+
+  return notes[status];
+}
+
 export function OfficerCaseDetailContent({
   caseCode,
   backHref = "/officer/cases",
   backLabel = "Quay lại danh sách",
 }: OfficerCaseDetailContentProps) {
-  const initialCase = useMemo(() => findCase(caseCode), [caseCode]);
-  const [caseDetail, setCaseDetail] = useState<OfficerCase | undefined>(
-    initialCase,
-  );
+  const [caseDetail, setCaseDetail] = useState<OfficerCase | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMutating, setIsMutating] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const loadCaseDetail = useCallback(async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const response = await officerCaseService.getCaseDetail(caseCode);
+      setCaseDetail(response);
+    } catch (error) {
+      setCaseDetail(null);
+      setErrorMessage(
+        error instanceof Error ? error.message : "Không thể tải hồ sơ.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [caseCode]);
+
+  useEffect(() => {
+    void loadCaseDetail();
+  }, [loadCaseDetail]);
+
+  function showToast(message: string) {
+    setToast(message);
+    window.setTimeout(() => setToast(null), 2500);
+  }
+
+  async function runAction(action: () => Promise<unknown>, success: string) {
+    setIsMutating(true);
+    setErrorMessage(null);
+
+    try {
+      await action();
+      await loadCaseDetail();
+      showToast(success);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Thao tác không thành công.",
+      );
+    } finally {
+      setIsMutating(false);
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="px-6 py-8">
+        <section className="rounded-xl border border-(--border) bg-white p-8 text-center font-semibold text-slate-600 shadow-sm">
+          Đang tải chi tiết hồ sơ...
+        </section>
+      </div>
+    );
+  }
 
   if (!caseDetail) {
     return (
@@ -52,141 +113,25 @@ export function OfficerCaseDetailContent({
           <h1 className="text-xl font-bold text-yellow-900">
             Không tìm thấy hồ sơ
           </h1>
+          {errorMessage ? (
+            <p className="mt-3 text-sm text-yellow-800">{errorMessage}</p>
+          ) : null}
           <Link
-            href="/officer/cases"
+            href={backHref}
             className="mt-5 inline-flex rounded-md bg-(--primary) px-5 py-3 font-bold text-white"
           >
-            Quay lại hộp hồ sơ
+            {backLabel}
           </Link>
         </section>
       </div>
     );
   }
 
-  const isClosed = caseDetail.status === "CLOSED";
-  const isLockedByMe = caseDetail.lock?.lockedById === CURRENT_OFFICER_ID;
-  const isLockedByOther =
-    Boolean(caseDetail.lock) &&
-    caseDetail.lock?.lockedById !== CURRENT_OFFICER_ID;
-  const canOperate = !isClosed && isLockedByMe;
-
-  function showToast(message: string) {
-    setToast(message);
-    window.setTimeout(() => setToast(null), 2000);
-  }
-
-  function handleAcceptCase() {
-    setCaseDetail((current) => {
-      if (!current) return current;
-
-      return {
-        ...current,
-        status: "VERIFYING",
-        assignedOfficerName: CURRENT_OFFICER_NAME,
-        lock: {
-          lockedById: CURRENT_OFFICER_ID,
-          lockedByName: CURRENT_OFFICER_NAME,
-          expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-        },
-        timeline: [
-          ...current.timeline,
-          {
-            id: `timeline-${Date.now()}`,
-            title: "Nhận xử lý hồ sơ",
-            description: "Cán bộ trực ban đã nhận quyền xử lý hồ sơ.",
-            actor: CURRENT_OFFICER_NAME,
-            occurredAt: new Date().toISOString(),
-          },
-        ],
-      };
-    });
-
-    showToast("Đã nhận xử lý hồ sơ");
-  }
-
-  function handleReleaseLock() {
-    setCaseDetail((current) => {
-      if (!current) return current;
-
-      return {
-        ...current,
-        lock: undefined,
-      };
-    });
-
-    showToast("Đã giải phóng khóa hồ sơ");
-  }
-
-  function handleMarkResolved() {
-    setCaseDetail((current) => {
-      if (!current) return current;
-
-      return {
-        ...current,
-        status: "RESOLVED",
-        timeline: [
-          ...current.timeline,
-          {
-            id: `timeline-${Date.now()}`,
-            title: "Cập nhật trạng thái đã xử lý",
-            description: "Cán bộ cập nhật kết quả xử lý ban đầu.",
-            actor: CURRENT_OFFICER_NAME,
-            occurredAt: new Date().toISOString(),
-          },
-        ],
-      };
-    });
-
-    showToast("Đã cập nhật trạng thái xử lý");
-  }
-
-  function handleMarkSpam() {
-    setCaseDetail((current) => {
-      if (!current) return current;
-
-      return {
-        ...current,
-        status: "REJECTED",
-        timeline: [
-          ...current.timeline,
-          {
-            id: `timeline-${Date.now()}`,
-            title: "Đánh dấu hồ sơ giả / Spam",
-            description:
-              "Hồ sơ được đánh dấu cần rà soát do có dấu hiệu không hợp lệ.",
-            actor: CURRENT_OFFICER_NAME,
-            occurredAt: new Date().toISOString(),
-          },
-        ],
-      };
-    });
-
-    showToast("Đã đánh dấu hồ sơ giả / Spam");
-  }
-
-  function handleRequestAdditionalEvidence() {
-    setCaseDetail((current) => {
-      if (!current) return current;
-
-      return {
-        ...current,
-        status: "NEEDS_ADDITIONAL_EVIDENCE",
-        timeline: [
-          ...current.timeline,
-          {
-            id: `timeline-${Date.now()}`,
-            title: "Yêu cầu bổ sung bằng chứng",
-            description:
-              "Người dân sẽ nhận thông báo bổ sung tài liệu, hình ảnh hoặc video liên quan.",
-            actor: CURRENT_OFFICER_NAME,
-            occurredAt: new Date().toISOString(),
-          },
-        ],
-      };
-    });
-
-    showToast("Đã gửi yêu cầu bổ sung bằng chứng");
-  }
+  const activeLock = caseDetail.lock?.active ? caseDetail.lock : null;
+  const isLockedByMe = Boolean(activeLock?.lockedByMe);
+  const isLockedByOther = Boolean(activeLock && !activeLock.lockedByMe);
+  const canOperate = isLockedByMe && caseDetail.status === "UNDER_VERIFICATION";
+  const canAccept = !activeLock && caseDetail.status === "NEW_RECEIVED";
 
   return (
     <div className="px-6 py-8">
@@ -194,6 +139,12 @@ export function OfficerCaseDetailContent({
         <div className="fixed bottom-8 right-8 z-50 rounded-xl bg-slate-900 px-6 py-4 text-sm font-bold text-white shadow-xl">
           {toast}
         </div>
+      ) : null}
+
+      {errorMessage ? (
+        <section className="mb-6 rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm font-semibold text-(--primary)">
+          {errorMessage}
+        </section>
       ) : null}
 
       {isLockedByMe ? (
@@ -205,18 +156,35 @@ export function OfficerCaseDetailContent({
               </h2>
               <p className="mt-1 text-sm text-white/85">
                 Hệ thống sẽ tự động giải phóng khóa sau{" "}
-                {formatLockTime(caseDetail.lock?.expiresAt)}
+                {formatLockTime(activeLock?.expiresAt)}
               </p>
             </div>
 
             <div className="flex gap-3">
-              <button className="rounded-md border border-white/40 px-5 py-3 text-sm font-bold hover:bg-white/10">
+              <button
+                type="button"
+                disabled={isMutating}
+                onClick={() =>
+                  void runAction(
+                    () => officerCaseService.renewLock(caseDetail.id),
+                    "Đã gia hạn khóa hồ sơ",
+                  )
+                }
+                className="rounded-md border border-white/40 px-5 py-3 text-sm font-bold hover:bg-white/10 disabled:opacity-60"
+              >
                 Gia hạn
               </button>
 
               <button
-                onClick={handleReleaseLock}
-                className="rounded-md bg-white px-5 py-3 text-sm font-bold text-(--primary)"
+                type="button"
+                disabled={isMutating}
+                onClick={() =>
+                  void runAction(
+                    () => officerCaseService.releaseLock(caseDetail.id),
+                    "Đã giải phóng khóa hồ sơ",
+                  )
+                }
+                className="rounded-md bg-white px-5 py-3 text-sm font-bold text-(--primary) disabled:opacity-60"
               >
                 Giải phóng khóa
               </button>
@@ -229,18 +197,8 @@ export function OfficerCaseDetailContent({
         <section className="mb-6 rounded-xl border border-yellow-300 bg-yellow-50 px-6 py-5 text-yellow-900">
           <h2 className="font-bold">Hồ sơ đang bị khóa</h2>
           <p className="mt-1 text-sm leading-6">
-            Hồ sơ đang được xử lý bởi {caseDetail.lock?.lockedByName}. Bạn đang
-            xem ở chế độ chỉ đọc.
-          </p>
-        </section>
-      ) : null}
-
-      {isClosed ? (
-        <section className="mb-6 rounded-xl border border-slate-200 bg-slate-100 px-6 py-5 text-slate-700">
-          <h2 className="font-bold">Hồ sơ đã kết thúc</h2>
-          <p className="mt-1 text-sm leading-6">
-            Hồ sơ chỉ hiển thị ở chế độ lưu trữ, không cho phép thao tác nghiệp
-            vụ.
+            Hồ sơ đang được xử lý bởi user #{activeLock?.lockedByUserId}. Bạn
+            đang xem ở chế độ chỉ đọc.
           </p>
         </section>
       ) : null}
@@ -267,10 +225,17 @@ export function OfficerCaseDetailContent({
           </h1>
         </div>
 
-        {!caseDetail.lock && !isClosed ? (
+        {canAccept ? (
           <button
-            onClick={handleAcceptCase}
-            className="rounded-md bg-green-600 px-6 py-4 font-bold text-white hover:bg-green-700"
+            type="button"
+            disabled={isMutating}
+            onClick={() =>
+              void runAction(
+                () => officerCaseService.acceptCase(caseDetail.id),
+                "Đã nhận xử lý hồ sơ",
+              )
+            }
+            className="rounded-md bg-green-600 px-6 py-4 font-bold text-white hover:bg-green-700 disabled:opacity-60"
           >
             Nhận xử lý
           </button>
@@ -284,57 +249,22 @@ export function OfficerCaseDetailContent({
               Thông tin người trình báo
             </h2>
 
-            {caseDetail.reporterMode === "anonymous" ? (
-              <div className="mt-5 rounded-xl bg-slate-100 p-6">
-                <p className="text-2xl font-bold tracking-wide text-slate-700">
-                  INCOGNITO
-                </p>
-                <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Người báo tin yêu cầu bảo mật danh tính.
-                </p>
+            <div className="mt-5 rounded-xl bg-slate-100 p-6">
+              <p className="text-2xl font-bold tracking-wide text-slate-700">
+                {caseDetail.reporterMode === "anonymous"
+                  ? "ẨN DANH"
+                  : "ĐÃ ĐỊNH DANH"}
+              </p>
+              <p className="mt-3 text-sm leading-6 text-slate-600">
+                API chi tiết officer hiện chỉ trả trạng thái ẩn danh, chưa trả
+                dữ liệu định danh người trình báo.
+              </p>
+              {caseDetail.anonymousTemporaryId ? (
                 <p className="mt-4 text-sm font-bold text-slate-900">
-                  Mã định danh tạm thời: {caseDetail.anonymousTemporaryId}
+                  Mã tham chiếu: {caseDetail.anonymousTemporaryId}
                 </p>
-              </div>
-            ) : (
-              <dl className="mt-5 grid gap-5 md:grid-cols-2">
-                <div>
-                  <dt className="text-sm font-bold uppercase text-slate-500">
-                    Họ và tên
-                  </dt>
-                  <dd className="mt-1 font-semibold text-slate-900">
-                    {caseDetail.reporter?.fullName}
-                  </dd>
-                </div>
-
-                <div>
-                  <dt className="text-sm font-bold uppercase text-slate-500">
-                    Số điện thoại
-                  </dt>
-                  <dd className="mt-1 font-semibold text-slate-900">
-                    {caseDetail.reporter?.phone}
-                  </dd>
-                </div>
-
-                <div>
-                  <dt className="text-sm font-bold uppercase text-slate-500">
-                    CCCD / CMND
-                  </dt>
-                  <dd className="mt-1 font-semibold text-slate-900">
-                    {caseDetail.reporter?.citizenId}
-                  </dd>
-                </div>
-
-                <div>
-                  <dt className="text-sm font-bold uppercase text-slate-500">
-                    Địa chỉ
-                  </dt>
-                  <dd className="mt-1 font-semibold text-slate-900">
-                    {caseDetail.reporter?.address}
-                  </dd>
-                </div>
-              </dl>
-            )}
+              ) : null}
+            </div>
           </article>
 
           <article className="rounded-xl border border-(--border) bg-white p-6 shadow-sm">
@@ -364,28 +294,6 @@ export function OfficerCaseDetailContent({
                   {caseDetail.incident.address}
                 </p>
               </div>
-
-              {caseDetail.incident.relatedBank ? (
-                <div className="rounded-lg border border-(--border) p-4">
-                  <p className="text-sm font-bold uppercase text-slate-500">
-                    Ngân hàng liên quan
-                  </p>
-                  <p className="mt-1 font-semibold text-slate-900">
-                    {caseDetail.incident.relatedBank}
-                  </p>
-                </div>
-              ) : null}
-
-              {caseDetail.incident.estimatedDamage ? (
-                <div className="rounded-lg border border-(--border) p-4">
-                  <p className="text-sm font-bold uppercase text-slate-500">
-                    Thiệt hại ước tính
-                  </p>
-                  <p className="mt-1 font-semibold text-(--primary)">
-                    {caseDetail.incident.estimatedDamage}
-                  </p>
-                </div>
-              ) : null}
             </div>
           </article>
 
@@ -394,19 +302,25 @@ export function OfficerCaseDetailContent({
               Tài liệu & Chứng cứ đính kèm
             </h2>
 
-            <div className="mt-5 grid gap-4 md:grid-cols-3">
-              {caseDetail.evidence.map((file) => (
-                <div
-                  key={file.id}
-                  className="rounded-lg border border-(--border) bg-slate-50 p-4"
-                >
-                  <p className="font-semibold text-slate-900">{file.name}</p>
-                  <p className="mt-2 text-sm text-slate-500">
-                    {file.size} • {file.type.toUpperCase()}
-                  </p>
-                </div>
-              ))}
-            </div>
+            {caseDetail.evidence.length === 0 ? (
+              <p className="mt-5 rounded-lg bg-slate-50 p-5 text-sm text-slate-600">
+                Chưa có chứng cứ đính kèm.
+              </p>
+            ) : (
+              <div className="mt-5 grid gap-4 md:grid-cols-3">
+                {caseDetail.evidence.map((file) => (
+                  <div
+                    key={file.id}
+                    className="rounded-lg border border-(--border) bg-slate-50 p-4"
+                  >
+                    <p className="font-semibold text-slate-900">{file.name}</p>
+                    <p className="mt-2 text-sm text-slate-500">
+                      {file.size} • {file.type.toUpperCase()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </article>
         </div>
 
@@ -418,34 +332,60 @@ export function OfficerCaseDetailContent({
 
             <div className="mt-5 space-y-3">
               <button
-                disabled={!canOperate}
+                type="button"
+                onClick={() =>
+                  void runAction(
+                    () =>
+                      officerCaseService.updateStatus(
+                        caseDetail.id,
+                        "TRANSFERRED_TO_INVESTIGATION",
+                        getStatusNote("TRANSFERRED_TO_INVESTIGATION"),
+                      ),
+                    "Đã chuyển hồ sơ sang cơ quan điều tra",
+                  )
+                }
+                disabled={!canOperate || isMutating}
                 className="w-full rounded-md bg-slate-900 px-5 py-3 font-bold text-white disabled:cursor-not-allowed disabled:bg-slate-300"
               >
                 Chuyển cơ quan điều tra
               </button>
 
               <button
-                onClick={handleMarkResolved}
-                disabled={!canOperate}
+                type="button"
+                onClick={() =>
+                  void runAction(
+                    () =>
+                      officerCaseService.updateStatus(
+                        caseDetail.id,
+                        "RESOLVED",
+                        getStatusNote("RESOLVED"),
+                      ),
+                    "Đã cập nhật trạng thái xử lý",
+                  )
+                }
+                disabled={!canOperate || isMutating}
                 className="w-full rounded-md bg-green-600 px-5 py-3 font-bold text-white disabled:cursor-not-allowed disabled:bg-slate-300"
               >
                 Đã xử lý xong
               </button>
 
               <button
-                onClick={handleMarkSpam}
-                disabled={!canOperate}
+                type="button"
+                onClick={() =>
+                  void runAction(
+                    () =>
+                      officerCaseService.updateStatus(
+                        caseDetail.id,
+                        "SPAM_OR_FAKE",
+                        getStatusNote("SPAM_OR_FAKE"),
+                      ),
+                    "Đã đánh dấu hồ sơ giả / Spam",
+                  )
+                }
+                disabled={!canOperate || isMutating}
                 className="w-full rounded-md bg-red-50 px-5 py-3 font-bold text-(--primary) disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
               >
                 Hồ sơ giả / Spam
-              </button>
-
-              <button
-                onClick={handleRequestAdditionalEvidence}
-                disabled={!canOperate}
-                className="w-full rounded-md border border-slate-400 px-5 py-3 font-bold text-slate-700 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400"
-              >
-                Yêu cầu bổ sung bằng chứng
               </button>
             </div>
           </article>

@@ -55,6 +55,23 @@ public class OfficerCaseQueryService {
                 .map(this::toResponse);
     }
 
+    @Transactional(readOnly = true)
+    public Page<OfficerCaseResponse> getMyCases(
+            Long currentUserId,
+            CaseStatus caseStatus,
+            UrgencyLevel urgencyLevel,
+            Pageable pageable
+    ) {
+        OfficerProfileResponse officerProfileResponse = dispatchOfficerClient.getOfficerByUserId(currentUserId);
+
+        return caseReportRepository.findAssignedOfficerCases(
+                officerProfileResponse.officerId(),
+                caseStatus,
+                urgencyLevel,
+                pageable
+        ).map(this::toResponse);
+    }
+
     private OfficerCaseResponse toResponse(CaseReport caseReport) {
         return new OfficerCaseResponse(
                 caseReport.getId(),

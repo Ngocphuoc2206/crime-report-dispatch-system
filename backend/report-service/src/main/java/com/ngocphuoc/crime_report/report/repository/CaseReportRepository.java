@@ -50,6 +50,21 @@ public interface CaseReportRepository extends JpaRepository<CaseReport, Long> {
     );
 
     @Query("""
+            SELECT c
+            FROM CaseReport c
+            WHERE c.assignedOfficerId = :officerId
+              AND (:status IS NULL OR c.status = :status)
+              AND (:urgencyLevel IS NULL OR c.urgencyLevel = :urgencyLevel)
+            ORDER BY c.createdAt DESC
+            """)
+    Page<CaseReport> findAssignedOfficerCases(
+            @Param("officerId") Long officerId,
+            @Param("status") CaseStatus status,
+            @Param("urgencyLevel") UrgencyLevel urgencyLevel,
+            Pageable pageable
+    );
+
+    @Query("""
         SELECT c
         FROM CaseReport c
         where c.assignedUnitId = :unitId

@@ -43,7 +43,17 @@ export function LoginForm() {
 
       const result = await authService.login(form);
       authSessionStorage.save(result, form.rememberMe);
-      router.replace("/officer");
+      if (result.user.roles.includes("ADMIN")) {
+        router.push("/admin");
+        return;
+      }
+
+      if (result.user.roles.includes("COMMANDER")) {
+        router.push("/commander");
+        return;
+      }
+
+      router.push("/officer");
     } catch (error) {
       setErrorMessage(
         error instanceof Error

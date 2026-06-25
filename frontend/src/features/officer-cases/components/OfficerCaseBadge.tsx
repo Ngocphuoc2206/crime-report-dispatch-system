@@ -12,29 +12,25 @@ export function OfficerCaseStatusBadge({
     OfficerCaseStatus,
     { label: string; className: string }
   > = {
-    NEW: {
+    NEW_RECEIVED: {
       label: "Mới tiếp nhận",
       className: "bg-sky-50 text-sky-700",
     },
-    VERIFYING: {
+    UNDER_VERIFICATION: {
       label: "Đang xác minh",
       className: "bg-blue-50 text-blue-700",
     },
-    NEEDS_ADDITIONAL_EVIDENCE: {
-      label: "Cần bổ sung",
-      className: "bg-orange-50 text-orange-700",
+    TRANSFERRED_TO_INVESTIGATION: {
+      label: "Chuyển điều tra",
+      className: "bg-indigo-50 text-indigo-700",
     },
     RESOLVED: {
       label: "Đã xử lý",
       className: "bg-green-50 text-green-700",
     },
-    REJECTED: {
+    SPAM_OR_FAKE: {
       label: "Hồ sơ giả / Spam",
       className: "bg-red-50 text-[var(--primary)]",
-    },
-    CLOSED: {
-      label: "Đã kết thúc",
-      className: "bg-slate-100 text-slate-600",
     },
   };
 
@@ -68,7 +64,7 @@ export function OfficerCasePriorityBadge({
       label: "Cao",
       className: "bg-red-50 text-[var(--primary)]",
     },
-    URGENT: {
+    CRITICAL: {
       label: "Khẩn cấp",
       className: "bg-red-100 text-[var(--primary)]",
     },

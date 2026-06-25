@@ -17,7 +17,6 @@ const sidebarItems = [
   { label: "Dashboard", href: "/officer" },
   { label: "Hộp hồ sơ", href: "/officer/cases" },
   { label: "Hồ sơ của tôi", href: "/officer/my-cases" },
-  { label: "Theo dõi SLA", href: "/officer/sla" },
   { label: "Kiểm toán hệ thống", href: "/officer/audit" },
 ];
 

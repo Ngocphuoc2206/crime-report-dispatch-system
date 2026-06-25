@@ -1,36 +1,38 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   OfficerCasePriorityBadge,
   OfficerCaseStatusBadge,
 } from "@/features/officer-cases/components/OfficerCaseBadge";
-import {
-  CURRENT_OFFICER_ID,
-  CURRENT_OFFICER_NAME,
-  mockOfficerCases,
-} from "@/features/officer-cases/data/officerCases.data";
+import { officerCaseService } from "@/features/officer-cases/services/officerCaseService";
 import type {
   OfficerCase,
-  OfficerCaseStatus,
+  OfficerCasePage,
 } from "@/features/officer-cases/types/officerCase.types";
 
-type MyCaseFilter =
-  | "ALL"
-  | "URGENT"
-  | "VERIFYING"
-  | "NEEDS_ADDITIONAL_EVIDENCE";
+type MyCaseFilter = "ALL" | "CRITICAL" | "UNDER_VERIFICATION";
 
 const filterOptions: Array<{
   label: string;
   value: MyCaseFilter;
 }> = [
   { label: "Tất cả", value: "ALL" },
-  { label: "Khẩn cấp", value: "URGENT" },
-  { label: "Đang xác minh", value: "VERIFYING" },
-  { label: "Chờ bổ sung", value: "NEEDS_ADDITIONAL_EVIDENCE" },
+  { label: "Khẩn cấp", value: "CRITICAL" },
+  { label: "Đang xác minh", value: "UNDER_VERIFICATION" },
 ];
+
+const emptyPage: OfficerCasePage<OfficerCase> = {
+  content: [],
+  number: 0,
+  size: 100,
+  totalElements: 0,
+  totalPages: 0,
+  first: true,
+  last: true,
+};
 
 function formatDateTime(value: string) {
   const date = new Date(value);
@@ -47,7 +49,7 @@ function formatDateTime(value: string) {
 }
 
 function getLockText(item: OfficerCase) {
-  if (item.lock?.lockedById === CURRENT_OFFICER_ID) {
+  if (item.lock?.lockedByMe && item.lock.expiresAt) {
     const diff = new Date(item.lock.expiresAt).getTime() - Date.now();
     const minutes = Math.max(0, Math.floor(diff / 1000 / 60));
     const seconds = Math.max(0, Math.floor((diff / 1000) % 60));
@@ -60,17 +62,10 @@ function getLockText(item: OfficerCase) {
     };
   }
 
-  if (item.lock) {
+  if (item.lock?.active) {
     return {
-      label: `Đã khóa bởi ${item.lock.lockedByName}`,
+      label: `Đã khóa bởi user #${item.lock.lockedByUserId}`,
       tone: "muted" as const,
-    };
-  }
-
-  if (item.status === "NEEDS_ADDITIONAL_EVIDENCE") {
-    return {
-      label: "Chờ người dân bổ sung",
-      tone: "warning" as const,
     };
   }
 
@@ -80,38 +75,47 @@ function getLockText(item: OfficerCase) {
   };
 }
 
-function isMyCase(item: OfficerCase) {
-  return (
-    item.assignedOfficerName === CURRENT_OFFICER_NAME ||
-    item.lock?.lockedById === CURRENT_OFFICER_ID
-  );
-}
-
 function matchFilter(item: OfficerCase, filter: MyCaseFilter) {
   if (filter === "ALL") return true;
-
-  if (filter === "URGENT") {
-    return item.priority === "URGENT";
+  if (filter === "CRITICAL") return item.priority === "CRITICAL";
+  if (filter === "UNDER_VERIFICATION") {
+    return item.status === "UNDER_VERIFICATION";
   }
-
-  if (filter === "VERIFYING") {
-    return item.status === "VERIFYING";
-  }
-
-  if (filter === "NEEDS_ADDITIONAL_EVIDENCE") {
-    return item.status === "NEEDS_ADDITIONAL_EVIDENCE";
-  }
-
   return true;
 }
 
 export function OfficerMyCasesContent() {
   const [activeFilter, setActiveFilter] = useState<MyCaseFilter>("ALL");
   const [searchTerm, setSearchTerm] = useState("");
+  const [casePage, setCasePage] = useState(emptyPage);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const myCases = useMemo(() => {
-    return mockOfficerCases.filter(isMyCase);
+  const loadCases = useCallback(async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const response = await officerCaseService.getMyCases({
+        page: 0,
+        size: 100,
+      });
+      setCasePage(response);
+    } catch (error) {
+      setCasePage(emptyPage);
+      setErrorMessage(
+        error instanceof Error ? error.message : "Không thể tải hồ sơ.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadCases();
+  }, [loadCases]);
+
+  const myCases = useMemo(() => casePage.content, [casePage.content]);
 
   const filteredCases = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase();
@@ -135,18 +139,21 @@ export function OfficerMyCasesContent() {
     <div className="px-6 py-8">
       <section className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-950">Hồ sơ của tôi</h1>
+          <h1 className="text-3xl font-bold text-slate-950">
+            Hồ sơ của tôi
+          </h1>
 
           <p className="mt-2 text-slate-600">
-            Danh sách các hồ sơ bạn đang trực tiếp xử lý hoặc đang giữ khóa.
+            Danh sách các hồ sơ bạn đang trực tiếp xử lý hoặc đã được phân công.
           </p>
         </div>
 
         <button
-          className="rounded-md border border-(--border) bg-white px-5 py-3 text-sm font-bold 
-        text-slate-700 hover:bg-red-50 hover:text-(--primary)"
+          type="button"
+          onClick={() => void loadCases()}
+          className="rounded-md border border-(--border) bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-red-50 hover:text-(--primary)"
         >
-          Lọc trạng thái
+          Tải lại dữ liệu
         </button>
       </section>
 
@@ -182,102 +189,100 @@ export function OfficerMyCasesContent() {
       </section>
 
       <section className="mt-8 overflow-hidden rounded-xl border border-(--border) bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[1050px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-              <tr>
-                <th className="px-5 py-4">Mã hồ sơ</th>
-                <th className="px-5 py-4">Nội dung</th>
-                <th className="px-5 py-4">Thời gian tiếp nhận</th>
-                <th className="px-5 py-4">Case lock</th>
-                <th className="px-5 py-4">Mức độ</th>
-                <th className="px-5 py-4">Trạng thái</th>
-                <th className="px-5 py-4">Thao tác</th>
-              </tr>
-            </thead>
+        {errorMessage ? (
+          <div className="border-b border-red-100 bg-red-50 px-5 py-4 text-sm font-semibold text-(--primary)">
+            {errorMessage}
+          </div>
+        ) : null}
 
-            <tbody className="divide-y divide-(--border)">
-              {filteredCases.map((item) => {
-                const lock = getLockText(item);
+        {isLoading ? (
+          <div className="p-8 text-center font-semibold text-slate-600">
+            Đang tải hồ sơ của tôi...
+          </div>
+        ) : filteredCases.length === 0 ? (
+          <div className="p-8 text-center font-semibold text-slate-600">
+            Không có hồ sơ phù hợp.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[1050px] text-left text-sm">
+              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="px-5 py-4">Mã hồ sơ</th>
+                  <th className="px-5 py-4">Nội dung</th>
+                  <th className="px-5 py-4">Thời gian tiếp nhận</th>
+                  <th className="px-5 py-4">Case lock</th>
+                  <th className="px-5 py-4">Mức độ</th>
+                  <th className="px-5 py-4">Trạng thái</th>
+                  <th className="px-5 py-4">Thao tác</th>
+                </tr>
+              </thead>
 
-                return (
-                  <tr key={item.code} className="hover:bg-red-50/40">
-                    <td className="px-5 py-5 align-top font-bold text-slate-900">
-                      {item.code}
-                    </td>
+              <tbody className="divide-y divide-(--border)">
+                {filteredCases.map((item) => {
+                  const lock = getLockText(item);
 
-                    <td className="max-w-md px-5 py-5 align-top">
-                      <p className="font-semibold text-slate-900">
-                        {item.title}
-                      </p>
+                  return (
+                    <tr key={item.id} className="hover:bg-red-50/40">
+                      <td className="px-5 py-5 align-top font-bold text-slate-900">
+                        {item.code}
+                      </td>
 
-                      <p className="mt-1 line-clamp-2 text-slate-600">
-                        {item.summary}
-                      </p>
-                    </td>
+                      <td className="max-w-md px-5 py-5 align-top">
+                        <p className="font-semibold text-slate-900">
+                          {item.title}
+                        </p>
 
-                    <td className="px-5 py-5 align-top text-slate-700">
-                      {formatDateTime(item.submittedAt)}
-                    </td>
+                        <p className="mt-1 line-clamp-2 text-slate-600">
+                          {item.summary}
+                        </p>
+                      </td>
 
-                    <td className="px-5 py-5 align-top">
-                      <span
-                        className={[
-                          "inline-flex rounded-md px-3 py-1 text-sm font-bold",
-                          lock.tone === "danger"
-                            ? "bg-red-50 text-[var(--primary)]"
-                            : lock.tone === "warning"
-                              ? "bg-orange-50 text-orange-700"
+                      <td className="px-5 py-5 align-top text-slate-700">
+                        {formatDateTime(item.submittedAt)}
+                      </td>
+
+                      <td className="px-5 py-5 align-top">
+                        <span
+                          className={[
+                            "inline-flex rounded-md px-3 py-1 text-sm font-bold",
+                            lock.tone === "danger"
+                              ? "bg-red-50 text-[var(--primary)]"
                               : lock.tone === "muted"
                                 ? "bg-slate-100 text-slate-500"
                                 : "bg-green-50 text-green-700",
-                        ].join(" ")}
-                      >
-                        {lock.label}
-                      </span>
-                    </td>
+                          ].join(" ")}
+                        >
+                          {lock.label}
+                        </span>
+                      </td>
 
-                    <td className="px-5 py-5 align-top">
-                      <OfficerCasePriorityBadge priority={item.priority} />
-                    </td>
+                      <td className="px-5 py-5 align-top">
+                        <OfficerCasePriorityBadge priority={item.priority} />
+                      </td>
 
-                    <td className="px-5 py-5 align-top">
-                      <OfficerCaseStatusBadge status={item.status} />
-                    </td>
+                      <td className="px-5 py-5 align-top">
+                        <OfficerCaseStatusBadge status={item.status} />
+                      </td>
 
-                    <td className="px-5 py-5 align-top">
-                      <Link
-                        href={`/officer/my-cases/${encodeURIComponent(
-                          item.code,
-                        )}`}
-                        className="inline-flex rounded-md border border-slate-300 px-4 py-2 font-bold 
-                        text-slate-700 hover:border-(--primary) hover:bg-red-50 hover:text-(--primary)"
-                      >
-                        Xem chi tiết →
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        <footer className="flex flex-col gap-4 border-t border-(--border) bg-slate-50 px-5 py-4 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
-          <p>
-            Hiển thị {filteredCases.length} trong tổng số {myCases.length} hồ sơ
-          </p>
-
-          <div className="flex items-center gap-2">
-            <button className="rounded-md px-3 py-2 text-slate-400">‹</button>
-            <button className="rounded-md bg-slate-950 px-3 py-2 font-bold text-white">
-              1
-            </button>
-            <button className="rounded-md px-3 py-2 font-bold text-slate-600">
-              2
-            </button>
-            <button className="rounded-md px-3 py-2 text-slate-600">›</button>
+                      <td className="px-5 py-5 align-top">
+                        <Link
+                          href={`/officer/my-cases/${encodeURIComponent(item.id)}`}
+                          className="inline-flex rounded-md border border-slate-300 px-4 py-2 font-bold text-slate-700 hover:border-(--primary) hover:bg-red-50 hover:text-(--primary)"
+                        >
+                          Xem chi tiết →
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
+        )}
+
+        <footer className="border-t border-(--border) bg-slate-50 px-5 py-4 text-sm text-slate-600">
+          Hiển thị {filteredCases.length} trong tổng số {myCases.length} hồ sơ
         </footer>
       </section>
     </div>
