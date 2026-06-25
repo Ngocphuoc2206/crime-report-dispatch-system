@@ -22,7 +22,8 @@ async function request<T>(
   if (options.auth) {
     const token =
       typeof window !== "undefined"
-        ? localStorage.getItem("accessToken")
+        ? sessionStorage.getItem("accessToken") ??
+          localStorage.getItem("accessToken")
         : null;
 
     if (token) {
