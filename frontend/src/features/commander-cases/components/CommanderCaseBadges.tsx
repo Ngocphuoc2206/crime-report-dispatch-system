@@ -12,19 +12,19 @@ const severityConfig: Record<
 > = {
   CRITICAL: {
     label: "CRITICAL",
-    className: "border-red-500/60 bg-red-500/10 text-red-300",
+    className: "border-red-200 bg-red-50 text-[var(--primary)]",
   },
   HIGH: {
     label: "HIGH",
-    className: "border-orange-400/60 bg-orange-400/10 text-orange-300",
+    className: "border-orange-200 bg-orange-50 text-orange-700",
   },
   MEDIUM: {
     label: "MEDIUM",
-    className: "border-yellow-400/60 bg-yellow-400/10 text-yellow-300",
+    className: "border-yellow-200 bg-yellow-50 text-yellow-700",
   },
   LOW: {
     label: "LOW",
-    className: "border-cyan-400/60 bg-cyan-400/10 text-cyan-300",
+    className: "border-green-200 bg-green-50 text-green-700",
   },
 };
 
@@ -36,32 +36,32 @@ const statusConfig: Record<
   }
 > = {
   NEW: {
-    label: "Mới tiếp nhận",
-    className: "border-cyan-400/60 bg-cyan-400/10 text-cyan-300",
+    label: "Moi tiep nhan",
+    className: "border-blue-200 bg-blue-50 text-blue-700",
   },
   PROCESSING: {
-    label: "Đang xử lý",
-    className: "border-yellow-400/60 bg-yellow-400/10 text-yellow-300",
+    label: "Dang xu ly",
+    className: "border-yellow-200 bg-yellow-50 text-yellow-700",
   },
   VERIFYING: {
-    label: "Đang xác minh",
-    className: "border-blue-400/60 bg-blue-400/10 text-blue-300",
+    label: "Dang xac minh",
+    className: "border-indigo-200 bg-indigo-50 text-indigo-700",
   },
   INVESTIGATING: {
-    label: "Điều tra",
-    className: "border-red-400/60 bg-red-400/10 text-red-300",
+    label: "Dieu tra",
+    className: "border-red-200 bg-red-50 text-[var(--primary)]",
   },
   RESOLVED: {
-    label: "Đã giải quyết",
-    className: "border-green-400/60 bg-green-400/10 text-green-300",
+    label: "Da giai quyet",
+    className: "border-green-200 bg-green-50 text-green-700",
   },
   SPAM_OR_FAKE: {
     label: "Spam / Fake",
-    className: "border-red-300/60 bg-red-300/10 text-red-200",
+    className: "border-slate-200 bg-slate-100 text-slate-600",
   },
   CLOSED: {
-    label: "Đã kết thúc",
-    className: "border-slate-400/40 bg-slate-400/10 text-slate-300",
+    label: "Da ket thuc",
+    className: "border-slate-200 bg-slate-50 text-slate-500",
   },
 };
 

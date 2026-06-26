@@ -76,12 +76,12 @@ export function CommanderCasesContent() {
 
       <section className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-4xl font-black text-slate-100">
-            Danh sách hồ sơ
+          <h1 className="text-4xl font-black text-slate-950">
+            Danh sach ho so
           </h1>
 
-          <p className="mt-3 text-slate-400">
-            Tra cứu và giám sát tiến độ xử lý tin báo trên toàn hệ thống.
+          <p className="mt-3 text-slate-600">
+            Tra cuu va giam sat tien do xu ly tin bao tren toan he thong.
           </p>
         </div>
 
@@ -89,7 +89,7 @@ export function CommanderCasesContent() {
           <button
             type="button"
             onClick={() => setPageState("loading")}
-            className="rounded-lg border border-white/15 px-4 py-3 text-sm font-bold text-slate-300 hover:bg-white/10"
+            className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50"
           >
             Test loading
           </button>
@@ -97,7 +97,7 @@ export function CommanderCasesContent() {
           <button
             type="button"
             onClick={() => setPageState("empty")}
-            className="rounded-lg border border-white/15 px-4 py-3 text-sm font-bold text-slate-300 hover:bg-white/10"
+            className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50"
           >
             Test empty
           </button>
@@ -105,7 +105,7 @@ export function CommanderCasesContent() {
           <button
             type="button"
             onClick={() => setPageState("error")}
-            className="rounded-lg border border-red-300/40 px-4 py-3 text-sm font-bold text-red-200 hover:bg-red-400/10"
+            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-[var(--primary)] hover:bg-white"
           >
             Test error
           </button>
@@ -113,39 +113,41 @@ export function CommanderCasesContent() {
           <button
             type="button"
             onClick={() => setSessionExpiredOpen(true)}
-            className="rounded-lg bg-cyan-400 px-4 py-3 text-sm font-bold text-slate-950 hover:bg-cyan-300"
+            className="rounded-lg bg-[var(--primary)] px-4 py-3 text-sm font-bold text-white hover:bg-[var(--primary-hover)]"
           >
-            Test hết phiên
+            Test het phien
           </button>
         </div>
       </section>
 
-      <section className="mt-8 rounded-xl border border-white/10 bg-[#121b3a] p-5">
+      <section className="mt-8 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="grid gap-4 lg:grid-cols-[1fr_1fr_1.4fr_auto_auto]">
           <label className="block">
-            <span className="text-sm font-bold text-slate-400">Trạng thái</span>
+            <span className="text-sm font-bold text-slate-600">
+              Trang thai
+            </span>
 
             <select
               value={statusFilter}
               onChange={(event) =>
                 setStatusFilter(event.target.value as StatusFilter)
               }
-              className="mt-2 w-full rounded-md border border-white/10 bg-[#0d1530] px-4 py-3 text-slate-100 outline-none focus:border-cyan-400"
+              className="mt-2 w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-slate-800 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             >
-              <option value="ALL">Tất cả trạng thái</option>
-              <option value="NEW">Mới tiếp nhận</option>
-              <option value="PROCESSING">Đang xử lý</option>
-              <option value="VERIFYING">Đang xác minh</option>
-              <option value="INVESTIGATING">Điều tra</option>
-              <option value="RESOLVED">Đã giải quyết</option>
+              <option value="ALL">Tat ca trang thai</option>
+              <option value="NEW">Moi tiep nhan</option>
+              <option value="PROCESSING">Dang xu ly</option>
+              <option value="VERIFYING">Dang xac minh</option>
+              <option value="INVESTIGATING">Dieu tra</option>
+              <option value="RESOLVED">Da giai quyet</option>
               <option value="SPAM_OR_FAKE">Spam / Fake</option>
-              <option value="CLOSED">Đã kết thúc</option>
+              <option value="CLOSED">Da ket thuc</option>
             </select>
           </label>
 
           <label className="block">
-            <span className="text-sm font-bold text-slate-400">
-              Mức nguy cấp
+            <span className="text-sm font-bold text-slate-600">
+              Muc nguy cap
             </span>
 
             <select
@@ -153,96 +155,93 @@ export function CommanderCasesContent() {
               onChange={(event) =>
                 setSeverityFilter(event.target.value as SeverityFilter)
               }
-              className="mt-2 w-full rounded-md border border-white/10 bg-[#0d1530] px-4 py-3 text-slate-100 outline-none focus:border-cyan-400"
+              className="mt-2 w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-slate-800 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             >
-              <option value="ALL">Tất cả mức độ</option>
-              <option value="CRITICAL">Khẩn cấp</option>
+              <option value="ALL">Tat ca muc do</option>
+              <option value="CRITICAL">Khan cap</option>
               <option value="HIGH">Cao</option>
-              <option value="MEDIUM">Trung bình</option>
-              <option value="LOW">Thấp</option>
+              <option value="MEDIUM">Trung binh</option>
+              <option value="LOW">Thap</option>
             </select>
           </label>
 
           <label className="block">
-            <span className="text-sm font-bold text-slate-400">Tìm kiếm</span>
+            <span className="text-sm font-bold text-slate-600">Tim kiem</span>
 
             <input
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="Tìm mã hồ sơ, địa điểm, mô tả..."
-              className="mt-2 w-full rounded-md border border-white/10 bg-[#0d1530] px-4 py-3 text-slate-100 outline-none placeholder:text-slate-500 focus:border-cyan-400"
+              placeholder="Tim ma ho so, dia diem, mo ta..."
+              className="mt-2 w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-slate-800 outline-none placeholder:text-slate-400 focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             />
           </label>
 
           <button
             type="button"
             onClick={() => setPageState("normal")}
-            className="self-end rounded-md bg-cyan-400 px-5 py-3 font-bold text-slate-950 hover:bg-cyan-300"
+            className="self-end rounded-md bg-[var(--primary)] px-5 py-3 font-bold text-white hover:bg-[var(--primary-hover)]"
           >
-            Áp dụng
+            Ap dung
           </button>
 
           <button
             type="button"
             onClick={handleReset}
-            className="self-end rounded-md border border-white/15 px-5 py-3 font-bold text-slate-300 hover:bg-white/10"
+            className="self-end rounded-md border border-slate-200 px-5 py-3 font-bold text-slate-600 hover:bg-slate-50"
           >
-            Đặt lại
+            Dat lai
           </button>
         </div>
       </section>
 
       <section className="mt-6">
         {pageState === "loading" ? <CommanderCaseLoadingState /> : null}
-
         {pageState === "empty" ? <CommanderCaseEmptyState /> : null}
-
         {pageState === "error" ? (
           <CommanderCaseErrorState onRetry={handleRetry} />
         ) : null}
-
         {pageState === "normal" && filteredCases.length === 0 ? (
           <CommanderCaseNoResultState onClear={handleReset} />
         ) : null}
 
         {pageState === "normal" && filteredCases.length > 0 ? (
-          <div className="overflow-hidden rounded-xl border border-white/10 bg-[#121b3a]">
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1050px] text-left text-sm">
-                <thead className="bg-white/10 text-xs uppercase tracking-wide text-slate-400">
+                <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                   <tr>
-                    <th className="px-5 py-4">Mã tin báo</th>
-                    <th className="px-5 py-4">Loại vụ việc</th>
-                    <th className="px-5 py-4">Mô tả ngắn</th>
-                    <th className="px-5 py-4">Địa điểm</th>
-                    <th className="px-5 py-4">Mức nguy cấp</th>
-                    <th className="px-5 py-4">Trạng thái</th>
+                    <th className="px-5 py-4">Ma tin bao</th>
+                    <th className="px-5 py-4">Loai vu viec</th>
+                    <th className="px-5 py-4">Mo ta ngan</th>
+                    <th className="px-5 py-4">Dia diem</th>
+                    <th className="px-5 py-4">Muc nguy cap</th>
+                    <th className="px-5 py-4">Trang thai</th>
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-white/10">
+                <tbody className="divide-y divide-slate-200">
                   {filteredCases.map((item) => (
-                    <tr key={item.code} className="hover:bg-white/5">
+                    <tr key={item.code} className="hover:bg-slate-50">
                       <td className="px-5 py-4">
                         <Link
                           href={`/commander/cases/${encodeURIComponent(
                             item.code,
                           )}`}
-                          className="font-mono font-black text-cyan-300 hover:text-cyan-200"
+                          className="font-mono font-black text-[var(--primary)] hover:text-[var(--primary-hover)]"
                         >
                           {item.code}
                         </Link>
                       </td>
 
-                      <td className="px-5 py-4 font-semibold text-slate-200">
+                      <td className="px-5 py-4 font-semibold text-slate-800">
                         {item.category}
                       </td>
 
-                      <td className="max-w-sm px-5 py-4 text-slate-400">
+                      <td className="max-w-sm px-5 py-4 text-slate-600">
                         <p className="line-clamp-1">{item.shortDescription}</p>
                       </td>
 
-                      <td className="px-5 py-4 text-slate-300">
+                      <td className="px-5 py-4 text-slate-700">
                         {item.location}
                       </td>
 
@@ -259,13 +258,13 @@ export function CommanderCasesContent() {
               </table>
             </div>
 
-            <footer className="flex justify-between border-t border-white/10 px-5 py-4 text-sm text-slate-400">
+            <footer className="flex justify-between border-t border-slate-200 px-5 py-4 text-sm text-slate-600">
               <p>
-                Hiển thị 1-{filteredCases.length} trong số{" "}
-                {commanderCases.length} hồ sơ
+                Hien thi 1-{filteredCases.length} trong so{" "}
+                {commanderCases.length} ho so
               </p>
 
-              <p>1-20 trong số 485 ‹ ›</p>
+              <p>1-20 trong so 485</p>
             </footer>
           </div>
         ) : null}

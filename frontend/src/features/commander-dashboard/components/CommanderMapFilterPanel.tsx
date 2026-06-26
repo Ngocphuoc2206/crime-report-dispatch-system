@@ -14,11 +14,11 @@ const severityOptions: Array<{
   label: string;
   value: "ALL" | CommanderMapSeverity;
 }> = [
-  { label: "Tất cả", value: "ALL" },
-  { label: "Thấp", value: "LOW" },
-  { label: "Trung bình", value: "MEDIUM" },
+  { label: "Tat ca", value: "ALL" },
+  { label: "Thap", value: "LOW" },
+  { label: "Trung binh", value: "MEDIUM" },
   { label: "Cao", value: "HIGH" },
-  { label: "Khẩn cấp", value: "CRITICAL" },
+  { label: "Khan cap", value: "CRITICAL" },
 ];
 
 export function CommanderMapFilterPanel({
@@ -28,13 +28,13 @@ export function CommanderMapFilterPanel({
   onReset,
 }: CommanderMapFilterPanelProps) {
   return (
-    <section className="rounded-xl border border-white/10 bg-[#121b3a]/95 p-6 shadow-xl shadow-black/25">
-      <h2 className="text-2xl font-bold text-slate-100">Bộ lọc tin báo</h2>
+    <section className="rounded-xl border border-slate-200 bg-white/95 p-6 shadow-xl shadow-slate-200/60 backdrop-blur">
+      <h2 className="text-2xl font-bold text-slate-950">Bo loc tin bao</h2>
 
       <div className="mt-6 space-y-5">
         <label className="block">
-          <span className="text-xs font-bold uppercase tracking-wide text-slate-400">
-            Khu vực
+          <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Khu vuc
           </span>
 
           <select
@@ -45,19 +45,19 @@ export function CommanderMapFilterPanel({
                 region: event.target.value,
               })
             }
-            className="mt-2 w-full rounded-md border border-white/10 bg-[#0d1530] px-4 py-3 text-slate-100 outline-none focus:border-cyan-400"
+            className="mt-2 w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-slate-800 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
           >
-            <option value="ALL">Tất cả khu vực</option>
-            <option value="quan-1">Quận 1</option>
-            <option value="quan-3">Quận 3</option>
-            <option value="quan-7">Quận 7</option>
-            <option value="binh-thanh">Bình Thạnh</option>
+            <option value="ALL">Tat ca khu vuc</option>
+            <option value="quan-1">Quan 1</option>
+            <option value="quan-3">Quan 3</option>
+            <option value="quan-7">Quan 7</option>
+            <option value="binh-thanh">Binh Thanh</option>
           </select>
         </label>
 
         <div>
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
-            Mức nguy cấp
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Muc nguy cap
           </p>
 
           <div className="mt-3 flex flex-wrap gap-2">
@@ -77,8 +77,8 @@ export function CommanderMapFilterPanel({
                   className={[
                     "rounded-md border px-4 py-2 text-sm font-bold transition",
                     active
-                      ? "border-cyan-400 bg-cyan-400/15 text-cyan-300"
-                      : "border-white/10 bg-[#0d1530] text-slate-300 hover:border-cyan-400/60",
+                      ? "border-[var(--primary)] bg-red-50 text-[var(--primary)]"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-[var(--primary)]",
                   ].join(" ")}
                 >
                   {option.label}
@@ -89,8 +89,8 @@ export function CommanderMapFilterPanel({
         </div>
 
         <label className="block">
-          <span className="text-xs font-bold uppercase tracking-wide text-slate-400">
-            Từ ngày
+          <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Tu ngay
           </span>
 
           <input
@@ -102,13 +102,13 @@ export function CommanderMapFilterPanel({
                 fromDate: event.target.value,
               })
             }
-            className="mt-2 w-full rounded-md border border-white/10 bg-[#0d1530] px-4 py-3 text-slate-100 outline-none focus:border-cyan-400"
+            className="mt-2 w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-slate-800 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
           />
         </label>
 
         <label className="block">
-          <span className="text-xs font-bold uppercase tracking-wide text-slate-400">
-            Đến ngày
+          <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Den ngay
           </span>
 
           <input
@@ -120,7 +120,7 @@ export function CommanderMapFilterPanel({
                 toDate: event.target.value,
               })
             }
-            className="mt-2 w-full rounded-md border border-white/10 bg-[#0d1530] px-4 py-3 text-slate-100 outline-none focus:border-cyan-400"
+            className="mt-2 w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-slate-800 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
           />
         </label>
 
@@ -128,17 +128,17 @@ export function CommanderMapFilterPanel({
           <button
             type="button"
             onClick={onReset}
-            className="rounded-md border border-white/15 px-5 py-3 text-sm font-bold text-slate-300 hover:bg-white/10"
+            className="rounded-md border border-slate-200 px-5 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50"
           >
-            Đặt lại
+            Dat lai
           </button>
 
           <button
             type="button"
             onClick={onApply}
-            className="rounded-md bg-cyan-400 px-5 py-3 text-sm font-bold text-slate-950 hover:bg-cyan-300"
+            className="rounded-md bg-[var(--primary)] px-5 py-3 text-sm font-bold text-white hover:bg-[var(--primary-hover)]"
           >
-            Áp dụng
+            Ap dung
           </button>
         </div>
       </div>

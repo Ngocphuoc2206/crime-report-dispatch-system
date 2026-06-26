@@ -26,13 +26,13 @@ export function CommanderMapCanvas({
   isLoading,
 }: CommanderMapCanvasProps) {
   return (
-    <section className="relative min-h-[calc(100vh-5rem)] overflow-hidden bg-[#08112b]">
+    <section className="relative min-h-[calc(100vh-5rem)] overflow-hidden bg-slate-100">
       <div
         aria-hidden="true"
         className="absolute inset-0 opacity-80"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 55% 45%, rgba(34,211,238,0.22), transparent 24%), linear-gradient(rgba(34,211,238,0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,0.14) 1px, transparent 1px)",
+            "radial-gradient(circle at 55% 45%, rgba(200,16,23,0.12), transparent 24%), linear-gradient(rgba(148,163,184,0.25) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.25) 1px, transparent 1px)",
           backgroundSize: "100% 100%, 42px 42px, 42px 42px",
         }}
       />
@@ -42,7 +42,7 @@ export function CommanderMapCanvas({
         className="absolute inset-0 opacity-50"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 60% 52%, transparent 0 6rem, rgba(34,211,238,0.5) 6.1rem, transparent 6.25rem), radial-gradient(circle at 60% 52%, transparent 0 12rem, rgba(34,211,238,0.35) 12.1rem, transparent 12.25rem), radial-gradient(circle at 60% 52%, transparent 0 18rem, rgba(34,211,238,0.25) 18.1rem, transparent 18.25rem)",
+            "radial-gradient(circle at 60% 52%, transparent 0 6rem, rgba(200,16,23,0.22) 6.1rem, transparent 6.25rem), radial-gradient(circle at 60% 52%, transparent 0 12rem, rgba(148,163,184,0.28) 12.1rem, transparent 12.25rem), radial-gradient(circle at 60% 52%, transparent 0 18rem, rgba(148,163,184,0.2) 18.1rem, transparent 18.25rem)",
         }}
       />
 
@@ -59,7 +59,7 @@ export function CommanderMapCanvas({
             left: `${report.x}%`,
             top: `${report.y}%`,
           }}
-          aria-label={`Chọn tin báo ${report.code}`}
+          aria-label={`Chon tin bao ${report.code}`}
         >
           <span className="absolute inset-[-0.7rem] rounded-full border border-current opacity-40" />
         </button>
@@ -70,18 +70,18 @@ export function CommanderMapCanvas({
       ) : null}
 
       {isLoading ? (
-        <div className="absolute inset-0 z-30 flex items-center justify-center bg-[#090f24]/80 backdrop-blur-sm">
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-white/80 backdrop-blur-sm">
           <div className="text-center">
-            <div className="mx-auto flex size-20 items-center justify-center rounded-2xl border border-cyan-400/40 bg-cyan-400/10 text-3xl text-cyan-300">
-              ◈
+            <div className="mx-auto flex size-20 items-center justify-center rounded-2xl border border-red-200 bg-red-50 text-3xl text-[var(--primary)]">
+              +
             </div>
 
-            <h2 className="mt-6 text-2xl font-black uppercase tracking-[0.25em] text-cyan-300">
-              Đang thiết lập kết nối vệ tinh
+            <h2 className="mt-6 text-2xl font-black uppercase tracking-wide text-[var(--primary)]">
+              Dang tai du lieu ban do
             </h2>
 
-            <p className="mt-3 text-sm text-slate-400">
-              Đang tải dữ liệu địa hình và tín hiệu... 45%
+            <p className="mt-3 text-sm text-slate-600">
+              Dang dong bo du lieu vi tri tu backend...
             </p>
           </div>
         </div>
@@ -92,16 +92,16 @@ export function CommanderMapCanvas({
       </div>
 
       <div className="absolute bottom-8 right-8 z-20 space-y-3">
-        <button className="flex size-12 items-center justify-center rounded-lg border border-white/10 bg-[#121b3a] text-2xl font-bold text-slate-200 hover:bg-white/10">
+        <button className="flex size-12 items-center justify-center rounded-lg border border-slate-200 bg-white text-2xl font-bold text-slate-700 shadow-sm hover:bg-slate-50">
           +
         </button>
 
-        <button className="flex size-12 items-center justify-center rounded-lg border border-white/10 bg-[#121b3a] text-2xl font-bold text-slate-200 hover:bg-white/10">
-          −
+        <button className="flex size-12 items-center justify-center rounded-lg border border-slate-200 bg-white text-2xl font-bold text-slate-700 shadow-sm hover:bg-slate-50">
+          -
         </button>
 
-        <button className="flex size-12 items-center justify-center rounded-lg border border-white/10 bg-[#121b3a] text-xl font-bold text-cyan-300 hover:bg-white/10">
-          ◎
+        <button className="flex size-12 items-center justify-center rounded-lg border border-slate-200 bg-white text-xl font-bold text-[var(--primary)] shadow-sm hover:bg-slate-50">
+          o
         </button>
       </div>
     </section>

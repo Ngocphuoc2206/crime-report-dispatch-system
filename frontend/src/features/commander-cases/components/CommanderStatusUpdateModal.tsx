@@ -17,22 +17,22 @@ const nextStatusOptions: Array<{
   label: string;
   value: CommanderCaseStatus;
 }> = [
-  { label: "Đang xác minh", value: "VERIFYING" },
-  { label: "Điều tra", value: "INVESTIGATING" },
-  { label: "Đã giải quyết", value: "RESOLVED" },
+  { label: "Dang xac minh", value: "VERIFYING" },
+  { label: "Dieu tra", value: "INVESTIGATING" },
+  { label: "Da giai quyet", value: "RESOLVED" },
   { label: "Spam / Fake", value: "SPAM_OR_FAKE" },
-  { label: "Đã kết thúc", value: "CLOSED" },
+  { label: "Da ket thuc", value: "CLOSED" },
 ];
 
 function getStatusLabel(status: CommanderCaseStatus) {
   const map: Record<CommanderCaseStatus, string> = {
-    NEW: "Mới tiếp nhận",
-    PROCESSING: "Đang xử lý",
-    VERIFYING: "Đang xác minh",
-    INVESTIGATING: "Điều tra",
-    RESOLVED: "Đã giải quyết",
+    NEW: "Moi tiep nhan",
+    PROCESSING: "Dang xu ly",
+    VERIFYING: "Dang xac minh",
+    INVESTIGATING: "Dieu tra",
+    RESOLVED: "Da giai quyet",
     SPAM_OR_FAKE: "Spam / Fake",
-    CLOSED: "Đã kết thúc",
+    CLOSED: "Da ket thuc",
   };
 
   return map[status];
@@ -52,46 +52,46 @@ export function CommanderStatusUpdateModal({
   const canSubmit = note.trim().length > 0 && note.length <= 500;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#050817]/85 px-6 backdrop-blur-sm">
-      <section className="w-full max-w-xl overflow-hidden rounded-xl border border-white/10 bg-[#111a36] shadow-2xl shadow-black/40">
-        <header className="flex items-center justify-between border-b border-white/10 px-6 py-5">
-          <h2 className="text-2xl font-bold text-slate-100">
-            Cập nhật trạng thái
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-6 backdrop-blur-sm">
+      <section className="w-full max-w-xl overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl">
+        <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+          <h2 className="text-2xl font-bold text-slate-950">
+            Cap nhat trang thai
           </h2>
 
           <button
             type="button"
             onClick={onClose}
-            className="text-2xl text-slate-400 hover:text-white"
+            className="text-2xl text-slate-400 hover:text-slate-950"
           >
-            ×
+            x
           </button>
         </header>
 
         <div className="p-6">
           <p className="text-sm font-bold uppercase tracking-wide text-slate-500">
-            Hồ sơ
+            Ho so
           </p>
 
-          <p className="mt-2 font-mono text-3xl font-black text-cyan-300">
+          <p className="mt-2 font-mono text-3xl font-black text-[var(--primary)]">
             #{caseItem.code}
           </p>
 
-          <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-5 rounded-lg border border-white/10 bg-[#0d1530] p-5">
+          <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-5 rounded-lg border border-slate-200 bg-slate-50 p-5">
             <div>
-              <p className="text-sm font-semibold text-slate-400">
-                Trạng thái hiện tại
+              <p className="text-sm font-semibold text-slate-500">
+                Trang thai hien tai
               </p>
-              <p className="mt-2 font-bold text-slate-100">
+              <p className="mt-2 font-bold text-slate-950">
                 {getStatusLabel(caseItem.status)}
               </p>
             </div>
 
-            <span className="text-2xl text-slate-300">→</span>
+            <span className="text-2xl text-slate-400">&gt;</span>
 
             <label>
-              <span className="text-sm font-semibold text-slate-400">
-                Trạng thái mới
+              <span className="text-sm font-semibold text-slate-500">
+                Trang thai moi
               </span>
 
               <select
@@ -99,7 +99,7 @@ export function CommanderStatusUpdateModal({
                 onChange={(event) =>
                   setNextStatus(event.target.value as CommanderCaseStatus)
                 }
-                className="mt-2 w-full rounded-md border border-white/10 bg-[#202b55] px-3 py-3 text-slate-100 outline-none focus:border-cyan-400"
+                className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-3 text-slate-800 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               >
                 {nextStatusOptions.map((item) => (
                   <option key={item.value} value={item.value}>
@@ -112,13 +112,11 @@ export function CommanderStatusUpdateModal({
 
           <label className="mt-6 block">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-slate-300">
-                Ghi chú xử lý *
+              <span className="text-sm font-bold text-slate-700">
+                Ghi chu xu ly *
               </span>
 
-              <span className="text-sm text-slate-400">
-                {note.length} / 500
-              </span>
+              <span className="text-sm text-slate-500">{note.length} / 500</span>
             </div>
 
             <textarea
@@ -126,36 +124,38 @@ export function CommanderStatusUpdateModal({
               onChange={(event) => setNote(event.target.value)}
               maxLength={500}
               rows={5}
-              placeholder="Nhập chi tiết về quyết định chuyển đổi trạng thái..."
-              className="mt-3 w-full resize-none rounded-md border border-white/10 bg-[#202b55] px-4 py-3 text-slate-100 outline-none placeholder:text-slate-500 focus:border-cyan-400"
+              placeholder="Nhap chi tiet ve quyet dinh chuyen doi trang thai..."
+              className="mt-3 w-full resize-none rounded-md border border-slate-200 bg-white px-4 py-3 text-slate-800 outline-none placeholder:text-slate-400 focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             />
           </label>
 
-          <div className="mt-6 rounded-lg border border-red-400/30 bg-red-500/10 p-5">
-            <p className="font-bold text-red-300">Tác động nghiệp vụ</p>
-            <p className="mt-2 text-sm leading-6 text-slate-300">
-              Hành động này sẽ gửi thông báo đến các đơn vị liên quan và khóa
-              khả năng chỉnh sửa trực tiếp trên hồ sơ này.
+          <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-5">
+            <p className="font-bold text-[var(--primary)]">
+              Tac dong nghiep vu
+            </p>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Hanh dong nay se gui thong bao den cac don vi lien quan va ghi
+              nhan vao lich su xu ly.
             </p>
           </div>
         </div>
 
-        <footer className="flex justify-end gap-3 border-t border-white/10 px-6 py-5">
+        <footer className="flex justify-end gap-3 border-t border-slate-200 px-6 py-5">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md border border-white/15 px-5 py-3 font-bold text-slate-300 hover:bg-white/10"
+            className="rounded-md border border-slate-200 px-5 py-3 font-bold text-slate-700 hover:bg-slate-50"
           >
-            Hủy
+            Huy
           </button>
 
           <button
             type="button"
             disabled={!canSubmit}
             onClick={() => onConfirm(nextStatus, note)}
-            className="rounded-md bg-cyan-400 px-5 py-3 font-bold text-slate-950 hover:bg-cyan-300 disabled:cursor-not-allowed disabled:bg-slate-600 disabled:text-slate-400"
+            className="rounded-md bg-[var(--primary)] px-5 py-3 font-bold text-white hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:bg-slate-300"
           >
-            Xác nhận cập nhật
+            Xac nhan cap nhat
           </button>
         </footer>
       </section>

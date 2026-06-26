@@ -1,38 +1,42 @@
-import { commanderReportStatuses } from "@/features/commander-dashboard/data/commanderDashboard.data";
+import type { CommanderReportStatus } from "@/features/commander-dashboard/types/commanderDashboard.types";
 
-const toneClassNames = {
-  total: "bg-[#202b55] border-cyan-400/20",
-  new: "bg-[#1e2a56] border-cyan-400/20",
-  verifying: "bg-[#1e2a56] border-cyan-400/20",
-  investigating: "bg-[#1e2a56] border-cyan-400/20",
-  resolved: "bg-[#111a36] border-white/10",
-  spam: "bg-[#111a36] border-white/10",
+type CommanderStatusOverviewProps = {
+  statuses: CommanderReportStatus[];
 };
 
-export function CommanderStatusOverview() {
-  const topStatuses = commanderReportStatuses.slice(0, 4);
-  const bottomStatuses = commanderReportStatuses.slice(4);
+const toneClassNames = {
+  total: "bg-red-50 border-red-100",
+  new: "bg-blue-50 border-blue-100",
+  verifying: "bg-amber-50 border-amber-100",
+  investigating: "bg-orange-50 border-orange-100",
+  resolved: "bg-green-50 border-green-100",
+  spam: "bg-slate-50 border-slate-200",
+};
+
+export function CommanderStatusOverview({
+  statuses,
+}: CommanderStatusOverviewProps) {
+  const topStatuses = statuses.slice(0, 4);
+  const bottomStatuses = statuses.slice(4);
 
   return (
-    <section className="rounded-xl border border-white/10 bg-[#121b3a] p-6 shadow-xl shadow-black/20">
+    <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-100">Trạng thái xử lý</h2>
-
-        <button className="text-slate-400">•••</button>
+        <h2 className="text-2xl font-bold text-slate-950">Trang thai xu ly</h2>
+        <button className="text-slate-400">...</button>
       </div>
 
       <div className="mt-6 grid gap-3 md:grid-cols-4">
         {topStatuses.map((item) => (
           <article
             key={item.id}
-            className={[
-              "rounded-lg border p-5",
-              toneClassNames[item.tone],
-            ].join(" ")}
+            className={["rounded-lg border p-5", toneClassNames[item.tone]].join(
+              " ",
+            )}
           >
-            <p className="text-sm font-bold text-slate-400">{item.label}</p>
+            <p className="text-sm font-bold text-slate-500">{item.label}</p>
 
-            <p className="mt-6 text-5xl font-black tracking-tight text-slate-100">
+            <p className="mt-6 text-5xl font-black tracking-tight text-slate-950">
               {item.value}
             </p>
           </article>
@@ -43,10 +47,10 @@ export function CommanderStatusOverview() {
         {bottomStatuses.map((item) => (
           <article
             key={item.id}
-            className="flex items-center justify-between rounded-lg border border-white/10 bg-[#0f1733] px-5 py-4"
+            className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-5 py-4"
           >
-            <p className="font-semibold text-slate-400">{item.label}</p>
-            <p className="text-2xl font-black text-slate-200">{item.value}</p>
+            <p className="font-semibold text-slate-500">{item.label}</p>
+            <p className="text-2xl font-black text-slate-800">{item.value}</p>
           </article>
         ))}
       </div>

@@ -1,53 +1,60 @@
 import Link from "next/link";
-import { commanderUrgentCases } from "@/features/commander-dashboard/data/commanderDashboard.data";
+import type { CommanderUrgentCase } from "@/features/commander-dashboard/types/commanderDashboard.types";
+
+type CommanderUrgentTableProps = {
+  cases: CommanderUrgentCase[];
+};
 
 function getStatusClassName(status: string) {
-  if (status.includes("Mới"))
-    return "border-red-300/40 bg-red-400/15 text-red-200";
-  if (status.includes("Điều"))
-    return "border-red-500/40 bg-red-500/15 text-red-200";
-  return "border-slate-400/30 bg-slate-400/15 text-slate-200";
+  if (status.includes("Moi") || status.includes("NEW")) {
+    return "border-red-200 bg-red-50 text-[var(--primary)]";
+  }
+
+  if (status.includes("Dieu") || status.includes("TRANSFERRED")) {
+    return "border-orange-200 bg-orange-50 text-orange-700";
+  }
+
+  return "border-slate-200 bg-slate-50 text-slate-700";
 }
 
-export function CommanderUrgentTable() {
+export function CommanderUrgentTable({ cases }: CommanderUrgentTableProps) {
   return (
-    <section className="rounded-xl border border-white/10 bg-[#121b3a] p-6 shadow-xl shadow-black/20">
-      <div className="flex items-center justify-between border-b border-white/10 pb-5">
-        <h2 className="text-2xl font-bold text-red-200">
-          Tin báo KHẨN CẤP cần chú ý
+    <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="flex items-center justify-between border-b border-slate-200 pb-5">
+        <h2 className="text-2xl font-bold text-[var(--primary)]">
+          Tin bao khan cap can chu y
         </h2>
 
         <Link
           href="/commander/cases"
-          className="text-sm font-bold text-cyan-300"
+          className="text-sm font-bold text-[var(--primary)]"
         >
-          Xem tất cả
+          Xem tat ca
         </Link>
       </div>
 
       <div className="mt-6 overflow-x-auto">
         <table className="w-full min-w-180 text-left text-sm">
-          <thead className="text-xs uppercase tracking-wide text-slate-400">
+          <thead className="text-xs uppercase tracking-wide text-slate-500">
             <tr>
-              <th className="px-3 py-3">Mã HS</th>
-              <th className="px-3 py-3">Loại vụ việc</th>
-              <th className="px-3 py-3">Địa điểm</th>
-              <th className="px-3 py-3">Trạng thái</th>
-              <th className="px-3 py-3">Thời gian</th>
+              <th className="px-3 py-3">Ma HS</th>
+              <th className="px-3 py-3">Loai vu viec</th>
+              <th className="px-3 py-3">Dia diem</th>
+              <th className="px-3 py-3">Trang thai</th>
+              <th className="px-3 py-3">Thoi gian</th>
               <th className="px-3 py-3"></th>
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-white/10">
-            {commanderUrgentCases.map((item) => (
-              <tr key={item.id}>
-                <td className="px-3 py-4 font-black text-slate-100">
+          <tbody className="divide-y divide-slate-200">
+            {cases.map((item) => (
+              <tr key={item.id} className="hover:bg-slate-50">
+                <td className="px-3 py-4 font-black text-slate-950">
                   #{item.code}
                 </td>
 
-                <td className="px-3 py-4 text-slate-300">{item.category}</td>
-
-                <td className="px-3 py-4 text-slate-300">{item.location}</td>
+                <td className="px-3 py-4 text-slate-700">{item.category}</td>
+                <td className="px-3 py-4 text-slate-700">{item.location}</td>
 
                 <td className="px-3 py-4">
                   <span
@@ -60,16 +67,16 @@ export function CommanderUrgentTable() {
                   </span>
                 </td>
 
-                <td className="px-3 py-4 font-bold text-red-200">
+                <td className="px-3 py-4 font-bold text-[var(--primary)]">
                   {item.timeLabel}
                 </td>
 
                 <td className="px-3 py-4">
                   <Link
                     href={`/commander/cases/${item.code}`}
-                    className="text-xl text-slate-300 hover:text-cyan-300"
+                    className="text-xl text-slate-500 hover:text-[var(--primary)]"
                   >
-                    ›
+                    &gt;
                   </Link>
                 </td>
               </tr>

@@ -20,4 +20,12 @@ export const endpoints = {
     `/api/officer/cases/${encodeURIComponent(String(caseId))}/lock`,
   officerCaseLockRenew: (caseId: string | number) =>
     `/api/officer/cases/${encodeURIComponent(String(caseId))}/lock/renew`,
+
+  commanderDashboardOverview: "/api/commander/dashboard/overview",
+  commanderDashboardHeatmap: "/api/commander/dashboard/heatmap",
+  commanderDashboardTimeline: "/api/commander/dashboard/timeline",
+
+  adminUrgencyRules: "/api/admin/urgency-rules",
+  adminUrgencyRuleDetail: (ruleId: string | number) =>
+    `/api/admin/urgency-rules/${encodeURIComponent(String(ruleId))}`,
 };
