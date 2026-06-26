@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CommanderActivityPriorityBadge,
   CommanderActivityTypeBadge,
@@ -11,6 +11,7 @@ import type {
   CommanderActivityItem,
   CommanderActivityType,
 } from "@/features/commander-activity/types/commanderActivity.types";
+import { commanderCaseService } from "@/features/commander-cases/services/commanderCaseService";
 
 type ActivityFilter = "ALL" | CommanderActivityType;
 
@@ -58,11 +59,58 @@ export function CommanderActivityContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activityFilter, setActivityFilter] = useState<ActivityFilter>("ALL");
   const [pageSize, setPageSize] = useState("20");
+  const [activities, setActivities] =
+    useState<CommanderActivityItem[]>(commanderActivityItems);
+  const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  async function loadActivities(limit = Number(pageSize)) {
+    setIsLoading(true);
+    setApiError(null);
+
+    try {
+      const response = await commanderCaseService.getActivity(limit);
+      setActivities(
+        response.map((item) => ({
+          id: String(item.id),
+          caseCode: item.trackingCode,
+          title: item.action,
+          description: item.description,
+          type:
+            item.action === "COMMANDER_STATUS_CHANGED"
+              ? "STATUS_UPDATED"
+              : "CASE_ACCEPTED",
+          priority: item.urgencyLevel,
+          timeLabel: new Intl.DateTimeFormat("vi-VN", {
+            hour: "2-digit",
+            minute: "2-digit",
+            day: "2-digit",
+            month: "2-digit",
+          }).format(new Date(item.createdAt)),
+          occurredAt: item.createdAt,
+          actor: item.actor,
+        })),
+      );
+    } catch {
+      setActivities(commanderActivityItems);
+      setApiError(
+        "Khong ket noi duoc backend commander activity. Dang hien thi du lieu mau.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadActivities();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filteredActivities = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase();
 
-    return commanderActivityItems.filter((item) => {
+    return activities.filter((item) => {
       const matchedKeyword =
         keyword === "" ||
         item.caseCode.toLowerCase().includes(keyword) ||
@@ -74,7 +122,7 @@ export function CommanderActivityContent() {
 
       return matchedKeyword && matchedType;
     });
-  }, [searchTerm, activityFilter]);
+  }, [activities, searchTerm, activityFilter]);
 
   function handleResetFilter() {
     setSearchTerm("");
@@ -100,7 +148,10 @@ export function CommanderActivityContent() {
 
           <select
             value={pageSize}
-            onChange={(event) => setPageSize(event.target.value)}
+            onChange={(event) => {
+              setPageSize(event.target.value);
+              void loadActivities(Number(event.target.value));
+            }}
             className="rounded-md border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
           >
             <option value="10">10 su kien</option>
@@ -109,6 +160,12 @@ export function CommanderActivityContent() {
           </select>
         </label>
       </section>
+
+      {apiError ? (
+        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-[var(--primary)]">
+          {apiError}
+        </section>
+      ) : null}
 
       <section className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="grid gap-4 border-b border-slate-200 p-5 lg:grid-cols-[1fr_auto_auto]">
@@ -142,7 +199,11 @@ export function CommanderActivityContent() {
           </button>
         </div>
 
-        {filteredActivities.length === 0 ? (
+        {isLoading ? (
+          <div className="p-8 text-center font-semibold text-slate-600">
+            Dang tai hoat dong gan day...
+          </div>
+        ) : filteredActivities.length === 0 ? (
           <div className="flex min-h-88 items-center justify-center p-8 text-center">
             <div>
               <div className="mx-auto flex size-20 items-center justify-center rounded-2xl bg-slate-100 text-4xl text-slate-500">
@@ -243,7 +304,7 @@ export function CommanderActivityContent() {
         <footer className="flex flex-col gap-3 border-t border-slate-200 px-6 py-4 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
           <p>
             Hien thi {filteredActivities.length} trong tong so{" "}
-            {commanderActivityItems.length} su kien
+            {activities.length} su kien
           </p>
 
           <p>Cap nhat gan nhat: 14:32:45 hom nay</p>

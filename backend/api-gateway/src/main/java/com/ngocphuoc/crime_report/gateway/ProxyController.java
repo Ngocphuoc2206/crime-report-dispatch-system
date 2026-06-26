@@ -71,6 +71,9 @@ public class ProxyController {
 
             "/api/commander/dashboard",
             "/api/commander/dashboard/**",
+            "/api/commander/cases",
+            "/api/commander/cases/**",
+            "/api/commander/activity",
 
             "/api/internal/reports/**"
     })

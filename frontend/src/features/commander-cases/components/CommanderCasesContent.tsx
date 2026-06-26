@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CommanderSeverityBadge,
   CommanderStatusBadge,
@@ -14,7 +14,9 @@ import {
 } from "@/features/commander-cases/components/CommanderCaseListStates";
 import { CommanderSessionExpiredModal } from "@/features/commander-cases/components/CommanderSessionExpiredModal";
 import { commanderCases } from "@/features/commander-cases/data/commanderCases.data";
+import { commanderCaseService } from "@/features/commander-cases/services/commanderCaseService";
 import type {
+  CommanderCase,
   CommanderCaseSeverity,
   CommanderCaseStatus,
 } from "@/features/commander-cases/types/commanderCase.types";
@@ -29,11 +31,43 @@ export function CommanderCasesContent() {
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>("ALL");
   const [searchTerm, setSearchTerm] = useState("");
   const [sessionExpiredOpen, setSessionExpiredOpen] = useState(false);
+  const [cases, setCases] = useState<CommanderCase[]>([]);
+  const [totalCases, setTotalCases] = useState(0);
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  async function loadCases() {
+    setPageState("loading");
+    setApiError(null);
+
+    try {
+      const response = await commanderCaseService.getCases({
+        status: statusFilter,
+        severity: severityFilter,
+        keyword: searchTerm,
+        size: 50,
+      });
+
+      setCases(response.content);
+      setTotalCases(response.totalElements);
+      setPageState(response.content.length === 0 ? "empty" : "normal");
+    } catch {
+      setCases(commanderCases);
+      setTotalCases(commanderCases.length);
+      setApiError("Khong ket noi duoc backend commander cases. Dang hien thi du lieu mau.");
+      setPageState("normal");
+    }
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadCases();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filteredCases = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase();
 
-    return commanderCases.filter((item) => {
+    return cases.filter((item) => {
       const matchedKeyword =
         keyword === "" ||
         item.code.toLowerCase().includes(keyword) ||
@@ -49,13 +83,23 @@ export function CommanderCasesContent() {
 
       return matchedKeyword && matchedStatus && matchedSeverity;
     });
-  }, [searchTerm, statusFilter, severityFilter]);
+  }, [cases, searchTerm, statusFilter, severityFilter]);
 
   function handleReset() {
     setStatusFilter("ALL");
     setSeverityFilter("ALL");
     setSearchTerm("");
     setPageState("normal");
+    void commanderCaseService
+      .getCases({ size: 50 })
+      .then((response) => {
+        setCases(response.content);
+        setTotalCases(response.totalElements);
+      })
+      .catch(() => {
+        setCases(commanderCases);
+        setTotalCases(commanderCases.length);
+      });
   }
 
   function handleRetry() {
@@ -120,6 +164,12 @@ export function CommanderCasesContent() {
         </div>
       </section>
 
+      {apiError ? (
+        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-[var(--primary)]">
+          {apiError}
+        </section>
+      ) : null}
+
       <section className="mt-8 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="grid gap-4 lg:grid-cols-[1fr_1fr_1.4fr_auto_auto]">
           <label className="block">
@@ -178,7 +228,7 @@ export function CommanderCasesContent() {
 
           <button
             type="button"
-            onClick={() => setPageState("normal")}
+            onClick={() => void loadCases()}
             className="self-end rounded-md bg-[var(--primary)] px-5 py-3 font-bold text-white hover:bg-[var(--primary-hover)]"
           >
             Ap dung
@@ -261,7 +311,7 @@ export function CommanderCasesContent() {
             <footer className="flex justify-between border-t border-slate-200 px-5 py-4 text-sm text-slate-600">
               <p>
                 Hien thi 1-{filteredCases.length} trong so{" "}
-                {commanderCases.length} ho so
+                {totalCases || filteredCases.length} ho so
               </p>
 
               <p>1-20 trong so 485</p>

@@ -92,6 +92,28 @@ public interface CaseReportRepository extends JpaRepository<CaseReport, Long> {
             Pageable pageable
     );
 
+    @Query("""
+            SELECT c
+            FROM CaseReport c
+            JOIN c.crimeType ct
+            WHERE (:status IS NULL OR c.status = :status)
+              AND (:urgencyLevel IS NULL OR c.urgencyLevel = :urgencyLevel)
+              AND (
+                    :keyword IS NULL
+                    OR LOWER(c.trackingCode) LIKE :keyword
+                    OR LOWER(c.description) LIKE :keyword
+                    OR LOWER(c.addressText) LIKE :keyword
+                    OR LOWER(ct.name) LIKE :keyword
+                  )
+            ORDER BY c.createdAt DESC
+            """)
+    Page<CaseReport> findCommanderCases(
+            @Param("status") CaseStatus status,
+            @Param("urgencyLevel") UrgencyLevel urgencyLevel,
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
+
     long countByStatus(CaseStatus status);
 
     long countByUrgencyLevel(UrgencyLevel urgencyLevel);

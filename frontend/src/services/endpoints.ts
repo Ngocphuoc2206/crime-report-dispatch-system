@@ -24,8 +24,25 @@ export const endpoints = {
   commanderDashboardOverview: "/api/commander/dashboard/overview",
   commanderDashboardHeatmap: "/api/commander/dashboard/heatmap",
   commanderDashboardTimeline: "/api/commander/dashboard/timeline",
+  commanderCases: "/api/commander/cases",
+  commanderCaseDetail: (trackingCode: string | number) =>
+    `/api/commander/cases/${encodeURIComponent(String(trackingCode))}`,
+  commanderCaseStatus: (trackingCode: string | number) =>
+    `/api/commander/cases/${encodeURIComponent(String(trackingCode))}/status`,
+  commanderActivity: "/api/commander/activity",
 
   adminUrgencyRules: "/api/admin/urgency-rules",
   adminUrgencyRuleDetail: (ruleId: string | number) =>
     `/api/admin/urgency-rules/${encodeURIComponent(String(ruleId))}`,
+  adminUsers: "/api/admin/users",
+  adminUserRoles: (userId: string | number) =>
+    `/api/admin/users/${encodeURIComponent(String(userId))}/roles`,
+  adminUserStatus: (userId: string | number) =>
+    `/api/admin/users/${encodeURIComponent(String(userId))}/status`,
+  adminCrimeTypes: "/api/admin/crime-types",
+  adminCrimeTypeDetail: (crimeTypeId: string | number) =>
+    `/api/admin/crime-types/${encodeURIComponent(String(crimeTypeId))}`,
+  adminOfficers: "/api/admin/officers",
+  adminOfficerDetail: (officerId: string | number) =>
+    `/api/admin/officers/${encodeURIComponent(String(officerId))}`,
 };

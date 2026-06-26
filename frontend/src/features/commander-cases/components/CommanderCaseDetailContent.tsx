@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   CommanderSeverityBadge,
@@ -8,6 +8,7 @@ import {
 } from "@/features/commander-cases/components/CommanderCaseBadges";
 import { CommanderStatusUpdateModal } from "@/features/commander-cases/components/CommanderStatusUpdateModal";
 import { commanderCases } from "@/features/commander-cases/data/commanderCases.data";
+import { commanderCaseService } from "@/features/commander-cases/services/commanderCaseService";
 import type {
   CommanderCase,
   CommanderCaseStatus,
@@ -44,6 +45,39 @@ export function CommanderCaseDetailContent({
   );
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  async function loadDetail() {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const detail = await commanderCaseService.getDetail(caseCode);
+      setCaseItem(detail);
+    } catch {
+      setCaseItem(initialCase);
+      setError("Khong ket noi duoc backend commander case detail. Dang hien thi du lieu mau.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caseCode]);
+
+  if (isLoading) {
+    return (
+      <div className="px-8 py-8">
+        <section className="rounded-xl border border-slate-200 bg-white p-8 text-center font-semibold text-slate-600 shadow-sm">
+          Dang tai chi tiet ho so...
+        </section>
+      </div>
+    );
+  }
 
   if (!caseItem) {
     return (
@@ -64,41 +98,26 @@ export function CommanderCaseDetailContent({
     );
   }
 
+  const activeCase = caseItem;
   const readOnly =
-    caseItem.status === "SPAM_OR_FAKE" || caseItem.status === "CLOSED";
+    activeCase.status === "SPAM_OR_FAKE" || activeCase.status === "CLOSED";
 
   function handleConfirmUpdate(nextStatus: CommanderCaseStatus, note: string) {
-    setCaseItem((current) => {
-      if (!current) return current;
-
-      return {
-        ...current,
-        status: nextStatus,
-        histories: [
-          {
-            id: `history-${Date.now()}`,
-            time: new Intl.DateTimeFormat("vi-VN", {
-              hour: "2-digit",
-              minute: "2-digit",
-              day: "2-digit",
-              month: "2-digit",
-            }).format(new Date()),
-            title: "Cap nhat trang thai",
-            description: note,
-            actor: "Nguyen Van Minh - Chi huy",
-            tone: nextStatus === "SPAM_OR_FAKE" ? "danger" : "success",
-          },
-          ...current.histories,
-        ],
-      };
-    });
-
-    setUpdateModalOpen(false);
-    setToast("Cap nhat trang thai thanh cong");
-
-    window.setTimeout(() => {
-      setToast(null);
-    }, 2200);
+    void commanderCaseService
+      .updateStatus(activeCase.code, nextStatus, note)
+      .then((updatedCase) => {
+        setCaseItem(updatedCase);
+        setUpdateModalOpen(false);
+        setToast("Cap nhat trang thai thanh cong");
+        window.setTimeout(() => setToast(null), 2200);
+      })
+      .catch((updateError) => {
+        setError(
+          updateError instanceof Error
+            ? updateError.message
+            : "Khong cap nhat duoc trang thai.",
+        );
+      });
   }
 
   return (
@@ -111,10 +130,16 @@ export function CommanderCaseDetailContent({
 
       <CommanderStatusUpdateModal
         open={updateModalOpen}
-        caseItem={caseItem}
+        caseItem={activeCase}
         onClose={() => setUpdateModalOpen(false)}
         onConfirm={handleConfirmUpdate}
       />
+
+      {error ? (
+        <section className="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-[var(--primary)]">
+          {error}
+        </section>
+      ) : null}
 
       {readOnly ? (
         <section className="mb-6 rounded-xl border-l-4 border-slate-400 bg-white px-6 py-5 shadow-sm">
@@ -140,15 +165,15 @@ export function CommanderCaseDetailContent({
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <span className="text-sm font-bold uppercase tracking-wide text-slate-500">
-              Ma ho so: {caseItem.code}
+              Ma ho so: {activeCase.code}
             </span>
 
-            <CommanderStatusBadge status={caseItem.status} />
-            <CommanderSeverityBadge severity={caseItem.severity} />
+            <CommanderStatusBadge status={activeCase.status} />
+            <CommanderSeverityBadge severity={activeCase.severity} />
           </div>
 
           <h1 className="mt-4 max-w-4xl text-4xl font-black text-slate-950">
-            {caseItem.title}
+            {activeCase.title}
           </h1>
         </div>
 
@@ -185,7 +210,7 @@ export function CommanderCaseDetailContent({
                   Nguoi bao tin
                 </dt>
                 <dd className="mt-2 text-slate-800">
-                  {caseItem.reporter.name}
+                  {activeCase.reporter.name}
                 </dd>
               </div>
 
@@ -194,7 +219,7 @@ export function CommanderCaseDetailContent({
                   Thoi gian tiep nhan
                 </dt>
                 <dd className="mt-2 text-slate-800">
-                  {formatDateTime(caseItem.receivedAt)}
+                  {formatDateTime(activeCase.receivedAt)}
                 </dd>
               </div>
 
@@ -202,7 +227,7 @@ export function CommanderCaseDetailContent({
                 <dt className="text-sm font-bold uppercase text-slate-500">
                   Phan loai he thong
                 </dt>
-                <dd className="mt-2 text-slate-800">{caseItem.category}</dd>
+                <dd className="mt-2 text-slate-800">{activeCase.category}</dd>
               </div>
 
               <div>
@@ -210,7 +235,7 @@ export function CommanderCaseDetailContent({
                   Do tin cay ban dau
                 </dt>
                 <dd className="mt-2 font-bold text-[var(--primary)]">
-                  {caseItem.confidence}
+                  {activeCase.confidence}
                 </dd>
               </div>
             </dl>
@@ -221,7 +246,7 @@ export function CommanderCaseDetailContent({
               </p>
 
               <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-5 leading-7 text-slate-700">
-                {caseItem.description}
+                {activeCase.description}
               </div>
             </div>
           </article>
@@ -231,11 +256,11 @@ export function CommanderCaseDetailContent({
               Du lieu dinh kem
             </h2>
 
-            {caseItem.attachments.length === 0 ? (
+            {activeCase.attachments.length === 0 ? (
               <p className="mt-5 text-slate-500">Khong co tep dinh kem.</p>
             ) : (
               <div className="mt-5 grid gap-4 md:grid-cols-3">
-                {caseItem.attachments.map((file) => (
+                {activeCase.attachments.map((file) => (
                   <div
                     key={file.id}
                     className="rounded-lg border border-slate-200 bg-slate-50 p-5"
@@ -262,12 +287,12 @@ export function CommanderCaseDetailContent({
             </h2>
 
             <p className="mt-3 text-slate-600">
-              Toa do: {caseItem.coordinate}
+              Toa do: {activeCase.coordinate}
             </p>
 
-            {caseItem.locationWarning ? (
+            {activeCase.locationWarning ? (
               <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm font-bold text-[var(--primary)]">
-                Canh bao: {caseItem.locationWarning}
+                Canh bao: {activeCase.locationWarning}
               </p>
             ) : null}
           </article>
@@ -276,7 +301,7 @@ export function CommanderCaseDetailContent({
             <h2 className="text-2xl font-bold text-slate-950">Lich su xu ly</h2>
 
             <div className="mt-6 space-y-6">
-              {caseItem.histories.map((history) => (
+              {activeCase.histories.map((history) => (
                 <div
                   key={history.id}
                   className="grid grid-cols-[2rem_1fr] gap-4"
