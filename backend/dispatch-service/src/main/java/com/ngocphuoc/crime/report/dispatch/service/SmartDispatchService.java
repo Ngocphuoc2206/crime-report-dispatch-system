@@ -30,6 +30,7 @@ public class SmartDispatchService {
     private final DutyAssignmentRepository dutyAssignmentRepository;
     private final DispatchTaskRepository dispatchTaskRepository;
     private final ReportAssignmentClient reportAssignmentClient;
+    private final DispatchTaskHistoryService dispatchTaskHistoryService;
 
     @Transactional
     public SmartDispatchResponse dispatch(SmartDispatchRequest request){
@@ -85,6 +86,16 @@ public class SmartDispatchService {
                 dispatchTask.setDispatchStatus(DispatchStatus.ASSIGNED);
 
                 DispatchTask savedTask = dispatchTaskRepository.save(dispatchTask);
+                dispatchTaskHistoryService.record(
+                        savedTask,
+                        "SMART_DISPATCH",
+                        null,
+                        savedTask.getDispatchStatus(),
+                        null,
+                        null,
+                        "Automatically assigned to nearest available officer",
+                        "SYSTEM"
+                );
 
                 if (request.shouldUpdateReportAssignment()) {
                     reportAssignmentClient.updateAssignment(

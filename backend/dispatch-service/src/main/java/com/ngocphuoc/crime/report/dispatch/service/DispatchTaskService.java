@@ -34,6 +34,7 @@ public class DispatchTaskService {
     private final DispatchCaseService dispatchCaseService;
     private final ReportAssignmentClient reportAssignmentClient;
     private final NearestPoliceUnitService nearestPoliceUnitService;
+    private final DispatchTaskHistoryService dispatchTaskHistoryService;
 
     @Transactional(readOnly = true)
     public List<AssignedDispatchTaskResponse> getTasks() {
@@ -83,6 +84,16 @@ public class DispatchTaskService {
         }
 
         DispatchTask saved = createManualTask(report, request);
+        dispatchTaskHistoryService.record(
+                saved,
+                "MANUAL_DISPATCH",
+                null,
+                saved.getDispatchStatus(),
+                null,
+                null,
+                request.note(),
+                "DISPATCHER"
+        );
         reportAssignmentClient.updateAssignment(
                 report.caseId(),
                 saved.getAssignedUnit().getId(),
@@ -95,6 +106,9 @@ public class DispatchTaskService {
     @Transactional
     public AssignedDispatchTaskResponse reassign(Long taskId, ReassignDispatchTaskRequest request) {
         DispatchTask task = findTask(taskId);
+        DispatchStatus previousStatus = task.getDispatchStatus();
+        Long previousUnitId = task.getAssignedUnit() == null ? null : task.getAssignedUnit().getId();
+        Long previousOfficerId = task.getAssignedOfficer() == null ? null : task.getAssignedOfficer().getId();
         DutyAssignment oldAssignment = task.getDutyAssignment();
         releaseAssignment(oldAssignment);
 
@@ -108,6 +122,16 @@ public class DispatchTaskService {
         task.setAssignedOfficer(nextAssignment.getOfficer());
         task.setDutyAssignment(nextAssignment);
         task.setDispatchStatus(DispatchStatus.ASSIGNED);
+        dispatchTaskHistoryService.record(
+                task,
+                "REASSIGN",
+                previousStatus,
+                task.getDispatchStatus(),
+                previousUnitId,
+                previousOfficerId,
+                request == null ? null : request.reason(),
+                "DISPATCHER"
+        );
 
         reportAssignmentClient.updateAssignment(
                 task.getCaseId(),
@@ -121,8 +145,21 @@ public class DispatchTaskService {
     @Transactional
     public AssignedDispatchTaskResponse recall(Long taskId) {
         DispatchTask task = findTask(taskId);
+        DispatchStatus previousStatus = task.getDispatchStatus();
+        Long previousUnitId = task.getAssignedUnit() == null ? null : task.getAssignedUnit().getId();
+        Long previousOfficerId = task.getAssignedOfficer() == null ? null : task.getAssignedOfficer().getId();
         releaseAssignment(task.getDutyAssignment());
         task.setDispatchStatus(DispatchStatus.CANCELLED);
+        dispatchTaskHistoryService.record(
+                task,
+                "RECALL",
+                previousStatus,
+                task.getDispatchStatus(),
+                previousUnitId,
+                previousOfficerId,
+                "Dispatch task recalled",
+                "DISPATCHER"
+        );
         reportAssignmentClient.updateAssignment(task.getCaseId(), null, null);
         return toResponse(task);
     }
@@ -139,11 +176,23 @@ public class DispatchTaskService {
             throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
         }
 
+        DispatchStatus previousStatus = task.getDispatchStatus();
         task.setDispatchStatus(nextStatus);
 
         if (nextStatus == DispatchStatus.CANCELLED || nextStatus == DispatchStatus.COMPLETED) {
             releaseAssignment(task.getDutyAssignment());
         }
+
+        dispatchTaskHistoryService.record(
+                task,
+                "STATUS_UPDATE",
+                previousStatus,
+                task.getDispatchStatus(),
+                null,
+                null,
+                request.note(),
+                "DISPATCHER"
+        );
 
         return toResponse(task);
     }

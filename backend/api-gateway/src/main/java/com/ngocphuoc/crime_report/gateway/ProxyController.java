@@ -101,7 +101,9 @@ public class ProxyController {
     @RequestMapping({
             "/api/dispatch/**",
             "/api/admin/officers",
-            "/api/admin/officers/**"
+            "/api/admin/officers/**",
+            "/api/admin/units",
+            "/api/admin/units/**"
     })
     public ResponseEntity<byte[]> dispatch(HttpServletRequest request) throws Exception{
         return forward(request, dispatchServiceUrl);

@@ -80,10 +80,10 @@ export function AdminUrgencyRuleModal({
         <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
           <div>
             <h2 className="text-2xl font-black text-slate-950">
-              {mode === "create" ? "Tao quy tac" : "Chinh sua quy tac"}
+              {mode === "create" ? "Tạo quy tắc" : "Chỉnh sửa quy tắc"}
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              Thiet lap dieu kien cong diem nguy cap cho tin bao.
+              Thiết lập điều kiện cộng điểm nguy cấp cho tin báo.
             </p>
           </div>
 
@@ -92,7 +92,7 @@ export function AdminUrgencyRuleModal({
             onClick={onClose}
             className="text-3xl text-slate-400 hover:text-slate-900"
           >
-            x
+            ×
           </button>
         </header>
 
@@ -100,7 +100,7 @@ export function AdminUrgencyRuleModal({
           <div className="grid gap-5 md:grid-cols-2">
             <label>
               <span className="text-sm font-black text-slate-700">
-                Ma rule *
+                Mã rule *
               </span>
               <input
                 value={ruleCode}
@@ -112,7 +112,7 @@ export function AdminUrgencyRuleModal({
 
             <label>
               <span className="text-sm font-black text-slate-700">
-                Trang thai
+                Trạng thái
               </span>
               <select
                 value={status}
@@ -121,28 +121,28 @@ export function AdminUrgencyRuleModal({
                 }
                 className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               >
-                <option value="ACTIVE">Hoat dong</option>
-                <option value="INACTIVE">Tam dung</option>
+                <option value="ACTIVE">Hoạt động</option>
+                <option value="INACTIVE">Tạm dừng</option>
               </select>
             </label>
           </div>
 
           <label className="block">
             <span className="text-sm font-black text-slate-700">
-              Mo ta dieu kien *
+              Mô tả điều kiện *
             </span>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
-              placeholder="Nhap mo ta dieu kien ap dung..."
+              placeholder="Nhập mô tả điều kiện áp dụng..."
               className="mt-2 w-full resize-none rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             />
           </label>
 
           <label className="block">
             <span className="text-sm font-black text-slate-700">
-              Diem cong *
+              Điểm cộng *
             </span>
             <input
               type="number"
@@ -154,8 +154,8 @@ export function AdminUrgencyRuleModal({
           </label>
 
           <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-sm leading-6 text-slate-700">
-            <strong>Luu y:</strong> Diem cong nay se duoc cong vao diem co so
-            cua tin bao khi dieu kien tuong ung duoc thoa man.
+            <strong>Lưu ý:</strong> Điểm cộng này sẽ được cộng vào điểm cơ sở
+            của tin báo khi điều kiện tương ứng được thỏa mãn.
           </div>
         </div>
 
@@ -165,7 +165,7 @@ export function AdminUrgencyRuleModal({
             onClick={onClose}
             className="rounded-lg border border-slate-200 px-5 py-3 font-black text-slate-700"
           >
-            Huy
+            Hủy
           </button>
 
           <button
@@ -175,10 +175,10 @@ export function AdminUrgencyRuleModal({
             className="rounded-lg bg-[var(--primary)] px-5 py-3 font-black text-white disabled:cursor-not-allowed disabled:bg-slate-300"
           >
             {isSubmitting
-              ? "Dang luu..."
+              ? "Đang lưu..."
               : mode === "create"
-                ? "Tao quy tac"
-                : "Luu thay doi"}
+                ? "Tạo quy tắc"
+                : "Lưu thay đổi"}
           </button>
         </footer>
       </section>

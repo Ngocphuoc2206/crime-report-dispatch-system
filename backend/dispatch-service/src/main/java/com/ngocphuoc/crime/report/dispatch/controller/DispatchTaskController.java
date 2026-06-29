@@ -4,6 +4,8 @@ import com.ngocphuoc.crime.report.dispatch.dto.request.RecallDispatchTaskRequest
 import com.ngocphuoc.crime.report.dispatch.dto.request.ReassignDispatchTaskRequest;
 import com.ngocphuoc.crime.report.dispatch.dto.request.UpdateDispatchTaskStatusRequest;
 import com.ngocphuoc.crime.report.dispatch.dto.response.AssignedDispatchTaskResponse;
+import com.ngocphuoc.crime.report.dispatch.dto.response.DispatchTaskHistoryResponse;
+import com.ngocphuoc.crime.report.dispatch.service.DispatchTaskHistoryService;
 import com.ngocphuoc.crime.report.dispatch.service.DispatchTaskService;
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,16 @@ import java.util.List;
 @RequestMapping("/api/dispatch/tasks")
 public class DispatchTaskController {
     private final DispatchTaskService dispatchTaskService;
+    private final DispatchTaskHistoryService dispatchTaskHistoryService;
+
+    @GetMapping("/history")
+    public ApiResponse<List<DispatchTaskHistoryResponse>> getHistory(
+            @RequestParam(defaultValue = "100") int limit
+    ) {
+        return ApiResponse.<List<DispatchTaskHistoryResponse>>builder()
+                .data(dispatchTaskHistoryService.getHistory(limit))
+                .build();
+    }
 
     @GetMapping
     public ApiResponse<List<AssignedDispatchTaskResponse>> getTasks() {

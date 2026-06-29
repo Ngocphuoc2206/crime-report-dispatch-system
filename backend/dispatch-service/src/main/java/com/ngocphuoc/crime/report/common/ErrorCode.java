@@ -41,6 +41,14 @@ public enum ErrorCode implements com.ngocphuoc.crime_report.shared.error.ErrorCo
             "DISPATCH_1014",
             "Report is missing dispatchable location or status"
     ),
+    ADMINISTRATIVE_AREA_NOT_FOUND(
+            "DISPATCH_1015",
+            "Administrative area not found"
+    ),
+    POLICE_UNIT_CODE_ALREADY_EXISTS(
+            "DISPATCH_1016",
+            "Police unit code already exists"
+    ),
     // Uncategorized
     UNCATEGORIZED_EXCEPTION("EVIDENCE_9998", "UNCATEGORIZED_EXCEPTION!");
     ErrorCode(String code, String message){

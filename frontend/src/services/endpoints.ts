@@ -39,6 +39,7 @@ export const endpoints = {
   dispatchCaseDispatch: (trackingCode: string | number) =>
     `/api/dispatch/cases/${encodeURIComponent(String(trackingCode))}/dispatch`,
   dispatchTasks: "/api/dispatch/tasks",
+  dispatchTaskHistory: "/api/dispatch/tasks/history",
   dispatchTaskDetail: (taskId: string | number) =>
     `/api/dispatch/tasks/${encodeURIComponent(String(taskId))}`,
   dispatchTaskReassign: (taskId: string | number) =>
@@ -64,6 +65,10 @@ export const endpoints = {
   adminCrimeTypes: "/api/admin/crime-types",
   adminCrimeTypeDetail: (crimeTypeId: string | number) =>
     `/api/admin/crime-types/${encodeURIComponent(String(crimeTypeId))}`,
+  adminUnits: "/api/admin/units",
+  adminUnitDetail: (unitId: string | number) =>
+    `/api/admin/units/${encodeURIComponent(String(unitId))}`,
+  adminAreas: "/api/admin/units/areas",
   adminOfficers: "/api/admin/officers",
   adminOfficerDetail: (officerId: string | number) =>
     `/api/admin/officers/${encodeURIComponent(String(officerId))}`,

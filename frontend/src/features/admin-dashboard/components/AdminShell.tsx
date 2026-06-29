@@ -13,6 +13,7 @@ type AdminShellProps = {
 const navItems = [
   { label: "Tổng quan", href: "/admin" },
   { label: "Quản lý người dùng", href: "/admin/users" },
+  { label: "Đơn vị công an", href: "/admin/units" },
   { label: "Hồ sơ cán bộ", href: "/admin/officers" },
   { label: "Loại tội phạm", href: "/admin/crime-types" },
   { label: "Quy tắc nguy cấp", href: "/admin/urgency-rules" },

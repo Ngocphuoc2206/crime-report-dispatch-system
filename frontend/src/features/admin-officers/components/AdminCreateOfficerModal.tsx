@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { adminOfficerUserOptions } from "@/features/admin-officers/data/adminOfficers.data";
 import type {
   AdminOfficerProfile,
   AdminOfficerRank,
 } from "@/features/admin-officers/types/adminOfficer.types";
+import { adminUnitService } from "@/features/admin-units/services/adminUnitService";
+import type { AdminPoliceUnit } from "@/features/admin-units/types/adminUnit.types";
 
 type AdminCreateOfficerModalProps = {
   open: boolean;
@@ -21,7 +23,7 @@ const rankOptions: AdminOfficerRank[] = [
   "Thiếu tá",
   "Trung tá",
   "Điều tra viên cao cấp",
-];
+] as AdminOfficerRank[];
 
 export function AdminCreateOfficerModal({
   open,
@@ -32,22 +34,62 @@ export function AdminCreateOfficerModal({
   const [badgeNumber, setBadgeNumber] = useState("");
   const [rank, setRank] = useState<AdminOfficerRank | "">("");
   const [unitId, setUnitId] = useState("");
+  const [units, setUnits] = useState<AdminPoliceUnit[]>([]);
+  const [unitError, setUnitError] = useState<string | null>(null);
 
-  const selectedUser = useMemo(() => {
-    return adminOfficerUserOptions.find((user) => user.userId === userId);
-  }, [userId]);
+  const selectedUser = useMemo(
+    () => adminOfficerUserOptions.find((user) => user.userId === userId),
+    [userId],
+  );
+
+  useEffect(() => {
+    if (!open) return;
+
+    let ignore = false;
+
+    async function loadUnits() {
+      setUnitError(null);
+
+      try {
+        const data = await adminUnitService.getUnits();
+        const activeUnits = data.filter((unit) => unit.active);
+
+        if (!ignore) {
+          setUnits(activeUnits);
+          setUnitId((current) => current || activeUnits[0]?.id || "");
+        }
+      } catch (error) {
+        if (!ignore) {
+          setUnits([]);
+          setUnitError(
+            error instanceof Error
+              ? error.message
+              : "Không tải được danh sách đơn vị",
+          );
+        }
+      }
+    }
+
+    void loadUnits();
+
+    return () => {
+      ignore = true;
+    };
+  }, [open]);
 
   if (!open) return null;
 
+  const selectedUnit = units.find((unit) => unit.id === unitId);
+
   function handleSubmit() {
-    if (!selectedUser || !badgeNumber.trim() || !rank || !unitId.trim()) {
+    if (!selectedUser || !selectedUnit || !badgeNumber.trim() || !rank) {
       return;
     }
 
     const newOfficer: AdminOfficerProfile = {
       id: selectedUser.userId,
       userId: selectedUser.userId,
-      officerId: `OFF-${Math.floor(Math.random() * 900 + 100)}`,
+      officerId: "",
       fullName: selectedUser.fullName,
       gender: "Chưa cập nhật",
       dateOfBirth: "Chưa cập nhật",
@@ -55,8 +97,8 @@ export function AdminCreateOfficerModal({
       email: selectedUser.email,
       badgeNumber: badgeNumber.trim(),
       rank,
-      unitId: unitId.trim(),
-      unitName: `Đơn vị ${unitId.trim()}`,
+      unitId: selectedUnit.id,
+      unitName: selectedUnit.name,
       joinedAt: new Intl.DateTimeFormat("vi-VN").format(new Date()),
       status: "ACTIVE",
       performance: {
@@ -68,11 +110,10 @@ export function AdminCreateOfficerModal({
     };
 
     onCreate(newOfficer);
-
     setUserId("");
     setBadgeNumber("");
     setRank("");
-    setUnitId("");
+    setUnitId(units[0]?.id || "");
   }
 
   return (
@@ -104,7 +145,7 @@ export function AdminCreateOfficerModal({
                 onChange={(event) => setUserId(event.target.value)}
                 className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
               >
-                <option value="">Chọn User Role OFFICER</option>
+                <option value="">Chọn người dùng có vai trò OFFICER</option>
                 {adminOfficerUserOptions.map((user) => (
                   <option key={user.userId} value={user.userId}>
                     {user.userId} - {user.fullName}
@@ -164,21 +205,33 @@ export function AdminCreateOfficerModal({
           <div className="mt-7 border-t border-slate-200 pt-6">
             <label>
               <span className="text-sm font-black text-slate-700">
-                Mã đơn vị Unit ID <span className="text-(--primary)">*</span>
+                Đơn vị công an <span className="text-(--primary)">*</span>
               </span>
 
-              <input
+              <select
                 value={unitId}
                 onChange={(event) => setUnitId(event.target.value)}
-                placeholder="Ví dụ: UNIT-Q1"
-                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none 
-                focus:border-(--primary) focus:ring-4 focus:ring-red-100"
-              />
+                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+              >
+                <option value="">Chọn đơn vị</option>
+                {units.map((unit) => (
+                  <option key={unit.id} value={unit.id}>
+                    {unit.id} - {unit.code} - {unit.name}
+                  </option>
+                ))}
+              </select>
             </label>
 
-            <p className="mt-2 text-sm text-slate-500">
-              Nhập mã đơn vị nghiệp vụ trực thuộc của cán bộ.
-            </p>
+            {unitError ? (
+              <p className="mt-2 text-sm font-semibold text-(--primary)">
+                {unitError}
+              </p>
+            ) : (
+              <p className="mt-2 text-sm text-slate-500">
+                Cần tạo đơn vị tại trang Đơn vị công an trước khi lập hồ sơ
+                cán bộ.
+              </p>
+            )}
           </div>
         </div>
 
@@ -186,16 +239,16 @@ export function AdminCreateOfficerModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-slate-200 bg-white px-5 py-3 font-black 
-            text-slate-700 hover:bg-slate-50"
+            className="rounded-lg border border-slate-200 bg-white px-5 py-3 font-black text-slate-700 hover:bg-slate-50"
           >
             Hủy
           </button>
 
           <button
             type="button"
+            disabled={!selectedUser || !selectedUnit || !badgeNumber.trim() || !rank}
             onClick={handleSubmit}
-            className="rounded-lg bg-(--primary) px-5 py-3 font-black text-white hover:bg-(--primary-hover)"
+            className="rounded-lg bg-(--primary) px-5 py-3 font-black text-white hover:bg-(--primary-hover) disabled:cursor-not-allowed disabled:bg-slate-300"
           >
             Tạo hồ sơ
           </button>

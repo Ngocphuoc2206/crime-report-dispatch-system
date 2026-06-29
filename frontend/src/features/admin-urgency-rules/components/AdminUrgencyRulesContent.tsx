@@ -36,7 +36,7 @@ export function AdminUrgencyRulesContent() {
     } catch {
       setRules(adminUrgencyRulesData);
       setError(
-        "Khong ket noi duoc backend urgency-rules. Dang hien thi du lieu mau.",
+        "Không kết nối được backend urgency-rules. Đang hiển thị dữ liệu mẫu.",
       );
     } finally {
       setIsLoading(false);
@@ -90,12 +90,12 @@ export function AdminUrgencyRulesContent() {
 
       if (modalMode === "create") {
         setRules((prev) => [savedRule, ...prev]);
-        showToast("Tao quy tac thanh cong");
+        showToast("Tạo quy tắc thành công");
       } else {
         setRules((prev) =>
           prev.map((item) => (item.id === savedRule.id ? savedRule : item)),
         );
-        showToast("Cap nhat quy tac thanh cong");
+        showToast("Cập nhật quy tắc thành công");
       }
 
       setModalOpen(false);
@@ -104,7 +104,7 @@ export function AdminUrgencyRulesContent() {
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "Khong luu duoc quy tac.",
+          : "Không lưu được quy tắc.",
       );
     }
   }
@@ -138,12 +138,12 @@ export function AdminUrgencyRulesContent() {
 
       <section>
         <h1 className="text-4xl font-black text-slate-950">
-          Quy tac tinh diem nguy cap
+          Quy tắc tính điểm nguy cấp
         </h1>
 
         <p className="mt-3 max-w-4xl text-slate-600">
-          Thiet lap dieu kien va diem cong de he thong tu dong phan loai muc do
-          uu tien cua tin bao.
+          Thiết lập điều kiện và điểm cộng để hệ thống tự động phân loại mức độ
+          ưu tiên của tin báo.
         </p>
       </section>
 
@@ -160,7 +160,7 @@ export function AdminUrgencyRulesContent() {
               <input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Tim kiem ma rule, mo ta..."
+                placeholder="Tìm kiếm mã rule, mô tả..."
                 className="rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               />
 
@@ -171,9 +171,9 @@ export function AdminUrgencyRulesContent() {
                 }
                 className="rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               >
-                <option value="ALL">Tat ca trang thai</option>
-                <option value="ACTIVE">Hoat dong</option>
-                <option value="INACTIVE">Tam dung</option>
+                <option value="ALL">Tất cả trạng thái</option>
+                <option value="ACTIVE">Hoạt động</option>
+                <option value="INACTIVE">Tạm dừng</option>
               </select>
 
               <button
@@ -181,7 +181,7 @@ export function AdminUrgencyRulesContent() {
                 onClick={resetFilters}
                 className="rounded-lg px-5 py-3 font-black text-slate-600 hover:bg-slate-100"
               >
-                Dat lai
+                Đặt lại
               </button>
 
               <button
@@ -189,7 +189,7 @@ export function AdminUrgencyRulesContent() {
                 onClick={openCreateModal}
                 className="rounded-lg bg-[var(--primary)] px-5 py-3 font-black text-white hover:bg-[var(--primary-hover)]"
               >
-                + Tao quy tac
+                + Tạo quy tắc
               </button>
             </div>
           </section>
@@ -197,7 +197,7 @@ export function AdminUrgencyRulesContent() {
           <section className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             {isLoading ? (
               <div className="p-8 text-center font-semibold text-slate-600">
-                Dang tai danh sach quy tac...
+                Đang tải danh sách quy tắc...
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -205,11 +205,11 @@ export function AdminUrgencyRulesContent() {
                   <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                     <tr>
                       <th className="px-5 py-4">ID</th>
-                      <th className="px-5 py-4">Ma rule</th>
-                      <th className="px-5 py-4">Mo ta dieu kien</th>
-                      <th className="px-5 py-4">Diem cong</th>
-                      <th className="px-5 py-4">Trang thai</th>
-                      <th className="px-5 py-4">Thao tac</th>
+                      <th className="px-5 py-4">Mã rule</th>
+                      <th className="px-5 py-4">Mô tả điều kiện</th>
+                      <th className="px-5 py-4">Điểm cộng</th>
+                      <th className="px-5 py-4">Trạng thái</th>
+                      <th className="px-5 py-4">Thao tác</th>
                     </tr>
                   </thead>
 
@@ -247,7 +247,7 @@ export function AdminUrgencyRulesContent() {
                             onClick={() => openEditModal(rule)}
                             className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-black text-slate-700 hover:bg-slate-100"
                           >
-                            Sua
+                            Sửa
                           </button>
                         </td>
                       </tr>
@@ -259,7 +259,7 @@ export function AdminUrgencyRulesContent() {
 
             <footer className="flex items-center justify-between border-t border-slate-200 px-5 py-4 text-sm text-slate-600">
               <p>
-                Hien thi {filteredRules.length} cua {rules.length} ket qua
+                Hiển thị {filteredRules.length} của {rules.length} kết quả
               </p>
 
               <button
@@ -267,7 +267,7 @@ export function AdminUrgencyRulesContent() {
                 onClick={() => void loadRules()}
                 className="rounded-md bg-[var(--primary)] px-4 py-2 font-black text-white"
               >
-                Tai lai
+                Tải lại
               </button>
             </footer>
           </section>

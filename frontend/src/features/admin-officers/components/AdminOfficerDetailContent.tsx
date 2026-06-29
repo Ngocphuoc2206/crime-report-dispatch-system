@@ -38,7 +38,7 @@ export function AdminOfficerDetailContent({
     } catch {
       setOfficer(initialOfficer);
       setApiError(
-        "Khong ket noi duoc backend admin officer detail. Dang hien thi du lieu mau.",
+        "Không kết nối được backend chi tiết cán bộ. Đang hiển thị dữ liệu mẫu.",
       );
     } finally {
       setIsLoading(false);
@@ -55,7 +55,7 @@ export function AdminOfficerDetailContent({
     return (
       <div className="px-8 py-8">
         <section className="rounded-xl border border-slate-200 bg-white p-8 text-center font-semibold text-slate-600 shadow-sm">
-          Dang tai ho so can bo...
+          Đang tải hồ sơ cán bộ...
         </section>
       </div>
     );
@@ -66,14 +66,14 @@ export function AdminOfficerDetailContent({
       <div className="px-8 py-8">
         <section className="rounded-xl border border-red-200 bg-white p-8">
           <h1 className="text-2xl font-black text-[var(--primary)]">
-            Khong tim thay ho so can bo
+            Không tìm thấy hồ sơ cán bộ
           </h1>
 
           <Link
             href="/admin/officers"
             className="mt-6 inline-flex rounded-lg bg-[var(--primary)] px-5 py-3 font-black text-white"
           >
-            Quay lai danh sach
+            Quay lại danh sách
           </Link>
         </section>
       </div>
@@ -86,14 +86,14 @@ export function AdminOfficerDetailContent({
       .then((savedOfficer) => {
         setOfficer(savedOfficer);
         setEditModalOpen(false);
-        setToast("Cap nhat ho so can bo thanh cong");
+        setToast("Cập nhật hồ sơ cán bộ thành công");
         window.setTimeout(() => setToast(null), 2200);
       })
       .catch((updateError) => {
         setApiError(
           updateError instanceof Error
             ? updateError.message
-            : "Khong cap nhat duoc ho so can bo.",
+            : "Không cập nhật được hồ sơ cán bộ.",
         );
       });
   }
@@ -123,14 +123,14 @@ export function AdminOfficerDetailContent({
         <div>
           <div className="text-sm font-semibold text-slate-500">
             <Link href="/admin/officers" className="hover:text-[var(--primary)]">
-              Ho so can bo
+              Hồ sơ cán bộ
             </Link>{" "}
-            &gt; Chi tiet
+            &gt; Chi tiết
           </div>
 
           <div className="mt-5 flex flex-wrap items-center gap-4">
             <h1 className="text-4xl font-black text-slate-950">
-              Ho so can bo: {officer.fullName}
+              Hồ sơ cán bộ: {officer.fullName}
             </h1>
 
             <AdminOfficerStatusBadge status={officer.status} />
@@ -142,7 +142,7 @@ export function AdminOfficerDetailContent({
           onClick={() => setEditModalOpen(true)}
           className="rounded-lg bg-[var(--primary)] px-5 py-3 font-black text-white hover:bg-[var(--primary-hover)]"
         >
-          Chinh sua ho so
+          Chỉnh sửa hồ sơ
         </button>
       </section>
 
@@ -150,7 +150,7 @@ export function AdminOfficerDetailContent({
         <div className="space-y-6">
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-black text-slate-950">
-              Thong tin ca nhan
+              Thông tin cá nhân
             </h2>
 
             <div className="mt-5 h-px bg-slate-200" />
@@ -162,21 +162,21 @@ export function AdminOfficerDetailContent({
 
               <dl className="space-y-5">
                 <div>
-                  <dt className="text-sm text-slate-500">Ho va ten</dt>
+                  <dt className="text-sm text-slate-500">Họ và tên</dt>
                   <dd className="mt-1 font-semibold text-slate-900">
                     {officer.fullName}
                   </dd>
                 </div>
 
                 <div>
-                  <dt className="text-sm text-slate-500">Ngay sinh</dt>
+                  <dt className="text-sm text-slate-500">Ngày sinh</dt>
                   <dd className="mt-1 font-semibold text-slate-900">
                     {officer.dateOfBirth}
                   </dd>
                 </div>
 
                 <div>
-                  <dt className="text-sm text-slate-500">Email noi bo</dt>
+                  <dt className="text-sm text-slate-500">Email nội bộ</dt>
                   <dd className="mt-1 font-semibold text-slate-900">
                     {officer.email}
                   </dd>
@@ -185,14 +185,14 @@ export function AdminOfficerDetailContent({
 
               <dl className="space-y-5">
                 <div>
-                  <dt className="text-sm text-slate-500">Gioi tinh</dt>
+                  <dt className="text-sm text-slate-500">Giới tính</dt>
                   <dd className="mt-1 font-semibold text-slate-900">
                     {officer.gender}
                   </dd>
                 </div>
 
                 <div>
-                  <dt className="text-sm text-slate-500">So dien thoai</dt>
+                  <dt className="text-sm text-slate-500">Số điện thoại</dt>
                   <dd className="mt-1 font-semibold text-slate-900">
                     {officer.phone}
                   </dd>
@@ -203,7 +203,7 @@ export function AdminOfficerDetailContent({
 
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-black text-slate-950">
-              Thong tin nghiep vu
+              Thông tin nghiệp vụ
             </h2>
 
             <div className="mt-5 h-px bg-slate-200" />
@@ -217,28 +217,28 @@ export function AdminOfficerDetailContent({
               </div>
 
               <div>
-                <dt className="text-sm text-slate-500">So hieu can bo</dt>
+                <dt className="text-sm text-slate-500">Số hiệu cán bộ</dt>
                 <dd className="mt-1 font-semibold text-slate-900">
                   {officer.badgeNumber}
                 </dd>
               </div>
 
               <div>
-                <dt className="text-sm text-slate-500">Cap bac</dt>
+                <dt className="text-sm text-slate-500">Cấp bậc</dt>
                 <dd className="mt-1 font-semibold text-slate-900">
                   {officer.rank}
                 </dd>
               </div>
 
               <div>
-                <dt className="text-sm text-slate-500">Ngay gia nhap</dt>
+                <dt className="text-sm text-slate-500">Ngày gia nhập</dt>
                 <dd className="mt-1 font-semibold text-slate-900">
                   {officer.joinedAt}
                 </dd>
               </div>
 
               <div className="md:col-span-2">
-                <dt className="text-sm text-slate-500">Don vi cong tac</dt>
+                <dt className="text-sm text-slate-500">Đơn vị công tác</dt>
                 <dd className="mt-1 font-semibold text-slate-900">
                   {officer.unitName}
                 </dd>
@@ -250,26 +250,26 @@ export function AdminOfficerDetailContent({
         <aside className="space-y-6">
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-black text-slate-950">
-              Thong ke hieu suat
+              Thống kê hiệu suất
             </h2>
 
             <div className="mt-6 space-y-4">
               <div className="flex items-center justify-between rounded-xl bg-slate-50 p-5">
-                <span className="text-slate-500">Da xu ly</span>
+                <span className="text-slate-500">Đã xử lý</span>
                 <strong className="text-2xl text-slate-950">
                   {officer.performance.processedCases}
                 </strong>
               </div>
 
               <div className="flex items-center justify-between rounded-xl bg-slate-50 p-5">
-                <span className="text-slate-500">Dung han SLA</span>
+                <span className="text-slate-500">Đúng hạn SLA</span>
                 <strong className="text-2xl text-slate-950">
                   {officer.performance.slaRate}
                 </strong>
               </div>
 
               <div className="flex items-center justify-between rounded-xl bg-slate-50 p-5">
-                <span className="text-slate-500">Danh gia</span>
+                <span className="text-slate-500">Đánh giá</span>
                 <strong className="text-2xl text-slate-950">
                   {officer.performance.rating}
                 </strong>
@@ -279,13 +279,13 @@ export function AdminOfficerDetailContent({
 
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-black text-slate-950">
-              Ho so gan day
+              Hồ sơ gần đây
             </h2>
 
             <div className="mt-5 divide-y divide-slate-200">
               {officer.recentCases.length === 0 ? (
                 <p className="py-4 text-sm text-slate-500">
-                  Chua co du lieu ho so gan day.
+                  Chưa có dữ liệu hồ sơ gần đây.
                 </p>
               ) : (
                 officer.recentCases.map((item) => (

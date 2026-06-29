@@ -40,7 +40,7 @@ export function AdminOfficersContent() {
     } catch {
       setOfficers(adminOfficerProfiles);
       setApiError(
-        "Khong ket noi duoc backend admin officers. Dang hien thi du lieu mau.",
+        "Không kết nối được backend quản lý cán bộ. Đang hiển thị dữ liệu mẫu.",
       );
     } finally {
       setIsLoading(false);
@@ -82,14 +82,14 @@ export function AdminOfficersContent() {
       .then((createdOfficer) => {
         setOfficers((current) => [createdOfficer, ...current]);
         setCreateModalOpen(false);
-        setToast("Tao ho so can bo thanh cong");
+        setToast("Tạo hồ sơ cán bộ thành công");
         window.setTimeout(() => setToast(null), 2200);
       })
       .catch((createError) => {
         setApiError(
           createError instanceof Error
             ? createError.message
-            : "Khong tao duoc ho so can bo.",
+            : "Không tạo được hồ sơ cán bộ.",
         );
       });
   }
@@ -110,12 +110,12 @@ export function AdminOfficersContent() {
 
       <section>
         <h1 className="text-4xl font-black text-slate-950">
-          Quan ly ho so can bo
+          Quản lý hồ sơ cán bộ
         </h1>
 
         <p className="mt-3 text-slate-600">
-          Theo doi va quan ly thong tin nghiep vu chi tiet cua cac can bo
-          Officer trong he thong.
+          Theo dõi và quản lý thông tin nghiệp vụ chi tiết của các cán bộ
+          Officer trong hệ thống.
         </p>
       </section>
 
@@ -129,19 +129,19 @@ export function AdminOfficersContent() {
         <div className="grid gap-4 xl:grid-cols-[1.4fr_0.9fr_0.9fr_auto_auto]">
           <label>
             <span className="text-sm font-semibold text-slate-600">
-              Tim kiem can bo
+              Tìm kiếm cán bộ
             </span>
             <input
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="Nhap Officer ID, ho ten hoac so hieu"
+              placeholder="Nhập Officer ID, họ tên hoặc số hiệu"
               className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             />
           </label>
 
           <label>
             <span className="text-sm font-semibold text-slate-600">
-              Cap bac
+              Cấp bậc
             </span>
             <select
               value={rankFilter}
@@ -150,7 +150,7 @@ export function AdminOfficersContent() {
               }
               className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             >
-              <option value="ALL">Tat ca cap bac</option>
+              <option value="ALL">Tất cả cấp bậc</option>
               {[...new Set(officers.map((officer) => officer.rank))].map(
                 (rank) => (
                   <option key={rank} value={rank}>
@@ -163,14 +163,14 @@ export function AdminOfficersContent() {
 
           <label>
             <span className="text-sm font-semibold text-slate-600">
-              Unit ID
+              Đơn vị
             </span>
             <select
               value={unitFilter}
               onChange={(event) => setUnitFilter(event.target.value)}
               className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             >
-              <option value="ALL">Tat ca don vi</option>
+              <option value="ALL">Tất cả đơn vị</option>
               {[...new Set(officers.map((officer) => officer.unitId))].map(
                 (unitId) => (
                   <option key={unitId} value={unitId}>
@@ -186,7 +186,7 @@ export function AdminOfficersContent() {
             onClick={handleReset}
             className="self-end rounded-lg px-5 py-3 font-black text-slate-600 hover:bg-slate-100"
           >
-            Dat lai
+            Đặt lại
           </button>
 
           <button
@@ -194,7 +194,7 @@ export function AdminOfficersContent() {
             onClick={() => void loadOfficers()}
             className="self-end rounded-lg bg-[var(--primary)] px-5 py-3 font-black text-white hover:bg-[var(--primary-hover)]"
           >
-            Tai lai
+            Tải lại
           </button>
         </div>
       </section>
@@ -202,7 +202,7 @@ export function AdminOfficersContent() {
       <section className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
           <h2 className="text-2xl font-black text-slate-950">
-            Danh sach can bo
+            Danh sách cán bộ
           </h2>
 
           <button
@@ -210,13 +210,13 @@ export function AdminOfficersContent() {
             onClick={() => setCreateModalOpen(true)}
             className="rounded-lg bg-blue-100 px-5 py-3 font-black text-[var(--primary)] hover:bg-blue-200"
           >
-            + Them moi
+            + Thêm mới
           </button>
         </header>
 
         {isLoading ? (
           <div className="p-8 text-center font-semibold text-slate-600">
-            Dang tai danh sach can bo...
+            Đang tải danh sách cán bộ...
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -225,11 +225,11 @@ export function AdminOfficersContent() {
                 <tr>
                   <th className="px-5 py-4">ID</th>
                   <th className="px-5 py-4">Officer ID</th>
-                  <th className="px-5 py-4">Ho va ten</th>
-                  <th className="px-5 py-4">So hieu / Cap bac</th>
-                  <th className="px-5 py-4">Don vi</th>
-                  <th className="px-5 py-4">Trang thai</th>
-                  <th className="px-5 py-4 text-right">Thao tac</th>
+                  <th className="px-5 py-4">Họ và tên</th>
+                  <th className="px-5 py-4">Số hiệu / Cấp bậc</th>
+                  <th className="px-5 py-4">Đơn vị</th>
+                  <th className="px-5 py-4">Trạng thái</th>
+                  <th className="px-5 py-4 text-right">Thao tác</th>
                 </tr>
               </thead>
 
@@ -291,7 +291,7 @@ export function AdminOfficersContent() {
                         )}`}
                         className="rounded-lg border border-slate-200 px-4 py-2 font-bold text-slate-700 hover:bg-slate-50"
                       >
-                        Chi tiet
+                        Chi tiết
                       </Link>
                     </td>
                   </tr>
@@ -303,7 +303,7 @@ export function AdminOfficersContent() {
 
         <footer className="flex items-center justify-between border-t border-slate-200 px-5 py-4 text-sm text-slate-600">
           <p>
-            Hien thi {filteredOfficers.length} trong so {officers.length} ban
+            Hiển thị {filteredOfficers.length} trong số {officers.length} bản
             ghi
           </p>
         </footer>
