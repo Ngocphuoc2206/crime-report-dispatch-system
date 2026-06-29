@@ -108,7 +108,7 @@ public class CaseReportService {
 
         try{
             if (!evidenceFiles.isEmpty()) {
-                evidenceClient.uploadEvidence(saved.getTrackingCode(), evidenceFiles);
+                evidenceClient.uploadEvidence(saved.getId(), saved.getTrackingCode(), evidenceFiles);
             }
 
             autoDispatchReport(saved, httpServletRequest);

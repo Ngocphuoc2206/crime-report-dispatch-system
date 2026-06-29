@@ -35,6 +35,24 @@ public class InternalEvidenceController {
         );
     }
 
+    @PostMapping(
+            value = "/evidences",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public Map<String, Object> uploadEvidenceForCase(
+            @RequestParam Long caseId,
+            @RequestParam String trackingCode,
+            @RequestPart("files") List<MultipartFile> files
+    ) {
+        evidenceFileService.saveEvidenceFiles(caseId, trackingCode, files);
+
+        return Map.of(
+                "message", "Evidence files uploaded successfully",
+                "caseId", caseId,
+                "trackingCode", trackingCode
+        );
+    }
+
     @GetMapping("/evidences/cases/{caseId}/metadata")
     public ApiResponse<List<EvidenceMetadataResponse>> getEvidenceMetaByCaseId(
             @PathVariable Long caseId

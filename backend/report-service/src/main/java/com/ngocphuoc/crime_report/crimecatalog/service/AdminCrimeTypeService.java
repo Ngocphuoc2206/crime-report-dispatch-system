@@ -23,6 +23,7 @@ public class AdminCrimeTypeService {
     private final CrimeTypeRepository crimeTypeRepository;
     private final CrimeCategoryRepository crimeCategoryRepository;
 
+    @Transactional(readOnly = true)
     public List<CrimeTypeResponse> getAll(){
         return crimeTypeRepository.findAll().stream().map(this::toCrimeTypeResponse).toList();
     }
