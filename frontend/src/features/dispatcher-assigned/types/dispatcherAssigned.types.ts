@@ -23,8 +23,11 @@ export type AssignedCase = {
 
 export type ReassignUnitOption = {
   id: string;
+  unitId?: number;
+  officerId?: number;
   unitCode: string;
   unitName: string;
+  officerName?: string;
   status: "READY" | "BUSY";
   eta: string;
   distance: string;

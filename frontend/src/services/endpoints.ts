@@ -32,6 +32,7 @@ export const endpoints = {
   commanderActivity: "/api/commander/activity",
 
   dispatchOfficerAvailability: "/api/dispatch/officers/availability",
+  dispatchOfficersAvailable: "/api/dispatch/officers/available",
   dispatchCasesPending: "/api/dispatch/cases/pending",
   dispatchCaseDetail: (trackingCode: string | number) =>
     `/api/dispatch/cases/${encodeURIComponent(String(trackingCode))}`,

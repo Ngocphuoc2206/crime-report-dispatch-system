@@ -4,6 +4,7 @@ import type {
   DispatcherMapCase,
   DispatcherMapPriority,
   DispatcherMapStatus,
+  DispatcherMapUnit,
 } from "@/features/dispatcher-map/types/dispatcherMap.types";
 
 type DispatchMapCaseApiItem = {
@@ -15,6 +16,16 @@ type DispatchMapCaseApiItem = {
   status: string;
   trackingCode: string;
   address: string | null;
+};
+
+type DispatchMapUnitApiItem = {
+  unitId: number;
+  unitCode: string;
+  unitName: string;
+  status: DispatcherMapUnit["status"];
+  address: string | null;
+  latitude: number | string | null;
+  longitude: number | string | null;
 };
 
 function toPercent(value: number | string, fallback: number) {
@@ -51,6 +62,18 @@ function toMapCase(item: DispatchMapCaseApiItem, index: number): DispatcherMapCa
   };
 }
 
+function toMapUnit(item: DispatchMapUnitApiItem, index: number): DispatcherMapUnit {
+  return {
+    id: String(item.unitId),
+    unitCode: item.unitCode,
+    unitName: item.unitName,
+    status: item.status,
+    location: item.address || "Chua cap nhat vi tri",
+    lat: toPercent(item.latitude ?? 0, 20 + index * 11),
+    lng: toPercent(item.longitude ?? 0, 25 + index * 9),
+  };
+}
+
 export const dispatcherMapService = {
   async getCases(): Promise<DispatcherMapCase[]> {
     const response = await apiClient.get<DispatchMapCaseApiItem[]>(
@@ -59,5 +82,14 @@ export const dispatcherMapService = {
     );
 
     return response.map(toMapCase);
+  },
+
+  async getUnits(): Promise<DispatcherMapUnit[]> {
+    const response = await apiClient.get<DispatchMapUnitApiItem[]>(
+      endpoints.dispatchMapUnits,
+      { auth: true },
+    );
+
+    return response.map(toMapUnit);
   },
 };

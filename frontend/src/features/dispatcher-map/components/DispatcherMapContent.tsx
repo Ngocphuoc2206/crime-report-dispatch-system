@@ -11,12 +11,14 @@ import { dispatcherMapService } from "@/features/dispatcher-map/services/dispatc
 import type {
   DispatcherMapCase,
   DispatcherMapPriority,
+  DispatcherMapUnit,
 } from "@/features/dispatcher-map/types/dispatcherMap.types";
 
 type PriorityFilter = "ALL" | DispatcherMapPriority;
 
 export function DispatcherMapContent() {
   const [cases, setCases] = useState(dispatcherMapCases);
+  const [units, setUnits] = useState<DispatcherMapUnit[]>(dispatcherMapUnits);
   const [keyword, setKeyword] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("ALL");
   const [districtFilter, setDistrictFilter] = useState("ALL");
@@ -51,23 +53,28 @@ export function DispatcherMapContent() {
   useEffect(() => {
     let ignore = false;
 
-    async function loadCases() {
+    async function loadMapData() {
       try {
-        const data = await dispatcherMapService.getCases();
+        const [caseData, unitData] = await Promise.all([
+          dispatcherMapService.getCases(),
+          dispatcherMapService.getUnits(),
+        ]);
 
         if (!ignore) {
-          setCases(data.length > 0 ? data : dispatcherMapCases);
-          setSelectedCase(data[0] ?? dispatcherMapCases[0]);
+          setCases(caseData.length > 0 ? caseData : dispatcherMapCases);
+          setUnits(unitData.length > 0 ? unitData : dispatcherMapUnits);
+          setSelectedCase(caseData[0] ?? dispatcherMapCases[0]);
         }
       } catch {
         if (!ignore) {
           setCases(dispatcherMapCases);
+          setUnits(dispatcherMapUnits);
           setSelectedCase(dispatcherMapCases[0]);
         }
       }
     }
 
-    void loadCases();
+    void loadMapData();
 
     return () => {
       ignore = true;
@@ -163,7 +170,7 @@ export function DispatcherMapContent() {
       <section className="mt-8 grid gap-6 xl:grid-cols-[1fr_26rem]">
         <DispatcherMockMap
           cases={filteredCases}
-          units={dispatcherMapUnits}
+          units={units}
           selectedCaseId={selectedCase?.id ?? null}
           onSelectCase={setSelectedCase}
         />

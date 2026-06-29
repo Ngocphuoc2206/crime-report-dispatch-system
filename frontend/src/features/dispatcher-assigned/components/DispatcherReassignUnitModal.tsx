@@ -1,14 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { reassignUnitOptions } from "@/features/dispatcher-assigned/data/dispatcherAssigned.data";
-import type { AssignedCase } from "@/features/dispatcher-assigned/types/dispatcherAssigned.types";
+import { useEffect, useState } from "react";
+import { dispatcherAssignedService } from "@/features/dispatcher-assigned/services/dispatcherAssignedService";
+import type {
+  AssignedCase,
+  ReassignUnitOption,
+} from "@/features/dispatcher-assigned/types/dispatcherAssigned.types";
 
 type DispatcherReassignUnitModalProps = {
   open: boolean;
   assignedCase: AssignedCase | null;
   onClose: () => void;
-  onConfirm: (caseCode: string, unitCode: string, reason: string) => void;
+  onConfirm: (
+    caseItem: AssignedCase,
+    option: ReassignUnitOption,
+    reason: string,
+  ) => void;
 };
 
 export function DispatcherReassignUnitModal({
@@ -17,19 +24,64 @@ export function DispatcherReassignUnitModal({
   onClose,
   onConfirm,
 }: DispatcherReassignUnitModalProps) {
-  const [selectedUnit, setSelectedUnit] = useState("");
+  const [selectedOptionId, setSelectedOptionId] = useState("");
   const [reason, setReason] = useState("");
+  const [options, setOptions] = useState<ReassignUnitOption[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    let ignore = false;
+
+    async function loadOptions() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await dispatcherAssignedService.getReassignOptions();
+
+        if (!ignore) {
+          setOptions(data);
+          setSelectedOptionId(data[0]?.id ?? "");
+        }
+      } catch (loadError) {
+        if (!ignore) {
+          setOptions([]);
+          setSelectedOptionId("");
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : "Khong the tai danh sach can bo kha dung",
+          );
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadOptions();
+
+    return () => {
+      ignore = true;
+    };
+  }, [open]);
 
   if (!open || !assignedCase) return null;
 
-  const canSubmit = selectedUnit.trim().length > 0 && reason.trim().length > 0;
+  const selectedOption = options.find((item) => item.id === selectedOptionId);
+  const canSubmit =
+    Boolean(selectedOption?.unitId && selectedOption.officerId) &&
+    reason.trim().length > 0;
 
   function handleConfirm() {
-    if (!canSubmit || !assignedCase) return;
+    if (!canSubmit || !assignedCase || !selectedOption) return;
 
-    onConfirm(assignedCase.caseCode, selectedUnit, reason);
-
-    setSelectedUnit("");
+    onConfirm(assignedCase, selectedOption, reason.trim());
+    setSelectedOptionId("");
     setReason("");
   }
 
@@ -39,11 +91,11 @@ export function DispatcherReassignUnitModal({
         <header className="flex items-center justify-between border-b border-red-100 bg-red-50 px-6 py-5">
           <div>
             <h2 className="text-2xl font-black text-red-950">
-              Đổi đơn vị điều phối
+              Doi don vi dieu phoi
             </h2>
 
             <p className="mt-1 text-sm text-slate-600">
-              Hồ sơ #{assignedCase.caseCode} đang được giao cho{" "}
+              Ho so #{assignedCase.caseCode} dang duoc giao cho{" "}
               <strong>{assignedCase.assignedUnit}</strong>
             </p>
           </div>
@@ -53,88 +105,94 @@ export function DispatcherReassignUnitModal({
             onClick={onClose}
             className="text-3xl text-slate-400 hover:text-slate-900"
           >
-            ×
+            x
           </button>
         </header>
 
         <div className="space-y-5 p-6">
           <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm leading-6 text-orange-800">
-            Việc đổi đơn vị sẽ được ghi vào lịch sử điều phối. Đơn vị cũ sẽ nhận
-            thông báo thu hồi nhiệm vụ, đơn vị mới sẽ nhận nhiệm vụ thay thế.
+            He thong chi hien thi can bo dang san sang theo ca truc hien tai.
+            Don vi cu se duoc giai phong sau khi doi dieu phoi thanh cong.
           </div>
 
           <div>
             <p className="text-sm font-black text-slate-700">
-              Chọn đơn vị thay thế <span className="text-(--primary)">*</span>
+              Chon can bo / don vi thay the{" "}
+              <span className="text-(--primary)">*</span>
             </p>
 
             <div className="mt-3 space-y-3">
-              {reassignUnitOptions.map((unit) => {
-                const disabled = unit.status === "BUSY";
+              {loading ? (
+                <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm font-bold text-slate-500">
+                  Dang tai danh sach can bo kha dung...
+                </div>
+              ) : null}
 
-                return (
-                  <label
-                    key={unit.id}
-                    className={[
-                      "flex cursor-pointer items-center justify-between rounded-xl border p-4",
-                      selectedUnit === unit.unitCode
-                        ? "border-(--primary) bg-red-50 ring-2 ring-red-100"
-                        : "border-slate-200 bg-white",
-                      disabled ? "cursor-not-allowed opacity-50" : "",
-                    ].join(" ")}
-                  >
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="unit"
-                        value={unit.unitCode}
-                        disabled={disabled}
-                        checked={selectedUnit === unit.unitCode}
-                        onChange={(event) =>
-                          setSelectedUnit(event.target.value)
-                        }
-                        className="size-5 accent-(--primary)"
-                      />
+              {!loading && error ? (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700">
+                  {error}
+                </div>
+              ) : null}
 
-                      <div>
-                        <p className="font-black text-slate-950">
-                          {unit.unitCode} - {unit.unitName}
-                        </p>
+              {!loading && !error && options.length === 0 ? (
+                <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm font-bold text-orange-800">
+                  Chua co can bo kha dung de dieu phoi lai.
+                </div>
+              ) : null}
 
-                        <p className="mt-1 text-sm text-slate-500">
-                          ETA {unit.eta} • {unit.distance}
-                        </p>
-                      </div>
+              {options.map((option) => (
+                <label
+                  key={option.id}
+                  className={[
+                    "flex cursor-pointer items-center justify-between rounded-xl border p-4",
+                    selectedOptionId === option.id
+                      ? "border-(--primary) bg-red-50 ring-2 ring-red-100"
+                      : "border-slate-200 bg-white",
+                  ].join(" ")}
+                >
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="unit"
+                      value={option.id}
+                      checked={selectedOptionId === option.id}
+                      onChange={(event) =>
+                        setSelectedOptionId(event.target.value)
+                      }
+                      className="size-5 accent-(--primary)"
+                    />
+
+                    <div>
+                      <p className="font-black text-slate-950">
+                        {option.unitCode} - {option.unitName}
+                      </p>
+
+                      <p className="mt-1 text-sm text-slate-500">
+                        {option.officerName ?? "Can bo kha dung"} - ETA{" "}
+                        {option.eta} - {option.distance}
+                      </p>
                     </div>
+                  </div>
 
-                    <span
-                      className={[
-                        "rounded-md px-3 py-1 text-xs font-black",
-                        unit.status === "READY"
-                          ? "bg-green-50 text-green-700"
-                          : "bg-red-50 text-red-700",
-                      ].join(" ")}
-                    >
-                      {unit.status === "READY" ? "Sẵn sàng" : "Đang bận"}
-                    </span>
-                  </label>
-                );
-              })}
+                  <span className="rounded-md bg-green-50 px-3 py-1 text-xs font-black text-green-700">
+                    San sang
+                  </span>
+                </label>
+              ))}
             </div>
           </div>
 
           <label className="block">
             <span className="text-sm font-black text-slate-700">
-              Lý do đổi đơn vị <span className="text-(--primary)">*</span>
+              Ly do doi don vi <span className="text-(--primary)">*</span>
             </span>
 
             <textarea
               value={reason}
               onChange={(event) => setReason(event.target.value)}
               rows={4}
-              placeholder="Nhập lý do đổi đơn vị điều phối..."
-              className="mt-2 w-full resize-none rounded-lg border border-red-200 px-4 py-3 outline-none 
-              focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+              placeholder="Nhap ly do doi don vi dieu phoi..."
+              className="mt-2 w-full resize-none rounded-lg border border-red-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
             />
           </label>
         </div>
@@ -145,7 +203,7 @@ export function DispatcherReassignUnitModal({
             onClick={onClose}
             className="rounded-lg border border-red-200 bg-white px-5 py-3 font-black text-slate-700 hover:bg-red-50"
           >
-            Hủy
+            Huy
           </button>
 
           <button
@@ -154,7 +212,7 @@ export function DispatcherReassignUnitModal({
             onClick={handleConfirm}
             className="rounded-lg bg-(--primary) px-5 py-3 font-black text-white hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:bg-slate-300"
           >
-            Xác nhận đổi đơn vị
+            Xac nhan doi don vi
           </button>
         </footer>
       </section>

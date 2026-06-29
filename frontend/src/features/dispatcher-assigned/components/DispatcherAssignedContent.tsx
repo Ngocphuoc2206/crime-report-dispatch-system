@@ -12,6 +12,7 @@ import { dispatcherAssignedService } from "@/features/dispatcher-assigned/servic
 import type {
   AssignedCase,
   AssignedCaseStatus,
+  ReassignUnitOption,
 } from "@/features/dispatcher-assigned/types/dispatcherAssigned.types";
 
 type StatusFilter = "ALL" | AssignedCaseStatus;
@@ -76,40 +77,57 @@ export function DispatcherAssignedContent() {
     (item) => item.status === "NEED_SUPPORT",
   ).length;
 
-  function handleReassign(caseCode: string, unitCode: string) {
-    setAssignedCases((current) =>
-      current.map((item) =>
-        item.caseCode === caseCode
-          ? {
-              ...item,
-              assignedUnit: unitCode,
-              status: "DISPATCHED",
-              eta: "Đang cập nhật",
-            }
-          : item,
-      ),
-    );
+  async function handleReassign(
+    caseItem: AssignedCase,
+    option: ReassignUnitOption,
+    reason: string,
+  ) {
+    if (!option.unitId || !option.officerId) {
+      showToast("Can bo duoc chon thieu thong tin dieu phoi");
+      return;
+    }
 
-    setSelectedCase(null);
-    showToast(`Đã đổi đơn vị xử lý cho hồ sơ ${caseCode}`);
+    try {
+      const updated = await dispatcherAssignedService.reassignTask(
+        caseItem.id,
+        {
+          assignedUnitId: option.unitId,
+          assignedOfficerId: option.officerId,
+          reason,
+        },
+      );
+
+      setAssignedCases((current) =>
+        current.map((item) => (item.id === caseItem.id ? updated : item)),
+      );
+
+      setSelectedCase(null);
+      showToast(`Da doi don vi xu ly cho ho so ${caseItem.caseCode}`);
+    } catch (error) {
+      showToast(
+        error instanceof Error
+          ? error.message
+          : `Khong the doi don vi ho so ${caseItem.caseCode}`,
+      );
+    }
   }
 
-  function handleRecall(caseCode: string) {
-    setAssignedCases((current) =>
-      current.map((item) =>
-        item.caseCode === caseCode
-          ? {
-              ...item,
-              status: "DISPATCHED",
-              assignedUnit: "Chờ điều phối lại",
-              assignedOfficer: "Chưa phân công",
-              eta: "--",
-            }
-          : item,
-      ),
-    );
+  async function handleRecall(taskId: string, caseCode: string) {
+    try {
+      const updated = await dispatcherAssignedService.recallTask(taskId);
 
-    showToast(`Đã thu hồi điều phối hồ sơ ${caseCode}`);
+      setAssignedCases((current) =>
+        current.map((item) => (item.id === taskId ? updated : item)),
+      );
+
+      showToast(`Da thu hoi dieu phoi ho so ${caseCode}`);
+    } catch (error) {
+      showToast(
+        error instanceof Error
+          ? error.message
+          : `Khong the thu hoi dieu phoi ho so ${caseCode}`,
+      );
+    }
   }
 
   function showToast(message: string) {
@@ -323,7 +341,9 @@ export function DispatcherAssignedContent() {
 
                           <button
                             type="button"
-                            onClick={() => handleRecall(item.caseCode)}
+                            onClick={() =>
+                              void handleRecall(item.id, item.caseCode)
+                            }
                             className="rounded-lg border border-orange-200 px-3 py-2 font-bold text-orange-700 hover:bg-orange-50"
                           >
                             Thu hồi

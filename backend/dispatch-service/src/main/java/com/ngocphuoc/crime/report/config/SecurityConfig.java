@@ -37,7 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/health", "/api/health/**").permitAll()
                         .requestMatchers("/api/internal/**").hasRole("INTERNAL_SERVICE")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/dispatch/**").hasAnyRole("INTERNAL_SERVICE", "ADMIN")
+                        .requestMatchers("/api/dispatch/**").hasAnyRole("INTERNAL_SERVICE", "DISPATCHER", "COMMANDER", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(internalTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
