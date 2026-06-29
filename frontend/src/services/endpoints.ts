@@ -31,6 +31,27 @@ export const endpoints = {
     `/api/commander/cases/${encodeURIComponent(String(trackingCode))}/status`,
   commanderActivity: "/api/commander/activity",
 
+  dispatchOfficerAvailability: "/api/dispatch/officers/availability",
+  dispatchCasesPending: "/api/dispatch/cases/pending",
+  dispatchCaseDetail: (trackingCode: string | number) =>
+    `/api/dispatch/cases/${encodeURIComponent(String(trackingCode))}`,
+  dispatchCaseDispatch: (trackingCode: string | number) =>
+    `/api/dispatch/cases/${encodeURIComponent(String(trackingCode))}/dispatch`,
+  dispatchTasks: "/api/dispatch/tasks",
+  dispatchTaskDetail: (taskId: string | number) =>
+    `/api/dispatch/tasks/${encodeURIComponent(String(taskId))}`,
+  dispatchTaskReassign: (taskId: string | number) =>
+    `/api/dispatch/tasks/${encodeURIComponent(String(taskId))}/reassign`,
+  dispatchTaskRecall: (taskId: string | number) =>
+    `/api/dispatch/tasks/${encodeURIComponent(String(taskId))}/recall`,
+  dispatchTaskStatus: (taskId: string | number) =>
+    `/api/dispatch/tasks/${encodeURIComponent(String(taskId))}/status`,
+  dispatchDashboardOverview: "/api/dispatch/dashboard/overview",
+  dispatchDashboardPriorityQueue: "/api/dispatch/dashboard/priority-queue",
+  dispatchDashboardActivity: "/api/dispatch/dashboard/activity",
+  dispatchMapCases: "/api/dispatch/map/cases",
+  dispatchMapUnits: "/api/dispatch/map/units",
+
   adminUrgencyRules: "/api/admin/urgency-rules",
   adminUrgencyRuleDetail: (ruleId: string | number) =>
     `/api/admin/urgency-rules/${encodeURIComponent(String(ruleId))}`,

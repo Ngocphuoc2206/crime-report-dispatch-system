@@ -107,16 +107,11 @@ public class CaseReportService {
         reporterIdentityService.saveEncryptedReporterIdentity(saved, request, httpServletRequest);
 
         try{
-            // After created case report then create dispatch smart
-            SmartDispatchResponse dispatchResponse =
-                    dispatchClient.smartDispatch(saved.getId(), saved.getLatitude(), saved.getLongitude());
-            saved.setAssignedUnitId(dispatchResponse.assignedUnitId());
-            saved.setAssignedOfficerId(dispatchResponse.assignedOfficerId());
-
-            // Upload files evidence
             if (!evidenceFiles.isEmpty()) {
                 evidenceClient.uploadEvidence(saved.getTrackingCode(), evidenceFiles);
             }
+
+            autoDispatchReport(saved, httpServletRequest);
 
             auditLogService.writeLog(new AuditLogCommand(
                     null,
@@ -145,6 +140,71 @@ public class CaseReportService {
                 saved.getUrgencyScore(),
                 saved.getUrgencyLevel().name(),
                 "Tin báo đã được tiếp nhận"
+        );
+    }
+
+    private void autoDispatchReport(CaseReport saved, HttpServletRequest httpServletRequest) {
+        try {
+            SmartDispatchResponse dispatchResponse =
+                    dispatchClient.smartDispatch(saved.getId(), saved.getLatitude(), saved.getLongitude());
+
+            saved.setAssignedUnitId(dispatchResponse.assignedUnitId());
+            saved.setAssignedOfficerId(dispatchResponse.assignedOfficerId());
+
+            auditLogService.writeLog(new AuditLogCommand(
+                    null,
+                    "SYSTEM",
+                    AuditAction.CASE_ASSIGNED,
+                    AuditResourceType.CASE_REPORT,
+                    saved.getId(),
+                    null,
+                    "unit=" + dispatchResponse.assignedUnitId() + ", officer=" + dispatchResponse.assignedOfficerId(),
+                    "Case automatically assigned by smart dispatch",
+                    auditRequestMetadataResolver.getIpAddress(httpServletRequest),
+                    auditRequestMetadataResolver.getUserAgent(httpServletRequest),
+                    "dispatchTaskId=" + dispatchResponse.dispatchTaskId()
+            ));
+        } catch (Exception e) {
+            log.warn(
+                    "[WARN] Auto dispatch failed for case {}, keeping it pending for manual handling",
+                    saved.getId(),
+                    e
+            );
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<DispatchCandidateResponse> getDispatchCandidates() {
+        return caseReportRepository.findDispatchCandidates()
+                .stream()
+                .map(this::toDispatchCandidate)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public DispatchCandidateResponse getDispatchSummary(Long caseId) {
+        CaseReport c = caseReportRepository.findById(caseId)
+                .orElseThrow(() -> new AppException(ErrorCode.CASE_NOT_FOUND));
+
+        return toDispatchCandidate(c);
+    }
+
+    private DispatchCandidateResponse toDispatchCandidate(CaseReport c) {
+        return new DispatchCandidateResponse(
+                c.getId(),
+                c.getTrackingCode(),
+                c.getCrimeType().getName(),
+                c.getDescription(),
+                c.getCrimeType().getName(),
+                c.getStatus().name(),
+                c.getUrgencyLevel().name(),
+                c.getLatitude(),
+                c.getLongitude(),
+                c.getAddressText(),
+                c.getAssignedUnitId(),
+                c.getAssignedOfficerId(),
+                c.getCreatedAt(),
+                c.getUpdatedAt()
         );
     }
 

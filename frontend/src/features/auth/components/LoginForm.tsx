@@ -46,10 +46,11 @@ export function LoginForm() {
       if (result.user.roles.includes("ADMIN")) {
         router.push("/admin");
         return;
-      }
-
-      if (result.user.roles.includes("COMMANDER")) {
+      } else if (result.user.roles.includes("COMMANDER")) {
         router.push("/commander");
+        return;
+      } else if (result.user.roles.includes("DISPATCHER")) {
+        router.push("/dispatcher");
         return;
       }
 

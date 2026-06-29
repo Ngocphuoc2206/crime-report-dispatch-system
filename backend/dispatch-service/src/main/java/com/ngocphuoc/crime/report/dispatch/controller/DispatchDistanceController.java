@@ -28,7 +28,7 @@ public class DispatchDistanceController {
                 .build();
     }
 
-    @GetMapping("/api/dispatch/police-units/nearest-one")
+    @GetMapping("/nearest-one")
     public ApiResponse<PoliceUnitDistanceResponse> findNearestPoliceUnit(
             @RequestParam double latitude,
             @RequestParam double longitude

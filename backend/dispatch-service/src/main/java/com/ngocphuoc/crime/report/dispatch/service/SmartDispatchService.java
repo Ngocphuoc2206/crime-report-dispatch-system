@@ -36,7 +36,10 @@ public class SmartDispatchService {
         validateRequest(request);
 
         // Check case id is already dispatched
-        if (dispatchTaskRepository.existsByCaseId(request.caseId())){
+        if (dispatchTaskRepository.existsByCaseIdAndDispatchStatusIn(
+                request.caseId(),
+                List.of(DispatchStatus.PENDING, DispatchStatus.ASSIGNED)
+        )){
             throw new AppException(ErrorCode.CASE_ALREADY_DISPATCHED);
         }
 

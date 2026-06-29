@@ -6,12 +6,14 @@ import com.ngocphuoc.crime.report.dispatch.service.DutyAvailabilityService;
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController("/api/dispatch/officers")
+@RestController
+@RequestMapping("/api/dispatch/officers")
 @RequiredArgsConstructor
 public class DispatchAvailabilityController {
     private final DutyAvailabilityService dutyAvailabilityService;
