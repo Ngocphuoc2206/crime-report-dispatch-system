@@ -5,7 +5,7 @@ import type {
   DispatcherMapUnit,
 } from "@/features/dispatcher-map/types/dispatcherMap.types";
 
-type DispatcherMockMapProps = {
+type DispatcherMapCanvasProps = {
   cases: DispatcherMapCase[];
   units: DispatcherMapUnit[];
   selectedCaseId: string | null;
@@ -19,12 +19,12 @@ const markerColorByPriority: Record<DispatcherMapCase["priority"], string> = {
   LOW: "bg-blue-500 ring-blue-400/30",
 };
 
-export function DispatcherMockMap({
+export function DispatcherMapCanvas({
   cases,
   units,
   selectedCaseId,
   onSelectCase,
-}: DispatcherMockMapProps) {
+}: DispatcherMapCanvasProps) {
   return (
     <section className="relative min-h-[720px] overflow-hidden rounded-xl border border-red-200 bg-[#1f2a2f] shadow-sm">
       <div className="absolute inset-0 opacity-60">

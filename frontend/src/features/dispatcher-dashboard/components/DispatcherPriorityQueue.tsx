@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { dispatcherPriorityCases } from "@/features/dispatcher-dashboard/data/dispatcherDashboard.data";
 import type {
   DispatchPriorityCase,
   DispatchPriorityLevel,
@@ -35,8 +34,7 @@ const priorityConfig: Record<
 };
 
 export function DispatcherPriorityQueue() {
-  const [cases, setCases] =
-    useState<DispatchPriorityCase[]>(dispatcherPriorityCases);
+  const [cases, setCases] = useState<DispatchPriorityCase[]>([]);
 
   useEffect(() => {
     let ignore = false;
@@ -50,7 +48,7 @@ export function DispatcherPriorityQueue() {
         }
       } catch {
         if (!ignore) {
-          setCases(dispatcherPriorityCases);
+          setCases([]);
         }
       }
     }
@@ -63,21 +61,21 @@ export function DispatcherPriorityQueue() {
   }, []);
 
   return (
-    <section className="overflow-hidden rounded-xl border border-red-200 bg-white shadow-sm">
-      <header className="flex items-center justify-between border-b border-red-100 bg-red-50 px-5 py-4">
-        <h2 className="text-2xl font-black text-red-950">Hàng đợi ưu tiên</h2>
+    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
+      <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+        <h2 className="text-xl font-bold text-slate-900">Hàng đợi ưu tiên</h2>
 
         <Link
           href="/dispatcher/pending"
-          className="font-black text-(--primary) hover:underline"
+          className="text-sm font-bold text-(--primary) hover:text-(--primary-hover)"
         >
-          Xem tất cả →
+          Xem tất cả
         </Link>
       </header>
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-190 text-left text-sm">
-          <thead className="bg-white text-xs uppercase tracking-wide text-slate-500">
+          <thead className="bg-red-50/50 text-xs uppercase tracking-wide text-slate-500">
             <tr>
               <th className="px-5 py-4">Mã vụ việc</th>
               <th className="px-5 py-4">Loại hình</th>
@@ -88,13 +86,21 @@ export function DispatcherPriorityQueue() {
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-red-100">
+          <tbody className="divide-y divide-slate-200">
+            {cases.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-5 py-10 text-center text-sm font-semibold text-slate-500">
+                  Hiện chưa có tin báo ưu tiên trong hàng đợi.
+                </td>
+              </tr>
+            ) : null}
+
             {cases.map((item) => {
               const priority = priorityConfig[item.priority];
 
               return (
-                <tr key={item.id} className="hover:bg-red-50/60">
-                  <td className="px-5 py-5 font-black text-red-900">
+                <tr key={item.id} className="hover:bg-red-50/40">
+                  <td className="px-5 py-5 font-bold text-slate-900">
                     #{item.caseCode}
                   </td>
 
@@ -103,7 +109,7 @@ export function DispatcherPriorityQueue() {
                   <td className="px-5 py-5">
                     <span
                       className={[
-                        "inline-flex rounded-md px-3 py-2 text-xs font-black uppercase",
+                        "inline-flex rounded-md px-3 py-2 text-xs font-bold uppercase",
                         priority.className,
                       ].join(" ")}
                     >
@@ -125,8 +131,7 @@ export function DispatcherPriorityQueue() {
                       href={`/dispatcher/pending/${encodeURIComponent(
                         item.caseCode,
                       )}`}
-                      className="rounded-lg border border-red-200 px-4 py-2 
-                      font-bold text-(--primary) hover:bg-red-50"
+                      className="rounded-lg border border-red-200 px-4 py-2 font-bold text-(--primary) hover:bg-red-50"
                     >
                       Điều phối
                     </Link>

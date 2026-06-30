@@ -1,6 +1,20 @@
 import Link from "next/link";
-import { legalHelpItems } from "@/features/public-home/data/publicHome.data";
 import type { LegalHelpItem } from "@/features/public-home/types/publicHome.types";
+
+const legalHelpItems: LegalHelpItem[] = [
+  {
+    id: "report-guide",
+    title: "Hướng dẫn gửi tin báo",
+    description: "Các bước chuẩn bị nội dung, vị trí và bằng chứng trước khi gửi tin.",
+    icon: "book",
+  },
+  {
+    id: "privacy",
+    title: "Bảo mật danh tính",
+    description: "Thông tin người báo tin được bảo vệ và chỉ mở theo đúng thẩm quyền.",
+    icon: "shield",
+  },
+];
 
 function SectionIcon() {
   return (

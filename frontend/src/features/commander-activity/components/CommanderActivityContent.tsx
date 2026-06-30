@@ -6,7 +6,6 @@ import {
   CommanderActivityPriorityBadge,
   CommanderActivityTypeBadge,
 } from "@/features/commander-activity/components/CommanderActivityBadge";
-import { commanderActivityItems } from "@/features/commander-activity/data/commanderActivity.data";
 import type {
   CommanderActivityItem,
   CommanderActivityType,
@@ -59,8 +58,7 @@ export function CommanderActivityContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activityFilter, setActivityFilter] = useState<ActivityFilter>("ALL");
   const [pageSize, setPageSize] = useState("20");
-  const [activities, setActivities] =
-    useState<CommanderActivityItem[]>(commanderActivityItems);
+  const [activities, setActivities] = useState<CommanderActivityItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
 
@@ -91,10 +89,12 @@ export function CommanderActivityContent() {
           actor: item.actor,
         })),
       );
-    } catch {
-      setActivities(commanderActivityItems);
+    } catch (error) {
+      setActivities([]);
       setApiError(
-        "Khong ket noi duoc backend commander activity. Dang hien thi du lieu mau.",
+        error instanceof Error
+          ? error.message
+          : "Khong ket noi duoc backend commander activity.",
       );
     } finally {
       setIsLoading(false);

@@ -5,7 +5,9 @@ import { NotificationCard } from "@/features/support/components/NotificationCard
 import { NotificationSettingsPanel } from "@/features/support/components/NotificationSettingsPanel";
 import { SupportHelpPanel } from "@/features/support/components/SupportHelpPanel";
 import { SupportSecurityNotice } from "@/features/support/components/SupportSecurityNotice";
-import { supportNotifications } from "@/features/support/data/supportNotifications.data";
+import type { SupportNotification } from "@/features/support/types/support.types";
+
+const supportNotifications: SupportNotification[] = [];
 
 export function SupportPageContent() {
   const [showToast, setShowToast] = useState(false);
@@ -46,6 +48,12 @@ export function SupportPageContent() {
 
         <section className="mt-10 grid gap-8 lg:grid-cols-[1.7fr_1fr]">
           <div className="space-y-5">
+            {supportNotifications.length === 0 ? (
+              <div className="rounded-xl border border-(--border) bg-white p-8 text-sm font-semibold text-slate-600">
+                Hiện chưa có thông báo nào.
+              </div>
+            ) : null}
+
             {supportNotifications.map((notification) => (
               <NotificationCard
                 key={notification.id}

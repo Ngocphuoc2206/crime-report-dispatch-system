@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AdminCreateUserModal } from "@/features/admin-users/components/AdminCreateUserModal";
 import {
   AdminRoleBadge,
   AdminStatusBadge,
 } from "@/features/admin-users/components/AdminUserBadges";
 import { AdminUpdateRoleModal } from "@/features/admin-users/components/AdminUpdateRoleModal";
-import { adminUsers as initialAdminUsers } from "@/features/admin-users/data/adminUsers.data";
+import { adminUserService } from "@/features/admin-users/services/adminUserService";
 import type {
   AdminUser,
   AdminUserRole,
@@ -19,7 +19,7 @@ type RoleFilter = "ALL" | AdminUserRole;
 type StatusFilter = "ALL" | AdminUserStatus;
 
 export function AdminUsersContent() {
-  const [users, setUsers] = useState<AdminUser[]>(initialAdminUsers);
+  const [users, setUsers] = useState<AdminUser[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("ALL");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
@@ -27,6 +27,32 @@ export function AdminUsersContent() {
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [lockingUser, setLockingUser] = useState<AdminUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  async function loadUsers() {
+    setIsLoading(true);
+    setApiError(null);
+
+    try {
+      const data = await adminUserService.getAll();
+      setUsers(data);
+    } catch (error) {
+      setUsers([]);
+      setApiError(
+        error instanceof Error
+          ? error.message
+          : "Khong tai duoc danh sach nguoi dung.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadUsers();
+  }, []);
 
   const filteredUsers = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase();
@@ -65,25 +91,37 @@ export function AdminUsersContent() {
   }
 
   function handleCreateUser(user: AdminUser) {
-    setUsers((current) => [user, ...current]);
-    setCreateModalOpen(false);
-    showSuccess("Tạo người dùng thành công");
+    void adminUserService
+      .create(user)
+      .then((createdUser) => {
+        setUsers((current) => [createdUser, ...current]);
+        setCreateModalOpen(false);
+        showSuccess("Tạo người dùng thành công");
+      })
+      .catch((error) => {
+        setApiError(
+          error instanceof Error ? error.message : "Không tạo được người dùng.",
+        );
+      });
   }
 
   function handleSaveRoles(userId: string, roles: AdminUserRole[]) {
-    setUsers((current) =>
-      current.map((user) =>
-        user.id === userId
-          ? {
-              ...user,
-              roles,
-            }
-          : user,
-      ),
-    );
-
-    setEditingUser(null);
-    showSuccess("Cập nhật phân quyền thành công");
+    void adminUserService
+      .updateRoles(userId, roles)
+      .then((updatedUser) => {
+        setUsers((current) =>
+          current.map((user) => (user.id === userId ? updatedUser : user)),
+        );
+        setEditingUser(null);
+        showSuccess("Cập nhật phân quyền thành công");
+      })
+      .catch((error) => {
+        setApiError(
+          error instanceof Error
+            ? error.message
+            : "Không cập nhật được phân quyền.",
+        );
+      });
   }
 
   function handleRequestLockUser(user: AdminUser) {
@@ -91,34 +129,38 @@ export function AdminUsersContent() {
   }
 
   function handleConfirmLockUser(userId: string) {
-    setUsers((current) =>
-      current.map((user) =>
-        user.id === userId
-          ? {
-              ...user,
-              status: "LOCKED",
-            }
-          : user,
-      ),
-    );
-
-    setLockingUser(null);
-    showSuccess("Khóa tài khoản thành công");
+    void adminUserService
+      .updateStatus(userId, false)
+      .then((updatedUser) => {
+        setUsers((current) =>
+          current.map((user) => (user.id === userId ? updatedUser : user)),
+        );
+        setLockingUser(null);
+        showSuccess("Khóa tài khoản thành công");
+      })
+      .catch((error) => {
+        setApiError(
+          error instanceof Error ? error.message : "Không khóa được tài khoản.",
+        );
+      });
   }
 
   function handleUnlockUser(userId: string) {
-    setUsers((current) =>
-      current.map((user) =>
-        user.id === userId
-          ? {
-              ...user,
-              status: "ACTIVE",
-            }
-          : user,
-      ),
-    );
-
-    showSuccess("Mở khóa tài khoản thành công");
+    void adminUserService
+      .updateStatus(userId, true)
+      .then((updatedUser) => {
+        setUsers((current) =>
+          current.map((user) => (user.id === userId ? updatedUser : user)),
+        );
+        showSuccess("Mở khóa tài khoản thành công");
+      })
+      .catch((error) => {
+        setApiError(
+          error instanceof Error
+            ? error.message
+            : "Không mở khóa được tài khoản.",
+        );
+      });
   }
 
   return (
@@ -158,6 +200,12 @@ export function AdminUsersContent() {
           Tạo tài khoản, phân quyền và kiểm soát trạng thái truy cập hệ thống.
         </p>
       </section>
+
+      {apiError ? (
+        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-[var(--primary)]">
+          {apiError}
+        </section>
+      ) : null}
 
       <section className="mt-8 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="grid gap-4 xl:grid-cols-[1.4fr_0.8fr_0.8fr_auto_auto]">
@@ -231,6 +279,22 @@ export function AdminUsersContent() {
             </thead>
 
             <tbody className="divide-y divide-slate-200">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={9} className="px-5 py-10 text-center text-sm font-semibold text-slate-500">
+                    Đang tải danh sách người dùng...
+                  </td>
+                </tr>
+              ) : null}
+
+              {!isLoading && filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="px-5 py-10 text-center text-sm font-semibold text-slate-500">
+                    Hiện chưa có người dùng nào.
+                  </td>
+                </tr>
+              ) : null}
+
               {filteredUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-slate-50">
                   <td className="px-5 py-5 font-medium text-slate-700">
@@ -300,7 +364,7 @@ export function AdminUsersContent() {
 
         <footer className="flex flex-col gap-3 border-t border-slate-200 px-5 py-4 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
           <p>
-            Hiển thị 1-{filteredUsers.length} trong số {users.length} người dùng
+            Hiển thị {filteredUsers.length === 0 ? 0 : 1}-{filteredUsers.length} trong số {users.length} người dùng
           </p>
 
           <div className="flex items-center gap-2">

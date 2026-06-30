@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { adminRecentUsers } from "@/features/admin-dashboard/data/adminDashboard.data";
 import type { AdminRecentUser } from "@/features/admin-dashboard/types/adminDashboard.types";
+
+const recentUsers: AdminRecentUser[] = [];
 
 const roleClassNames: Record<AdminRecentUser["role"], string> = {
   Officer: "bg-slate-100 text-slate-700",
@@ -50,7 +51,15 @@ export function AdminRecentUsersTable() {
           </thead>
 
           <tbody className="divide-y divide-slate-200">
-            {adminRecentUsers.map((user) => (
+            {recentUsers.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-6 py-10 text-center text-sm font-semibold text-slate-500">
+                  Hiện chưa có dữ liệu tài khoản mới tạo.
+                </td>
+              </tr>
+            ) : null}
+
+            {recentUsers.map((user) => (
               <tr key={user.id}>
                 <td className="px-6 py-4 font-medium text-slate-900">
                   {user.username}

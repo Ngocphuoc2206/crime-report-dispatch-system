@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AdminCreateCrimeTypeModal } from "@/features/admin-crime-types/components/AdminCreateCrimeTypeModal";
 import { AdminCrimeTypeStatusBadge } from "@/features/admin-crime-types/components/AdminCrimeTypeBadges";
-import { adminCrimeTypes as initialCrimeTypes } from "@/features/admin-crime-types/data/adminCrimeTypes.data";
+import { adminCrimeTypeService } from "@/features/admin-crime-types/services/adminCrimeTypeService";
 import type {
   AdminCrimeType,
   AdminCrimeTypeStatus,
@@ -12,12 +12,37 @@ import type {
 type StatusFilter = "ALL" | AdminCrimeTypeStatus;
 
 export function AdminCrimeTypesContent() {
-  const [crimeTypes, setCrimeTypes] =
-    useState<AdminCrimeType[]>(initialCrimeTypes);
+  const [crimeTypes, setCrimeTypes] = useState<AdminCrimeType[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  async function loadCrimeTypes() {
+    setIsLoading(true);
+    setApiError(null);
+
+    try {
+      const data = await adminCrimeTypeService.getAll();
+      setCrimeTypes(data);
+    } catch (error) {
+      setCrimeTypes([]);
+      setApiError(
+        error instanceof Error
+          ? error.message
+          : "Không tải được danh mục loại tội phạm.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadCrimeTypes();
+  }, []);
 
   const filteredCrimeTypes = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase();
@@ -37,13 +62,24 @@ export function AdminCrimeTypesContent() {
   }, [crimeTypes, searchTerm, statusFilter]);
 
   function handleCreateCrimeType(crimeType: AdminCrimeType) {
-    setCrimeTypes((current) => [crimeType, ...current]);
-    setCreateModalOpen(false);
-    setToast("Tạo loại tội phạm thành công");
+    void adminCrimeTypeService
+      .create(crimeType)
+      .then((createdCrimeType) => {
+        setCrimeTypes((current) => [createdCrimeType, ...current]);
+        setCreateModalOpen(false);
+        setToast("Tạo loại tội phạm thành công");
 
-    window.setTimeout(() => {
-      setToast(null);
-    }, 2200);
+        window.setTimeout(() => {
+          setToast(null);
+        }, 2200);
+      })
+      .catch((error) => {
+        setApiError(
+          error instanceof Error
+            ? error.message
+            : "Không tạo được loại tội phạm.",
+        );
+      });
   }
 
   function handleReset() {
@@ -80,6 +116,12 @@ export function AdminCrimeTypesContent() {
           Quản lý danh mục loại vụ việc và điểm nguy cấp cơ sở.
         </p>
       </section>
+
+      {apiError ? (
+        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-[var(--primary)]">
+          {apiError}
+        </section>
+      ) : null}
 
       <section className="mt-8 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr_auto_auto]">
@@ -136,6 +178,22 @@ export function AdminCrimeTypesContent() {
             </thead>
 
             <tbody className="divide-y divide-slate-200">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={7} className="px-5 py-10 text-center text-sm font-semibold text-slate-500">
+                    Đang tải danh mục loại tội phạm...
+                  </td>
+                </tr>
+              ) : null}
+
+              {!isLoading && filteredCrimeTypes.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-5 py-10 text-center text-sm font-semibold text-slate-500">
+                    Hiện chưa có loại tội phạm nào.
+                  </td>
+                </tr>
+              ) : null}
+
               {filteredCrimeTypes.map((item) => (
                 <tr key={item.id} className="hover:bg-slate-50">
                   <td className="px-5 py-5 text-slate-700">{item.id}</td>
@@ -173,7 +231,7 @@ export function AdminCrimeTypesContent() {
 
         <footer className="flex items-center justify-between border-t border-slate-200 px-5 py-4 text-sm text-slate-600">
           <p>
-            Hiển thị 1-{filteredCrimeTypes.length} của {crimeTypes.length} bản
+            Hiển thị {filteredCrimeTypes.length === 0 ? 0 : 1}-{filteredCrimeTypes.length} của {crimeTypes.length} bản
             ghi
           </p>
 

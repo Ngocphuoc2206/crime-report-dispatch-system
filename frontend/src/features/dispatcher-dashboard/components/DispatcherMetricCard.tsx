@@ -5,25 +5,24 @@ type DispatcherMetricCardProps = {
 };
 
 const toneClassName: Record<DispatchMetric["tone"], string> = {
-  default: "border-red-200 bg-red-50 text-red-950",
-  danger: "border-red-300 bg-red-100 text-red-900",
-  warning: "border-orange-200 bg-orange-50 text-orange-900",
-  success: "border-green-200 bg-green-50 text-green-900",
+  default: "text-slate-950",
+  danger: "text-(--primary)",
+  warning: "text-orange-700",
+  success: "text-green-700",
 };
 
 export function DispatcherMetricCard({ metric }: DispatcherMetricCardProps) {
   return (
-    <article
-      className={[
-        "rounded-xl border p-5 shadow-sm",
-        toneClassName[metric.tone],
-      ].join(" ")}
-    >
-      <p className="text-sm font-bold text-current/70">{metric.label}</p>
+    <article className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">
+      <p className="text-sm font-bold uppercase text-slate-500">
+        {metric.label}
+      </p>
 
-      <p className="mt-4 text-4xl font-black">{metric.value}</p>
+      <p className={`mt-4 text-4xl font-bold ${toneClassName[metric.tone]}`}>
+        {metric.value}
+      </p>
 
-      <p className="mt-3 text-sm font-semibold text-current/70">
+      <p className="mt-2 text-sm text-slate-500">
         {metric.description}
       </p>
     </article>

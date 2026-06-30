@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   CommanderSeverityBadge,
   CommanderStatusBadge,
 } from "@/features/commander-cases/components/CommanderCaseBadges";
 import { CommanderStatusUpdateModal } from "@/features/commander-cases/components/CommanderStatusUpdateModal";
-import { commanderCases } from "@/features/commander-cases/data/commanderCases.data";
 import { commanderCaseService } from "@/features/commander-cases/services/commanderCaseService";
 import type {
   CommanderCase,
@@ -17,10 +16,6 @@ import type {
 type CommanderCaseDetailContentProps = {
   caseCode: string;
 };
-
-function findCase(caseCode: string) {
-  return commanderCases.find((item) => item.code === caseCode);
-}
 
 function formatDateTime(value: string) {
   const date = new Date(value);
@@ -39,10 +34,7 @@ function formatDateTime(value: string) {
 export function CommanderCaseDetailContent({
   caseCode,
 }: CommanderCaseDetailContentProps) {
-  const initialCase = useMemo(() => findCase(caseCode), [caseCode]);
-  const [caseItem, setCaseItem] = useState<CommanderCase | undefined>(
-    initialCase,
-  );
+  const [caseItem, setCaseItem] = useState<CommanderCase | undefined>(undefined);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,9 +47,13 @@ export function CommanderCaseDetailContent({
     try {
       const detail = await commanderCaseService.getDetail(caseCode);
       setCaseItem(detail);
-    } catch {
-      setCaseItem(initialCase);
-      setError("Khong ket noi duoc backend commander case detail. Dang hien thi du lieu mau.");
+    } catch (loadError) {
+      setCaseItem(undefined);
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : "Khong ket noi duoc backend commander case detail.",
+      );
     } finally {
       setIsLoading(false);
     }

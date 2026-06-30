@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { CommanderMapCanvas } from "@/features/commander-dashboard/components/CommanderMapCanvas";
 import { CommanderMapFilterPanel } from "@/features/commander-dashboard/components/CommanderMapFilterPanel";
 import { CommanderMapRealtimePanel } from "@/features/commander-dashboard/components/CommanderMapRealtimePanel";
-import { commanderMapReports } from "@/features/commander-dashboard/data/commanderMap.data";
 import { commanderDashboardService } from "@/features/commander-dashboard/services/commanderDashboardService";
 import type { CommanderMapHeatmapPoint } from "@/features/commander-dashboard/types/commanderDashboard.types";
 import type {
@@ -94,8 +93,8 @@ export function CommanderMapContent() {
       setSelectedReport(mappedReports[0] ?? null);
     } catch {
       setHasDataError(true);
-      setReports(commanderMapReports);
-      setSelectedReport(commanderMapReports[0] ?? null);
+      setReports([]);
+      setSelectedReport(null);
     } finally {
       setIsLoading(false);
     }

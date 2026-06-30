@@ -51,15 +51,15 @@ export function DispatcherLiveMapPreview() {
   const criticalCount = cases.filter((item) => item.priority === "CRITICAL").length;
 
   return (
-    <section className="overflow-hidden rounded-xl border border-red-200 bg-white shadow-sm">
-      <header className="flex items-center justify-between border-b border-red-100 px-5 py-4">
-        <h2 className="text-xl font-black text-red-950">Ban do truc tuyen</h2>
+    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
+      <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+        <h2 className="text-xl font-bold text-slate-900">Bản đồ trực tuyến</h2>
 
         <Link
           href="/dispatcher/map"
-          className="rounded-md border border-red-200 px-3 py-2 text-sm font-bold text-slate-600 hover:bg-red-50"
+          className="rounded-md border border-red-200 px-3 py-2 text-sm font-bold text-(--primary) hover:bg-red-50"
         >
-          Mo rong
+          Mở rộng
         </Link>
       </header>
 

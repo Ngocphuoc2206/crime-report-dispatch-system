@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { adminOfficerUserOptions } from "@/features/admin-officers/data/adminOfficers.data";
 import type {
   AdminOfficerProfile,
   AdminOfficerRank,
 } from "@/features/admin-officers/types/adminOfficer.types";
+import { adminUserService } from "@/features/admin-users/services/adminUserService";
+import type { AdminUser } from "@/features/admin-users/types/adminUser.types";
 import { adminUnitService } from "@/features/admin-units/services/adminUnitService";
 import type { AdminPoliceUnit } from "@/features/admin-units/types/adminUnit.types";
 
@@ -35,11 +36,12 @@ export function AdminCreateOfficerModal({
   const [rank, setRank] = useState<AdminOfficerRank | "">("");
   const [unitId, setUnitId] = useState("");
   const [units, setUnits] = useState<AdminPoliceUnit[]>([]);
+  const [userOptions, setUserOptions] = useState<AdminUser[]>([]);
   const [unitError, setUnitError] = useState<string | null>(null);
 
   const selectedUser = useMemo(
-    () => adminOfficerUserOptions.find((user) => user.userId === userId),
-    [userId],
+    () => userOptions.find((user) => user.id === userId),
+    [userOptions, userId],
   );
 
   useEffect(() => {
@@ -51,11 +53,18 @@ export function AdminCreateOfficerModal({
       setUnitError(null);
 
       try {
-        const data = await adminUnitService.getUnits();
-        const activeUnits = data.filter((unit) => unit.active);
+        const [unitData, userData] = await Promise.all([
+          adminUnitService.getUnits(),
+          adminUserService.getAll(),
+        ]);
+        const officerUsers = userData.filter((user) =>
+          user.roles.includes("OFFICER"),
+        );
+        const activeUnits = unitData.filter((unit) => unit.active);
 
         if (!ignore) {
           setUnits(activeUnits);
+          setUserOptions(officerUsers);
           setUnitId((current) => current || activeUnits[0]?.id || "");
         }
       } catch (error) {
@@ -87,8 +96,8 @@ export function AdminCreateOfficerModal({
     }
 
     const newOfficer: AdminOfficerProfile = {
-      id: selectedUser.userId,
-      userId: selectedUser.userId,
+      id: selectedUser.id,
+      userId: selectedUser.id,
       officerId: "",
       fullName: selectedUser.fullName,
       gender: "Chưa cập nhật",
@@ -146,9 +155,9 @@ export function AdminCreateOfficerModal({
                 className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
               >
                 <option value="">Chọn người dùng có vai trò OFFICER</option>
-                {adminOfficerUserOptions.map((user) => (
-                  <option key={user.userId} value={user.userId}>
-                    {user.userId} - {user.fullName}
+                {userOptions.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.id} - {user.fullName}
                   </option>
                 ))}
               </select>

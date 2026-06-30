@@ -1,6 +1,10 @@
 import Link from "next/link";
-import { securityAlerts } from "@/features/public-home/data/publicHome.data";
-import type { AlertTone } from "@/features/public-home/types/publicHome.types";
+import type {
+  AlertTone,
+  SecurityAlert,
+} from "@/features/public-home/types/publicHome.types";
+
+const securityAlerts: SecurityAlert[] = [];
 
 const toneClassNames: Record<AlertTone, string> = {
   danger: "border-l-red-700 bg-red-50 text-red-700",
@@ -45,6 +49,12 @@ export function SecurityAlerts() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
+        {securityAlerts.length === 0 ? (
+          <article className="rounded-lg border border-(--border) bg-white p-5 text-sm font-semibold text-slate-600">
+            Hiện chưa có thông báo an ninh mới.
+          </article>
+        ) : null}
+
         {securityAlerts.map((alert) => (
           <article
             key={alert.id}

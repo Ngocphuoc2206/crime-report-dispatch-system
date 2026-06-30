@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { AdminUrgencyRuleModal } from "@/features/admin-urgency-rules/components/AdminUrgencyRuleModal";
 import { AdminUrgencyRuleStatusBadge } from "@/features/admin-urgency-rules/components/AdminUrgencyRuleStatusBadge";
 import { AdminUrgencyScoreTester } from "@/features/admin-urgency-rules/components/AdminUrgencyScoreTester";
-import { adminUrgencyRulesData } from "@/features/admin-urgency-rules/data/adminUrgencyRules.data";
 import { adminUrgencyRuleService } from "@/features/admin-urgency-rules/services/adminUrgencyRuleService";
 import type {
   AdminUrgencyRule,
@@ -34,9 +33,9 @@ export function AdminUrgencyRulesContent() {
       const data = await adminUrgencyRuleService.getAll();
       setRules(data);
     } catch {
-      setRules(adminUrgencyRulesData);
+      setRules([]);
       setError(
-        "Không kết nối được backend urgency-rules. Đang hiển thị dữ liệu mẫu.",
+        "Không kết nối được backend urgency-rules.",
       );
     } finally {
       setIsLoading(false);

@@ -1,7 +1,35 @@
-import {
-  dispatcherFaqs,
-  dispatcherGuides,
-} from "@/features/dispatcher-support/data/dispatcherSupport.data";
+const dispatcherGuides = [
+  {
+    title: "Quy trình điều phối cơ bản",
+    items: [
+      "Mở hàng đợi chờ điều phối và kiểm tra mức độ nguy cấp.",
+      "Xem chi tiết tin báo, vị trí và ghi chú nghiệp vụ.",
+      "Thực hiện điều phối thông minh để backend chọn đơn vị phù hợp.",
+      "Theo dõi trạng thái ở danh sách đã phân công và lịch sử điều phối.",
+    ],
+  },
+  {
+    title: "Khi cần đổi hoặc thu hồi nhiệm vụ",
+    items: [
+      "Mở hồ sơ đã phân công.",
+      "Chọn đổi đơn vị hoặc thu hồi nhiệm vụ.",
+      "Nhập lý do rõ ràng để lưu vào lịch sử xử lý.",
+    ],
+  },
+];
+
+const dispatcherFaqs = [
+  {
+    question: "Vì sao hàng đợi chờ điều phối rỗng?",
+    answer:
+      "Hàng đợi chỉ hiển thị dữ liệu thật từ backend. Nếu rỗng, hiện chưa có tin báo đủ điều kiện chờ điều phối.",
+  },
+  {
+    question: "Nút điều phối thông minh hoạt động thế nào?",
+    answer:
+      "Frontend gửi yêu cầu tới dispatch-service, backend tự tính đơn vị và cán bộ phù hợp dựa trên dữ liệu hiện có.",
+  },
+];
 
 export function DispatcherSupportContent() {
   return (

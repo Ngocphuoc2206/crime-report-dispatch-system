@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { AdminCreateOfficerModal } from "@/features/admin-officers/components/AdminCreateOfficerModal";
 import { AdminOfficerStatusBadge } from "@/features/admin-officers/components/AdminOfficerBadges";
-import { adminOfficerProfiles } from "@/features/admin-officers/data/adminOfficers.data";
 import { adminOfficerService } from "@/features/admin-officers/services/adminOfficerService";
 import type {
   AdminOfficerProfile,
@@ -20,8 +19,7 @@ function getInitials(name: string) {
 }
 
 export function AdminOfficersContent() {
-  const [officers, setOfficers] =
-    useState<AdminOfficerProfile[]>(adminOfficerProfiles);
+  const [officers, setOfficers] = useState<AdminOfficerProfile[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [rankFilter, setRankFilter] = useState<RankFilter>("ALL");
   const [unitFilter, setUnitFilter] = useState("ALL");
@@ -38,9 +36,9 @@ export function AdminOfficersContent() {
       const response = await adminOfficerService.getAll();
       setOfficers(response);
     } catch {
-      setOfficers(adminOfficerProfiles);
+      setOfficers([]);
       setApiError(
-        "Không kết nối được backend quản lý cán bộ. Đang hiển thị dữ liệu mẫu.",
+        "Không kết nối được backend quản lý cán bộ.",
       );
     } finally {
       setIsLoading(false);

@@ -4,10 +4,6 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { DispatcherOfficerStatusBadge } from "@/features/dispatcher-officers/components/DispatcherOfficerBadges";
 import { DispatcherOfficerFiltersDrawer } from "@/features/dispatcher-officers/components/DispatcherOfficerFiltersDrawer";
-import {
-  dispatcherOfficersMock,
-  dispatcherOfficerStatsMock,
-} from "@/features/dispatcher-officers/data/dispatcherOfficers.data";
 import { dispatcherOfficerService } from "@/features/dispatcher-officers/services/dispatcherOfficerService";
 import type {
   DispatcherOfficer,
@@ -68,8 +64,7 @@ function getWorkloadFilterLabel(
 }
 
 export function DispatcherOfficersContent() {
-  const [officers, setOfficers] =
-    useState<DispatcherOfficer[]>(dispatcherOfficersMock);
+  const [officers, setOfficers] = useState<DispatcherOfficer[]>([]);
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("ALL");
@@ -156,10 +151,7 @@ export function DispatcherOfficersContent() {
     );
   }
 
-  const stats =
-    dispatcherOfficerStatsMock.total && officers.length === dispatcherOfficersMock.length
-      ? dispatcherOfficerStatsMock
-      : localStats;
+  const stats = localStats;
 
   async function loadOfficers() {
     setLoading(true);
@@ -167,11 +159,9 @@ export function DispatcherOfficersContent() {
     try {
       const data = await dispatcherOfficerService.getAvailability();
 
-      if (data.length > 0) {
-        setOfficers(data);
-      }
+      setOfficers(data);
     } catch {
-      setOfficers(dispatcherOfficersMock);
+      setOfficers([]);
     } finally {
       setLoading(false);
     }
@@ -184,12 +174,12 @@ export function DispatcherOfficersContent() {
       try {
         const data = await dispatcherOfficerService.getAvailability();
 
-        if (!ignore && data.length > 0) {
+        if (!ignore) {
           setOfficers(data);
         }
       } catch {
         if (!ignore) {
-          setOfficers(dispatcherOfficersMock);
+          setOfficers([]);
         }
       }
     }

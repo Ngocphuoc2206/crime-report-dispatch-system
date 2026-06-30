@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { DispatcherCaseMap } from "@/features/dispatcher-pending/components/DispatcherCaseMap";
 import { DispatcherPriorityBadge } from "@/features/dispatcher-pending/components/DispatcherPriorityBadge";
 import { DispatcherRecommendedUnits } from "@/features/dispatcher-pending/components/DispatcherRecommendedUnits";
-import { pendingDispatchCases } from "@/features/dispatcher-pending/data/dispatcherPending.data";
 import { dispatcherPendingService } from "@/features/dispatcher-pending/services/dispatcherPendingService";
 import type { PendingDispatchCase } from "@/features/dispatcher-pending/types/dispatcherPending.types";
 
@@ -17,14 +16,15 @@ export function DispatcherPendingDetailContent({
   caseCode,
 }: DispatcherPendingDetailContentProps) {
   const [note, setNote] = useState("");
-  const [currentCase, setCurrentCase] = useState<PendingDispatchCase | null>(
-    () => pendingDispatchCases.find((item) => item.caseCode === caseCode) ?? null,
-  );
+  const [currentCase, setCurrentCase] = useState<PendingDispatchCase | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let ignore = false;
 
     async function loadCase() {
+      setLoading(true);
+
       try {
         const data = await dispatcherPendingService.getDetail(caseCode);
 
@@ -33,11 +33,10 @@ export function DispatcherPendingDetailContent({
         }
       } catch {
         if (!ignore) {
-          setCurrentCase(
-            pendingDispatchCases.find((item) => item.caseCode === caseCode) ??
-              null,
-          );
+          setCurrentCase(null);
         }
+      } finally {
+        if (!ignore) setLoading(false);
       }
     }
 
@@ -47,6 +46,16 @@ export function DispatcherPendingDetailContent({
       ignore = true;
     };
   }, [caseCode]);
+
+  if (loading) {
+    return (
+      <div className="px-8 py-8">
+        <section className="rounded-xl border border-red-200 bg-white p-8 text-sm font-semibold text-slate-600">
+          Đang tải chi tiết tin báo...
+        </section>
+      </div>
+    );
+  }
 
   if (!currentCase) {
     return (

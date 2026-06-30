@@ -13,7 +13,6 @@ import {
   CommanderCaseNoResultState,
 } from "@/features/commander-cases/components/CommanderCaseListStates";
 import { CommanderSessionExpiredModal } from "@/features/commander-cases/components/CommanderSessionExpiredModal";
-import { commanderCases } from "@/features/commander-cases/data/commanderCases.data";
 import { commanderCaseService } from "@/features/commander-cases/services/commanderCaseService";
 import type {
   CommanderCase,
@@ -50,11 +49,15 @@ export function CommanderCasesContent() {
       setCases(response.content);
       setTotalCases(response.totalElements);
       setPageState(response.content.length === 0 ? "empty" : "normal");
-    } catch {
-      setCases(commanderCases);
-      setTotalCases(commanderCases.length);
-      setApiError("Khong ket noi duoc backend commander cases. Dang hien thi du lieu mau.");
-      setPageState("normal");
+    } catch (error) {
+      setCases([]);
+      setTotalCases(0);
+      setApiError(
+        error instanceof Error
+          ? error.message
+          : "Khong ket noi duoc backend commander cases.",
+      );
+      setPageState("error");
     }
   }
 
@@ -97,8 +100,9 @@ export function CommanderCasesContent() {
         setTotalCases(response.totalElements);
       })
       .catch(() => {
-        setCases(commanderCases);
-        setTotalCases(commanderCases.length);
+        setCases([]);
+        setTotalCases(0);
+        setPageState("error");
       });
   }
 

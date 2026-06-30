@@ -7,7 +7,6 @@ import {
   DispatcherAssignedStatusBadge,
 } from "@/features/dispatcher-assigned/components/DispatcherAssignedBadges";
 import { DispatcherReassignUnitModal } from "@/features/dispatcher-assigned/components/DispatcherReassignUnitModal";
-import { dispatcherAssignedCases } from "@/features/dispatcher-assigned/data/dispatcherAssigned.data";
 import { dispatcherAssignedService } from "@/features/dispatcher-assigned/services/dispatcherAssignedService";
 import type {
   AssignedCase,
@@ -18,9 +17,7 @@ import type {
 type StatusFilter = "ALL" | AssignedCaseStatus;
 
 export function DispatcherAssignedContent() {
-  const [assignedCases, setAssignedCases] = useState<AssignedCase[]>(
-    dispatcherAssignedCases,
-  );
+  const [assignedCases, setAssignedCases] = useState<AssignedCase[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [selectedCase, setSelectedCase] = useState<AssignedCase | null>(null);
@@ -34,11 +31,11 @@ export function DispatcherAssignedContent() {
         const data = await dispatcherAssignedService.getAssignedCases();
 
         if (!ignore) {
-          setAssignedCases(data.length > 0 ? data : dispatcherAssignedCases);
+          setAssignedCases(data);
         }
       } catch {
         if (!ignore) {
-          setAssignedCases(dispatcherAssignedCases);
+          setAssignedCases([]);
         }
       }
     }
@@ -271,6 +268,16 @@ export function DispatcherAssignedContent() {
             </thead>
 
             <tbody className="divide-y divide-red-100">
+              {filteredCases.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="px-5 py-12 text-center">
+                    <p className="font-semibold text-slate-600">
+                      Hiện chưa có hồ sơ nào đã phân công.
+                    </p>
+                  </td>
+                </tr>
+              ) : null}
+
               {filteredCases.map((item) => (
                 <tr key={item.id} className="hover:bg-red-50/50">
                   <td className="px-5 py-5">
@@ -360,7 +367,8 @@ export function DispatcherAssignedContent() {
 
         <footer className="flex items-center justify-between border-t border-red-100 bg-red-50/60 px-5 py-4 text-sm text-slate-600">
           <p>
-            Hiển thị 1-{filteredCases.length} trong tổng số{" "}
+            Hiển thị {filteredCases.length === 0 ? 0 : 1}-
+            {filteredCases.length} trong tổng số{" "}
             {assignedCases.length} hồ sơ đã phân công
           </p>
 

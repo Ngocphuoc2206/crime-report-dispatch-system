@@ -6,12 +6,6 @@ import { CommanderRecentActivity } from "@/features/commander-dashboard/componen
 import { CommanderRiskPanel } from "@/features/commander-dashboard/components/CommanderRiskPanel";
 import { CommanderStatusOverview } from "@/features/commander-dashboard/components/CommanderStatusOverview";
 import { CommanderUrgentTable } from "@/features/commander-dashboard/components/CommanderUrgentTable";
-import {
-  commanderActivities,
-  commanderReportStatuses,
-  commanderRiskLevels,
-  commanderUrgentCases,
-} from "@/features/commander-dashboard/data/commanderDashboard.data";
 import { commanderDashboardService } from "@/features/commander-dashboard/services/commanderDashboardService";
 import type {
   CommanderActivity,
@@ -25,6 +19,19 @@ import type {
 function formatCount(value: number) {
   return new Intl.NumberFormat("vi-VN").format(value);
 }
+
+const emptyOverview: CommanderDashboardOverview = {
+  totalReports: 0,
+  newReports: 0,
+  underVerificationReports: 0,
+  transferredReports: 0,
+  resolvedReports: 0,
+  spamReports: 0,
+  criticalReports: 0,
+  highReports: 0,
+  mediumReports: 0,
+  lowReports: 0,
+};
 
 function formatTimeLabel(dateValue: string) {
   const date = new Date(dateValue);
@@ -195,23 +202,19 @@ export function CommanderDashboardContent() {
   }, []);
 
   const statuses = useMemo(
-    () => (overview ? mapOverviewToStatuses(overview) : commanderReportStatuses),
+    () => mapOverviewToStatuses(overview ?? emptyOverview),
     [overview],
   );
   const riskLevels = useMemo(
-    () => (overview ? mapOverviewToRiskLevels(overview) : commanderRiskLevels),
+    () => mapOverviewToRiskLevels(overview ?? emptyOverview),
     [overview],
   );
   const activities = useMemo(
-    () =>
-      timeline.length > 0 ? mapTimelineToActivities(timeline) : commanderActivities,
+    () => mapTimelineToActivities(timeline),
     [timeline],
   );
   const urgentCases = useMemo(
-    () =>
-      timeline.length > 0
-        ? mapTimelineToUrgentCases(timeline)
-        : commanderUrgentCases,
+    () => mapTimelineToUrgentCases(timeline),
     [timeline],
   );
 

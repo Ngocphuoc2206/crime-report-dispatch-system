@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { dispatcherOfficerUnits } from "@/features/dispatcher-dashboard/data/dispatcherDashboard.data";
 import type {
   DispatchOfficerStatus,
   DispatchOfficerUnit,
@@ -34,8 +33,7 @@ const statusConfig: Record<
 };
 
 export function DispatcherOfficerAvailability() {
-  const [units, setUnits] =
-    useState<DispatchOfficerUnit[]>(dispatcherOfficerUnits);
+  const [units, setUnits] = useState<DispatchOfficerUnit[]>([]);
 
   useEffect(() => {
     let ignore = false;
@@ -65,7 +63,7 @@ export function DispatcherOfficerAvailability() {
         }
       } catch {
         if (!ignore) {
-          setUnits(dispatcherOfficerUnits);
+          setUnits([]);
         }
       }
     }
@@ -78,20 +76,26 @@ export function DispatcherOfficerAvailability() {
   }, []);
 
   return (
-    <aside className="rounded-xl border border-red-200 bg-white p-5 shadow-sm">
-      <header className="flex items-center justify-between">
-        <h2 className="text-2xl font-black text-red-950">Tình trạng cán bộ</h2>
+    <aside className="rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
+      <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+        <h2 className="text-xl font-bold text-slate-900">Tình trạng cán bộ</h2>
 
-        <button className="text-xl text-slate-500">≡</button>
+        <button className="text-sm font-bold text-slate-500">...</button>
       </header>
 
-      <div className="mt-5 grid grid-cols-3 rounded-lg bg-red-50 p-1 text-center text-sm font-bold text-red-900/70">
+      <div className="mx-6 mt-5 grid grid-cols-3 rounded-lg bg-slate-50 p-1 text-center text-sm font-bold text-slate-600 ring-1 ring-slate-200">
         <button className="rounded-md bg-white py-2 shadow-sm">Tất cả</button>
         <button className="py-2">Sẵn sàng</button>
         <button className="py-2">Đang bận</button>
       </div>
 
-      <div className="mt-5 space-y-4">
+      <div className="space-y-4 p-6">
+        {units.length === 0 ? (
+          <p className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-500">
+            Hiện chưa có cán bộ trực ban.
+          </p>
+        ) : null}
+
         {units.map((unit) => {
           const status = statusConfig[unit.status];
 
@@ -99,13 +103,13 @@ export function DispatcherOfficerAvailability() {
             <article
               key={unit.id}
               className={[
-                "rounded-lg border border-red-100 border-l-4 bg-white p-4",
+                "rounded-lg border border-slate-200 border-l-4 bg-white p-4",
                 status.borderClassName,
               ].join(" ")}
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h3 className="font-black text-slate-950">{unit.unitCode}</h3>
+                  <h3 className="font-bold text-slate-950">{unit.unitCode}</h3>
 
                   <p className="mt-1 text-sm text-slate-600">
                     {unit.zone} - {unit.role}
@@ -114,7 +118,7 @@ export function DispatcherOfficerAvailability() {
 
                 <span
                   className={[
-                    "rounded-md px-3 py-1 text-xs font-black",
+                    "rounded-md px-3 py-1 text-xs font-bold",
                     status.className,
                   ].join(" ")}
                 >
@@ -123,18 +127,18 @@ export function DispatcherOfficerAvailability() {
               </div>
 
               {unit.currentCaseCode ? (
-                <p className="mt-4 font-black text-(--primary)">
+                <p className="mt-4 font-bold text-(--primary)">
                   #{unit.currentCaseCode}
                 </p>
               ) : null}
 
-              <div className="mt-4 flex items-center justify-between border-t border-red-100 pt-3">
+              <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-3">
                 <span className="text-sm text-slate-600">
                   {unit.distanceToCenter}
                 </span>
 
                 {unit.status === "AVAILABLE" ? (
-                  <button className="text-sm font-black text-(--primary)">
+                  <button className="text-sm font-bold text-(--primary)">
                     Điều phối
                   </button>
                 ) : null}

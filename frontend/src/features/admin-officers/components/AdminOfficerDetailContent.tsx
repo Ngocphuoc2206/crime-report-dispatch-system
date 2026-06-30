@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AdminEditOfficerModal } from "@/features/admin-officers/components/AdminEditOfficerModal";
 import { AdminOfficerStatusBadge } from "@/features/admin-officers/components/AdminOfficerBadges";
-import { adminOfficerProfiles } from "@/features/admin-officers/data/adminOfficers.data";
 import { adminOfficerService } from "@/features/admin-officers/services/adminOfficerService";
 import type { AdminOfficerProfile } from "@/features/admin-officers/types/adminOfficer.types";
 
@@ -12,16 +11,11 @@ type AdminOfficerDetailContentProps = {
   officerId: string;
 };
 
-function findOfficer(officerId: string) {
-  return adminOfficerProfiles.find((item) => item.officerId === officerId);
-}
-
 export function AdminOfficerDetailContent({
   officerId,
 }: AdminOfficerDetailContentProps) {
-  const initialOfficer = useMemo(() => findOfficer(officerId), [officerId]);
   const [officer, setOfficer] = useState<AdminOfficerProfile | undefined>(
-    initialOfficer,
+    undefined,
   );
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -36,9 +30,9 @@ export function AdminOfficerDetailContent({
       const response = await adminOfficerService.getDetail(officerId);
       setOfficer(response);
     } catch {
-      setOfficer(initialOfficer);
+      setOfficer(undefined);
       setApiError(
-        "Không kết nối được backend chi tiết cán bộ. Đang hiển thị dữ liệu mẫu.",
+        "Không kết nối được backend chi tiết cán bộ.",
       );
     } finally {
       setIsLoading(false);

@@ -9,9 +9,19 @@ import {
 import { AdminMetricCard } from "@/features/admin-dashboard/components/AdminMetricCard";
 import { AdminRecentUsersTable } from "@/features/admin-dashboard/components/AdminRecentUsersTable";
 import { AdminReportStatusGrid } from "@/features/admin-dashboard/components/AdminReportStatusGrid";
-import { adminAccountMetrics } from "@/features/admin-dashboard/data/adminDashboard.data";
+import type { AdminAccountMetric } from "@/features/admin-dashboard/types/adminDashboard.types";
 
 type DashboardState = "normal" | "loading" | "error";
+
+const emptyAccountMetrics: AdminAccountMetric[] = [
+  { id: "total", label: "Tong tai khoan", value: "0", tone: "default" },
+  { id: "active", label: "Dang hoat dong", value: "0", tone: "success" },
+  { id: "locked", label: "Bi khoa", value: "0", tone: "danger" },
+  { id: "officer", label: "Officer", value: "0", tone: "officer" },
+  { id: "dispatcher", label: "Dispatcher", value: "0", tone: "dispatcher" },
+  { id: "commander", label: "Commander", value: "0", tone: "commander" },
+  { id: "admin", label: "Admin", value: "0", tone: "admin" },
+];
 
 export function AdminDashboardContent() {
   const [dashboardState, setDashboardState] =
@@ -121,7 +131,7 @@ export function AdminDashboardContent() {
               <div className="mt-3 h-px bg-slate-200" />
 
               <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-7">
-                {adminAccountMetrics.map((metric) => (
+                {emptyAccountMetrics.map((metric) => (
                   <AdminMetricCard key={metric.id} metric={metric} />
                 ))}
               </div>

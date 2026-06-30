@@ -1,4 +1,13 @@
-import { adminReportMetrics } from "@/features/admin-dashboard/data/adminDashboard.data";
+import type { AdminReportMetric } from "@/features/admin-dashboard/types/adminDashboard.types";
+
+const emptyReportMetrics: AdminReportMetric[] = [
+  { id: "total", label: "Tong tin bao", value: "0", tone: "primary" },
+  { id: "new", label: "Moi tiep nhan", value: "0", tone: "default" },
+  { id: "processing", label: "Dang xu ly", value: "0", tone: "default" },
+  { id: "resolved", label: "Da xu ly", value: "0", tone: "success" },
+  { id: "urgent", label: "Khan cap", value: "0", tone: "danger" },
+  { id: "spam", label: "Gia / Spam", value: "0", tone: "default" },
+];
 
 const toneClassNames = {
   primary: "bg-[var(--primary)] text-white border-[var(--primary)]",
@@ -14,7 +23,7 @@ export function AdminReportStatusGrid() {
       <div className="mt-3 h-px bg-slate-200" />
 
       <div className="mt-4 grid gap-4 md:grid-cols-3">
-        {adminReportMetrics.map((metric) => (
+        {emptyReportMetrics.map((metric) => (
           <article
             key={metric.id}
             className={[

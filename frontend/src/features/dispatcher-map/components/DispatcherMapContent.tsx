@@ -2,11 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { DispatcherMapCasePanel } from "@/features/dispatcher-map/components/DispatcherMapCasePanel";
-import { DispatcherMockMap } from "@/features/dispatcher-map/components/DispatcherMockMap";
-import {
-  dispatcherMapCases,
-  dispatcherMapUnits,
-} from "@/features/dispatcher-map/data/dispatcherMap.data";
+import { DispatcherMapCanvas } from "@/features/dispatcher-map/components/DispatcherMapCanvas";
 import { dispatcherMapService } from "@/features/dispatcher-map/services/dispatcherMapService";
 import type {
   DispatcherMapCase,
@@ -17,14 +13,12 @@ import type {
 type PriorityFilter = "ALL" | DispatcherMapPriority;
 
 export function DispatcherMapContent() {
-  const [cases, setCases] = useState(dispatcherMapCases);
-  const [units, setUnits] = useState<DispatcherMapUnit[]>(dispatcherMapUnits);
+  const [cases, setCases] = useState<DispatcherMapCase[]>([]);
+  const [units, setUnits] = useState<DispatcherMapUnit[]>([]);
   const [keyword, setKeyword] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("ALL");
   const [districtFilter, setDistrictFilter] = useState("ALL");
-  const [selectedCase, setSelectedCase] = useState<DispatcherMapCase | null>(
-    dispatcherMapCases[0],
-  );
+  const [selectedCase, setSelectedCase] = useState<DispatcherMapCase | null>(null);
 
   const filteredCases = useMemo(() => {
     const q = keyword.trim().toLowerCase();
@@ -61,15 +55,15 @@ export function DispatcherMapContent() {
         ]);
 
         if (!ignore) {
-          setCases(caseData.length > 0 ? caseData : dispatcherMapCases);
-          setUnits(unitData.length > 0 ? unitData : dispatcherMapUnits);
-          setSelectedCase(caseData[0] ?? dispatcherMapCases[0]);
+          setCases(caseData);
+          setUnits(unitData);
+          setSelectedCase(caseData[0] ?? null);
         }
       } catch {
         if (!ignore) {
-          setCases(dispatcherMapCases);
-          setUnits(dispatcherMapUnits);
-          setSelectedCase(dispatcherMapCases[0]);
+          setCases([]);
+          setUnits([]);
+          setSelectedCase(null);
         }
       }
     }
@@ -158,7 +152,7 @@ export function DispatcherMapContent() {
               setKeyword("");
               setPriorityFilter("ALL");
               setDistrictFilter("ALL");
-              setSelectedCase(cases[0] ?? dispatcherMapCases[0]);
+              setSelectedCase(cases[0] ?? null);
             }}
             className="self-end rounded-lg border border-red-200 px-5 py-3 font-black text-slate-700 hover:bg-red-50"
           >
@@ -168,7 +162,7 @@ export function DispatcherMapContent() {
       </section>
 
       <section className="mt-8 grid gap-6 xl:grid-cols-[1fr_26rem]">
-        <DispatcherMockMap
+        <DispatcherMapCanvas
           cases={filteredCases}
           units={units}
           selectedCaseId={selectedCase?.id ?? null}

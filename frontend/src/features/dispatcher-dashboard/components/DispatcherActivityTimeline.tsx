@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { dispatcherActivities } from "@/features/dispatcher-dashboard/data/dispatcherDashboard.data";
 import { dispatcherDashboardService } from "@/features/dispatcher-dashboard/services/dispatcherDashboardService";
 import type { DispatchActivity } from "@/features/dispatcher-dashboard/types/dispatcherDashboard.types";
 
@@ -13,8 +12,7 @@ const toneClassName = {
 };
 
 export function DispatcherActivityTimeline() {
-  const [activities, setActivities] =
-    useState<DispatchActivity[]>(dispatcherActivities);
+  const [activities, setActivities] = useState<DispatchActivity[]>([]);
 
   useEffect(() => {
     let ignore = false;
@@ -28,7 +26,7 @@ export function DispatcherActivityTimeline() {
         }
       } catch {
         if (!ignore) {
-          setActivities(dispatcherActivities);
+          setActivities([]);
         }
       }
     }
@@ -41,11 +39,17 @@ export function DispatcherActivityTimeline() {
   }, []);
 
   return (
-    <section className="rounded-xl border border-red-200 bg-white p-5 shadow-sm">
-      <h2 className="text-2xl font-black text-red-950">Dòng hoạt động</h2>
+    <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">
+      <h2 className="text-xl font-bold text-slate-900">Dòng hoạt động</h2>
 
       <div className="relative mt-6 space-y-6">
-        <div className="absolute bottom-0 left-5 top-0 w-px bg-red-100" />
+        <div className="absolute bottom-0 left-5 top-0 w-px bg-slate-200" />
+
+        {activities.length === 0 ? (
+          <p className="text-sm font-semibold text-slate-500">
+            Hiện chưa có hoạt động điều phối.
+          </p>
+        ) : null}
 
         {activities.map((item) => (
           <article
@@ -64,7 +68,7 @@ export function DispatcherActivityTimeline() {
             </div>
 
             <div>
-              <h3 className="font-black text-slate-950">{item.title}</h3>
+              <h3 className="font-bold text-slate-950">{item.title}</h3>
               <p className="mt-1 text-sm text-slate-600">{item.description}</p>
               <p className="mt-1 text-xs text-slate-400">{item.time}</p>
             </div>

@@ -6,15 +6,18 @@ import {
   DispatcherCaseStatusBadge,
   DispatcherPriorityBadge,
 } from "@/features/dispatcher-pending/components/DispatcherPriorityBadge";
-import { pendingDispatchCases } from "@/features/dispatcher-pending/data/dispatcherPending.data";
 import { dispatcherPendingService } from "@/features/dispatcher-pending/services/dispatcherPendingService";
-import type { PendingDispatchPriority } from "@/features/dispatcher-pending/types/dispatcherPending.types";
+import type {
+  PendingDispatchCase,
+  PendingDispatchPriority,
+} from "@/features/dispatcher-pending/types/dispatcherPending.types";
 
 type PriorityFilter = "ALL" | PendingDispatchPriority;
 
 export function DispatcherPendingContent() {
-  const [cases, setCases] = useState(pendingDispatchCases);
+  const [cases, setCases] = useState<PendingDispatchCase[]>([]);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("ALL");
   const [typeFilter, setTypeFilter] = useState("ALL");
@@ -58,12 +61,18 @@ export function DispatcherPendingContent() {
 
   async function loadCases() {
     setLoading(true);
+    setErrorMessage(null);
 
     try {
       const data = await dispatcherPendingService.getPendingCases();
-      setCases(data.length > 0 ? data : pendingDispatchCases);
-    } catch {
-      setCases(pendingDispatchCases);
+      setCases(data);
+    } catch (error) {
+      setCases([]);
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Khong the tai danh sach cho dieu phoi.",
+      );
     } finally {
       setLoading(false);
     }
@@ -73,16 +82,26 @@ export function DispatcherPendingContent() {
     let ignore = false;
 
     async function loadInitialCases() {
+      setLoading(true);
+      setErrorMessage(null);
+
       try {
         const data = await dispatcherPendingService.getPendingCases();
 
         if (!ignore) {
-          setCases(data.length > 0 ? data : pendingDispatchCases);
+          setCases(data);
         }
-      } catch {
+      } catch (error) {
         if (!ignore) {
-          setCases(pendingDispatchCases);
+          setCases([]);
+          setErrorMessage(
+            error instanceof Error
+              ? error.message
+              : "Khong the tai danh sach cho dieu phoi.",
+          );
         }
+      } finally {
+        if (!ignore) setLoading(false);
       }
     }
 
@@ -130,6 +149,12 @@ export function DispatcherPendingContent() {
           </button>
         </div>
       </section>
+
+      {errorMessage ? (
+        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm font-semibold text-(--primary)">
+          {errorMessage}
+        </section>
+      ) : null}
 
       <section className="mt-8 overflow-hidden rounded-xl border border-red-200 bg-white shadow-sm">
         <div className="border-b border-red-100 bg-red-50/70 p-5">
@@ -243,6 +268,28 @@ export function DispatcherPendingContent() {
             </thead>
 
             <tbody className="divide-y divide-red-100">
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan={9}
+                    className="px-5 py-10 text-center text-sm font-semibold text-slate-500"
+                  >
+                    Đang tải danh sách chờ điều phối...
+                  </td>
+                </tr>
+              ) : null}
+
+              {!loading && filteredCases.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={9}
+                    className="px-5 py-10 text-center text-sm font-semibold text-slate-500"
+                  >
+                    Hiện chưa có tin báo nào đang chờ điều phối.
+                  </td>
+                </tr>
+              ) : null}
+
               {filteredCases.map((item) => (
                 <tr key={item.id} className="hover:bg-red-50/50">
                   <td className="px-5 py-5 font-black text-red-900">
@@ -295,23 +342,20 @@ export function DispatcherPendingContent() {
 
         <footer className="flex items-center justify-between border-t border-red-100 bg-red-50/60 px-5 py-4 text-sm text-slate-600">
           <p>
-            Hiển thị 1-{filteredCases.length} trong tổng số{" "}
+            Hiển thị {filteredCases.length === 0 ? 0 : 1}-
+            {filteredCases.length} trong tổng số{" "}
             {cases.length} tin chờ điều phối
           </p>
 
-          <div className="flex items-center gap-2">
-            <button className="rounded-md px-3 py-2 text-slate-400">‹</button>
-            <button className="rounded-md bg-(--primary) px-3 py-2 font-black text-white">
-              1
-            </button>
-            <button className="rounded-md px-3 py-2 font-black text-slate-600">
-              2
-            </button>
-            <button className="rounded-md px-3 py-2 font-black text-slate-600">
-              3
-            </button>
-            <button className="rounded-md px-3 py-2 text-slate-600">›</button>
-          </div>
+          {filteredCases.length > 0 ? (
+            <div className="flex items-center gap-2">
+              <button className="rounded-md px-3 py-2 text-slate-400">‹</button>
+              <button className="rounded-md bg-(--primary) px-3 py-2 font-black text-white">
+                1
+              </button>
+              <button className="rounded-md px-3 py-2 text-slate-600">›</button>
+            </div>
+          ) : null}
         </footer>
       </section>
     </div>
