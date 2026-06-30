@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { SpamWarningBadge } from "@/components/ui/SpamWarningBadge";
 import {
   CommanderSeverityBadge,
   CommanderStatusBadge,
@@ -166,6 +167,11 @@ export function CommanderCaseDetailContent({
 
             <CommanderStatusBadge status={activeCase.status} />
             <CommanderSeverityBadge severity={activeCase.severity} />
+            <SpamWarningBadge
+              level={activeCase.spamLevel}
+              score={activeCase.spamScore}
+              reasons={activeCase.spamReasons}
+            />
           </div>
 
           <h1 className="mt-4 max-w-4xl text-4xl font-black text-slate-950">
@@ -240,6 +246,16 @@ export function CommanderCaseDetailContent({
               <p className="text-sm font-bold uppercase text-slate-500">
                 Noi dung mo ta
               </p>
+
+              {activeCase.spamLevel && activeCase.spamLevel !== "NONE" ? (
+                <div className="mt-3 rounded-lg border border-red-100 bg-red-50 p-4 text-sm text-red-900">
+                  <p className="font-bold">Cảnh báo nghi spam</p>
+                  <p className="mt-1">
+                    Điểm: {activeCase.spamScore ?? 0}
+                    {activeCase.spamReasons ? ` - ${activeCase.spamReasons}` : ""}
+                  </p>
+                </div>
+              ) : null}
 
               <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-5 leading-7 text-slate-700">
                 {activeCase.description}

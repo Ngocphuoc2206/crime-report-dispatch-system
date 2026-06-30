@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { SpamWarningBadge } from "@/components/ui/SpamWarningBadge";
 import { DispatcherCaseMap } from "@/features/dispatcher-pending/components/DispatcherCaseMap";
 import { DispatcherPriorityBadge } from "@/features/dispatcher-pending/components/DispatcherPriorityBadge";
 import { DispatcherRecommendedUnits } from "@/features/dispatcher-pending/components/DispatcherRecommendedUnits";
@@ -96,6 +97,22 @@ export function DispatcherPendingDetailContent({
           </header>
 
           <div className="space-y-6 p-5">
+            <SpamWarningBadge
+              level={currentCase.spamLevel}
+              score={currentCase.spamScore}
+              reasons={currentCase.spamReasons}
+            />
+
+            {currentCase.spamLevel && currentCase.spamLevel !== "NONE" ? (
+              <div className="rounded-lg border border-red-100 bg-white p-4 text-sm text-red-900">
+                <p className="font-bold">Cảnh báo nghi spam</p>
+                <p className="mt-1">
+                  Điểm: {currentCase.spamScore ?? 0}
+                  {currentCase.spamReasons ? ` - ${currentCase.spamReasons}` : ""}
+                </p>
+              </div>
+            ) : null}
+
             <div>
               <p className="text-sm font-bold text-slate-500">Loại vụ việc</p>
 

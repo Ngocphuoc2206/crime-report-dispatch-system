@@ -27,6 +27,9 @@ type PendingDispatchApiItem = {
   createdAt: string;
   suggestedUnitName: string | null;
   nearestDistanceKm: number | null;
+  spamScore?: number | null;
+  spamLevel?: "NONE" | "LOW" | "MEDIUM" | "HIGH" | null;
+  spamReasons?: string | null;
 };
 
 function formatTime(value: string) {
@@ -75,6 +78,9 @@ function toPendingCase(item: PendingDispatchApiItem): PendingDispatchCase {
     status: statusFromBackend(item.status),
     suggestedUnit: item.suggestedUnitName || "Can goi y tu dispatch-service",
     description: item.description,
+    spamScore: item.spamScore,
+    spamLevel: item.spamLevel,
+    spamReasons: item.spamReasons,
     reporterType: "An danh" as PendingDispatchCase["reporterType"],
     evidenceCount: 0,
   };

@@ -6,6 +6,7 @@ export type OfficerCaseStatus =
   | "SPAM_OR_FAKE";
 
 export type OfficerCasePriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+export type OfficerCaseSpamLevel = "NONE" | "LOW" | "MEDIUM" | "HIGH";
 
 export type OfficerCaseReporterMode = "anonymous" | "identified";
 
@@ -53,6 +54,9 @@ export type OfficerCase = {
   assignedUnitId?: number | null;
   assignedOfficerId?: number | null;
   assignedOfficerName?: string;
+  spamScore?: number | null;
+  spamLevel?: OfficerCaseSpamLevel | null;
+  spamReasons?: string | null;
   reporterMode: OfficerCaseReporterMode;
   anonymousTemporaryId?: string;
   lock?: OfficerCaseLock | null;
@@ -79,6 +83,9 @@ export type OfficerCaseApiItem = {
   address?: string | null;
   assignedUnitId?: number | null;
   assignedOfficerId?: number | null;
+  spamScore?: number | null;
+  spamLevel?: OfficerCaseSpamLevel | null;
+  spamReasons?: string | null;
   createdAt: string;
   updatedAt?: string | null;
 };
@@ -95,6 +102,9 @@ export type OfficerCaseDetailApiItem = {
   address?: string | null;
   assignedUnitId?: number | null;
   assignedOfficerId?: number | null;
+  spamScore?: number | null;
+  spamLevel?: OfficerCaseSpamLevel | null;
+  spamReasons?: string | null;
   anonymous: boolean;
   createdAt: string;
   updatedAt?: string | null;

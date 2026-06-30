@@ -35,6 +35,9 @@ type CommanderCaseApiItem = {
   address: string | null;
   assignedUnitId: number | null;
   assignedOfficerId: number | null;
+  spamScore?: number | null;
+  spamLevel?: "NONE" | "LOW" | "MEDIUM" | "HIGH" | null;
+  spamReasons?: string | null;
   createdAt: string;
   updatedAt: string | null;
 };
@@ -161,6 +164,9 @@ function toCase(item: CommanderCaseApiItem, histories: CommanderCaseHistory[] = 
     },
     receivedAt: item.createdAt,
     confidence: `${item.urgencyLevel} - auto score`,
+    spamScore: item.spamScore,
+    spamLevel: item.spamLevel,
+    spamReasons: item.spamReasons,
     description: item.description,
     coordinate: latitude && longitude ? `${latitude}, ${longitude}` : "Chua co toa do",
     attachments,

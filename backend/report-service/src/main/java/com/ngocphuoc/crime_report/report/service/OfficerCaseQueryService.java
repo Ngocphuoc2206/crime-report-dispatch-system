@@ -88,6 +88,10 @@ public class OfficerCaseQueryService {
                 caseReport.getAssignedUnitId(),
                 caseReport.getAssignedOfficerId(),
 
+                caseReport.getSpamScore(),
+                caseReport.getSpamLevel(),
+                caseReport.getSpamReasons(),
+
                 caseReport.getCreatedAt(),
                 caseReport.getUpdatedAt()
         );

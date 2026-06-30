@@ -24,6 +24,9 @@ type DispatchPriorityApiItem = {
   urgencyLevel: PendingDispatchPriority;
   address: string | null;
   createdAt: string;
+  spamScore?: number | null;
+  spamLevel?: "NONE" | "LOW" | "MEDIUM" | "HIGH" | null;
+  spamReasons?: string | null;
 };
 
 type DispatchActivityApiItem = {
@@ -110,6 +113,9 @@ export const dispatcherDashboardService = {
       location: item.address || "Chua cap nhat dia chi",
       createdAt: formatTime(item.createdAt),
       waitingTime: "--",
+      spamScore: item.spamScore,
+      spamLevel: item.spamLevel,
+      spamReasons: item.spamReasons,
     }));
   },
 

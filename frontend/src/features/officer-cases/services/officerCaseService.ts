@@ -91,6 +91,9 @@ function baseCaseFromApi(item: OfficerCaseApiItem): OfficerCase {
     updatedAt: item.updatedAt ?? undefined,
     assignedUnitId: item.assignedUnitId,
     assignedOfficerId: item.assignedOfficerId,
+    spamScore: item.spamScore,
+    spamLevel: item.spamLevel,
+    spamReasons: item.spamReasons,
     assignedOfficerName: item.assignedOfficerId
       ? `Officer #${item.assignedOfficerId}`
       : undefined,
@@ -133,6 +136,9 @@ function detailCaseFromApi(
       address: item.address,
       assignedUnitId: item.assignedUnitId,
       assignedOfficerId: item.assignedOfficerId,
+      spamScore: item.spamScore,
+      spamLevel: item.spamLevel,
+      spamReasons: item.spamReasons,
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
     }),

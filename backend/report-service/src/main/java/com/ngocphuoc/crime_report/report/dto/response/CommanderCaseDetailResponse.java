@@ -19,6 +19,9 @@ public record CommanderCaseDetailResponse(
         String address,
         Long assignedUnitId,
         Long assignedOfficerId,
+        Integer spamScore,
+        String spamLevel,
+        String spamReasons,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         List<CommanderCaseHistoryResponse> histories

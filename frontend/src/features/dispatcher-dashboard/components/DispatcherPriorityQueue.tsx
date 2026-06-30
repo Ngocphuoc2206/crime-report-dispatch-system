@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { SpamWarningBadge } from "@/components/ui/SpamWarningBadge";
 import type {
   DispatchPriorityCase,
   DispatchPriorityLevel,
@@ -104,7 +105,16 @@ export function DispatcherPriorityQueue() {
                     #{item.caseCode}
                   </td>
 
-                  <td className="px-5 py-5 text-slate-700">{item.type}</td>
+                  <td className="px-5 py-5 text-slate-700">
+                    <div>{item.type}</div>
+                    <div className="mt-2">
+                      <SpamWarningBadge
+                        level={item.spamLevel}
+                        score={item.spamScore}
+                        reasons={item.spamReasons}
+                      />
+                    </div>
+                  </td>
 
                   <td className="px-5 py-5">
                     <span

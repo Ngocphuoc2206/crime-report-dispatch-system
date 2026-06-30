@@ -16,6 +16,9 @@ public record DispatchCandidateResponse(
         String address,
         Long assignedUnitId,
         Long assignedOfficerId,
+        Integer spamScore,
+        String spamLevel,
+        String spamReasons,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {}

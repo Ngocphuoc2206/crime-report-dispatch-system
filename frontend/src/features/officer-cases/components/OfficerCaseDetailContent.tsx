@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { SpamWarningBadge } from "@/components/ui/SpamWarningBadge";
 import {
   OfficerCasePriorityBadge,
   OfficerCaseStatusBadge,
@@ -215,6 +216,11 @@ export function OfficerCaseDetailContent({
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <OfficerCaseStatusBadge status={caseDetail.status} />
             <OfficerCasePriorityBadge priority={caseDetail.priority} />
+            <SpamWarningBadge
+              level={caseDetail.spamLevel}
+              score={caseDetail.spamScore}
+              reasons={caseDetail.spamReasons}
+            />
             <span className="font-mono text-sm text-slate-500">
               {caseDetail.code}
             </span>
@@ -271,6 +277,16 @@ export function OfficerCaseDetailContent({
             <h2 className="text-xl font-bold text-slate-900">
               Nội dung trình báo
             </h2>
+
+            {caseDetail.spamLevel && caseDetail.spamLevel !== "NONE" ? (
+              <div className="mt-5 rounded-lg border border-red-100 bg-red-50 p-4 text-sm text-red-900">
+                <p className="font-bold">Cảnh báo nghi spam</p>
+                <p className="mt-1">
+                  Điểm: {caseDetail.spamScore ?? 0}
+                  {caseDetail.spamReasons ? ` - ${caseDetail.spamReasons}` : ""}
+                </p>
+              </div>
+            ) : null}
 
             <div className="mt-5 rounded-lg bg-slate-50 p-5 text-sm leading-7 text-slate-700">
               {caseDetail.incident.description}

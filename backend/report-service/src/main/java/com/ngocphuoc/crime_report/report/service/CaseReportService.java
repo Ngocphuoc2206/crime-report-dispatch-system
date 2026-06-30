@@ -41,6 +41,7 @@ public class CaseReportService {
     private final DispatchClient dispatchClient;
     private final AuditLogService auditLogService;
     private final AuditRequestMetadataResolver auditRequestMetadataResolver;
+    private final SpamDetectionService spamDetectionService;
 
     @Transactional
     public CreateReportResponse createReport(
@@ -87,6 +88,13 @@ public class CaseReportService {
 
         caseReport.setUrgencyScore(urgencyScoreResponse.score());
         caseReport.setUrgencyLevel(UrgencyLevel.valueOf(urgencyScoreResponse.level()));
+
+        // Check report spam/fake
+        SpamDetectionResult spamDetectionResult = spamDetectionService.analyze(request);
+
+        caseReport.setSpamScore(spamDetectionResult.score());
+        caseReport.setSpamLevel(spamDetectionResult.level());
+        caseReport.setSpamReasons(String.join("; ", spamDetectionResult.reasons()));
 
         CaseReport saved = caseReportRepository.save(caseReport);
 
@@ -203,6 +211,9 @@ public class CaseReportService {
                 c.getAddressText(),
                 c.getAssignedUnitId(),
                 c.getAssignedOfficerId(),
+                c.getSpamScore(),
+                c.getSpamLevel(),
+                c.getSpamReasons(),
                 c.getCreatedAt(),
                 c.getUpdatedAt()
         );

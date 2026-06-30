@@ -1,4 +1,5 @@
 export type PendingDispatchPriority = "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+export type PendingDispatchSpamLevel = "NONE" | "LOW" | "MEDIUM" | "HIGH";
 
 export type PendingDispatchStatus =
   | "UNASSIGNED"
@@ -22,6 +23,9 @@ export type PendingDispatchCase = {
   status: PendingDispatchStatus;
   suggestedUnit: string;
   description: string;
+  spamScore?: number | null;
+  spamLevel?: PendingDispatchSpamLevel | null;
+  spamReasons?: string | null;
   reporterType: "Ẩn danh" | "Định danh";
   evidenceCount: number;
 };

@@ -76,6 +76,9 @@ public class DispatchCaseService {
                 item.latitude(),
                 item.longitude(),
                 item.description(),
+                item.spamScore(),
+                item.spamLevel(),
+                item.spamReasons(),
                 item.createdAt(),
                 nearestUnit == null ? null : nearestUnit.unitName(),
                 nearestUnit == null ? null : nearestUnit.distanceKm()

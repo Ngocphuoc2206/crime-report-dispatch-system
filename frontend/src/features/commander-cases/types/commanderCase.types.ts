@@ -1,4 +1,5 @@
 export type CommanderCaseSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+export type CommanderCaseSpamLevel = "NONE" | "LOW" | "MEDIUM" | "HIGH";
 
 export type CommanderCaseStatus =
   | "NEW"
@@ -40,6 +41,9 @@ export type CommanderCase = {
   };
   receivedAt: string;
   confidence: string;
+  spamScore?: number | null;
+  spamLevel?: CommanderCaseSpamLevel | null;
+  spamReasons?: string | null;
   description: string;
   coordinate: string;
   locationWarning?: string;

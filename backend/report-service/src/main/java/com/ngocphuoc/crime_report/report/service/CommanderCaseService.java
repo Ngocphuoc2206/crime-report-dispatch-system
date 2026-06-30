@@ -102,6 +102,9 @@ public class CommanderCaseService {
                 caseReport.getAddressText(),
                 caseReport.getAssignedUnitId(),
                 caseReport.getAssignedOfficerId(),
+                caseReport.getSpamScore(),
+                caseReport.getSpamLevel(),
+                caseReport.getSpamReasons(),
                 caseReport.getCreatedAt(),
                 caseReport.getUpdatedAt()
         );
@@ -123,6 +126,9 @@ public class CommanderCaseService {
                 caseReport.getAddressText(),
                 caseReport.getAssignedUnitId(),
                 caseReport.getAssignedOfficerId(),
+                caseReport.getSpamScore(),
+                caseReport.getSpamLevel(),
+                caseReport.getSpamReasons(),
                 caseReport.getCreatedAt(),
                 caseReport.getUpdatedAt(),
                 histories

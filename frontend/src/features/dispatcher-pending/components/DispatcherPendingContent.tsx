@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { SpamWarningBadge } from "@/components/ui/SpamWarningBadge";
 import {
   DispatcherCaseStatusBadge,
   DispatcherPriorityBadge,
@@ -301,7 +302,14 @@ export function DispatcherPendingContent() {
                   </td>
 
                   <td className="px-5 py-5 font-semibold text-slate-800">
-                    {item.type}
+                    <div>{item.type}</div>
+                    <div className="mt-2">
+                      <SpamWarningBadge
+                        level={item.spamLevel}
+                        score={item.spamScore}
+                        reasons={item.spamReasons}
+                      />
+                    </div>
                   </td>
 
                   <td className="max-w-xs px-5 py-5 text-slate-700">

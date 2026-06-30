@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { SpamWarningBadge } from "@/components/ui/SpamWarningBadge";
 import {
   CommanderSeverityBadge,
   CommanderStatusBadge,
@@ -293,6 +294,13 @@ export function CommanderCasesContent() {
 
                       <td className="max-w-sm px-5 py-4 text-slate-600">
                         <p className="line-clamp-1">{item.shortDescription}</p>
+                        <div className="mt-2">
+                          <SpamWarningBadge
+                            level={item.spamLevel}
+                            score={item.spamScore}
+                            reasons={item.spamReasons}
+                          />
+                        </div>
                       </td>
 
                       <td className="px-5 py-4 text-slate-700">

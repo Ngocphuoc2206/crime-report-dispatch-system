@@ -9,6 +9,7 @@ export type DispatchMetric = {
 };
 
 export type DispatchPriorityLevel = "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+export type DispatchSpamLevel = "NONE" | "LOW" | "MEDIUM" | "HIGH";
 
 export type DispatchCaseStatus =
   | "WAITING_DISPATCH"
@@ -24,6 +25,9 @@ export type DispatchPriorityCase = {
   location: string;
   createdAt: string;
   waitingTime: string;
+  spamScore?: number | null;
+  spamLevel?: DispatchSpamLevel | null;
+  spamReasons?: string | null;
 };
 
 export type DispatchOfficerStatus = "AVAILABLE" | "BUSY" | "OFFLINE";

@@ -21,6 +21,10 @@ public record OfficerCaseResponse(
         Long assignedUnitId,
         Long assignedOfficerId,
 
+        Integer spamScore,
+        String spamLevel,
+        String spamReasons,
+
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {

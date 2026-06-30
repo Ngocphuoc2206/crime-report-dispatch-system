@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { SpamWarningBadge } from "@/components/ui/SpamWarningBadge";
 import {
   OfficerCasePriorityBadge,
   OfficerCaseStatusBadge,
@@ -237,6 +238,13 @@ export function OfficerCaseInboxContent() {
                       <p className="mt-1 line-clamp-2 text-slate-600">
                         {item.summary}
                       </p>
+                      <div className="mt-2">
+                        <SpamWarningBadge
+                          level={item.spamLevel}
+                          score={item.spamScore}
+                          reasons={item.spamReasons}
+                        />
+                      </div>
                     </td>
 
                     <td className="px-5 py-4 text-slate-700">

@@ -14,6 +14,9 @@ public record PendingDispatchCaseResponse(
         BigDecimal latitude,
         BigDecimal longitude,
         String description,
+        Integer spamScore,
+        String spamLevel,
+        String spamReasons,
         LocalDateTime createdAt,
         String suggestedUnitName,
         Double nearestDistanceKm
