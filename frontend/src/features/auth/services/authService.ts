@@ -1,12 +1,19 @@
 import { apiClient } from "@/services/apiClient";
 import { endpoints } from "@/services/endpoints";
-import type { LoginRequest, LoginResponse } from "@/types/auth";
+import type {
+  LoginFormState,
+  LoginResult,
+} from "@/features/auth/types/auth.types";
+
+type LoginRequest = Pick<LoginFormState, "username" | "password">;
 
 export const authService = {
-  login: (payload: LoginRequest) => {
-    return apiClient.post<LoginResponse, LoginRequest>(
-      endpoints.login,
-      payload,
-    );
+  login: (form: LoginFormState): Promise<LoginResult> => {
+    const payload: LoginRequest = {
+      username: form.username.trim(),
+      password: form.password,
+    };
+
+    return apiClient.post<LoginResult, LoginRequest>(endpoints.login, payload);
   },
 };

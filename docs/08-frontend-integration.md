@@ -154,14 +154,15 @@ Heatmap hỗ trợ `from`, `to`, `urgencyLevel`. Timeline hỗ trợ `limit` t�
 | Login | Auth login |
 | Officer case list | Officer cases |
 | Officer case detail | Case detail, evidence download, lock, accept, update status |
+| Dispatcher console | Pending cases, dispatch detail, task list, available officers, map, dispatch dashboard |
 | Commander dashboard | Overview, timeline, heatmap |
 | Admin users | List/create user, update roles/status |
 | Admin catalog | Crime types, urgency rules |
+| Admin dispatch setup | Police units, administrative areas, officer profile |
 
-## 10. Chức năng chưa sẵn sàng cho frontend
+## 10. Chức năng chưa sẵn sàng hoặc để hướng phát triển
 
-- Dispatcher pending/assign API chưa có controller/gateway route.
 - Reporter identity API chưa có controller/gateway route.
-- Chưa có API lấy toàn bộ police unit để chọn `unitId` khi tạo officer.
+- AI summary, AI spam detection, forecasting và live stream/chat evidence chưa có luồng frontend/backend hoàn chỉnh.
 
 Frontend nên ẩn các chức năng này hoặc giữ ở trạng thái disabled cho đến khi backend hoàn thiện.

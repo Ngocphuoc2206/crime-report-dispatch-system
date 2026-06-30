@@ -12,6 +12,12 @@ import java.util.Optional;
 public interface PoliceUnitRepository extends JpaRepository<PoliceUnit, Long> {
     Optional<PoliceUnit> findByCode(String code);
 
+    boolean existsByCodeIgnoreCase(String code);
+
+    boolean existsByCodeIgnoreCaseAndIdNot(String code, Long id);
+
+    List<PoliceUnit> findAllByOrderByIdAsc();
+
     List<PoliceUnit> findByIsActiveTrueOrderByIdAsc();
 
     @Query("""

@@ -77,6 +77,10 @@ public class OfficerCaseDetailService {
 
                 isAnonymous,
 
+                caseReport.getSpamScore(),
+                caseReport.getSpamLevel(),
+                caseReport.getSpamReasons(),
+
                 caseReport.getCreatedAt(),
                 caseReport.getUpdatedAt(),
 

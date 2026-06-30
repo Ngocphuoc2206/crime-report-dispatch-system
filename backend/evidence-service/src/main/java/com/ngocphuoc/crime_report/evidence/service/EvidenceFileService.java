@@ -80,6 +80,24 @@ public class EvidenceFileService {
         log.info("Successfully upload evidence files....");
     }
 
+    public void saveEvidenceFiles(Long caseId, String trackingCode, List<MultipartFile> files) {
+        log.info("Process upload evidence files for case {}....", caseId);
+        if (files == null || files.isEmpty()) {
+            return;
+        }
+
+        validateFileTypes(files);
+        ensureStorageDirectory();
+
+        for (MultipartFile file : files) {
+            if (file == null || file.isEmpty()) {
+                continue;
+            }
+            saveSingleFile(caseId, trackingCode, file);
+        }
+        log.info("Successfully upload evidence files for case {}....", caseId);
+    }
+
     public EvidenceFile getEvidenceByID(Long evidenceId){
         return evidenceFileRepository.findById(evidenceId)
                 .orElseThrow(() -> new AppException(ErrorCode.EVIDENCE_NOT_FOUND));
@@ -168,6 +186,17 @@ public class EvidenceFileService {
             }
         }
         return EvidenceFileType.OTHER;
+    }
+
+    private void ensureStorageDirectory() {
+        try {
+            if (Files.notExists(evidenceStorageDir)) {
+                Files.createDirectories(evidenceStorageDir);
+            }
+        } catch (Exception e) {
+            log.warn("Failed to create evidence storage....");
+            throw new IllegalStateException("Failed to create evidence storage directory", e);
+        }
     }
 
     private void validateFileTypes(List<MultipartFile> files) {

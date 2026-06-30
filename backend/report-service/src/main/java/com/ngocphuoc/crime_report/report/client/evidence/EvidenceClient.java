@@ -24,8 +24,7 @@ public class EvidenceClient {
     private static final String INTERNAL_TOKEN = "X-Internal-Token";
     // Evidence-service
     private static final String METADATA_CASE_PATH = "/api/internal/evidences/cases/{caseId}/metadata";
-    // Report-service
-    private static final String TRACKING_EVIDENCE_CODE_PATH = "/api/internal/reports/{trackingCode}/evidences";
+    private static final String INTERNAL_EVIDENCE_PATH = "/api/internal/evidences";
 
     private final RestClient.Builder restClientBuilder;
 
@@ -35,12 +34,14 @@ public class EvidenceClient {
     @Value("${app.internal-token}")
     private String internalToken;
 
-    public void uploadEvidence(String trackingCode, List<MultipartFile> files) {
+    public void uploadEvidence(Long caseId, String trackingCode, List<MultipartFile> files) {
         if (files == null || files.isEmpty()) {
             return;
         }
 
         LinkedMultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("caseId", caseId);
+        body.add("trackingCode", trackingCode);
 
         for (MultipartFile file : files) {
             if (file == null || file.isEmpty()) {
@@ -71,7 +72,7 @@ public class EvidenceClient {
                 .baseUrl(evidenceBaseUrl)
                 .build()
                 .post()
-                .uri(TRACKING_EVIDENCE_CODE_PATH, trackingCode)
+                .uri(INTERNAL_EVIDENCE_PATH)
                 .header(INTERNAL_TOKEN, internalToken)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(body)

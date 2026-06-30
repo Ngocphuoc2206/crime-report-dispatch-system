@@ -1,4 +1,8 @@
-import { trustMetrics } from "@/features/public-home/data/publicHome.data";
+const trustMetrics = [
+  { id: "reports", value: "24/7", label: "Tiếp nhận tin báo" },
+  { id: "security", value: "256-bit", label: "Mã hóa kết nối" },
+  { id: "tracking", value: "Realtime", label: "Theo dõi trạng thái" },
+];
 
 export function TrustMetrics() {
   return (

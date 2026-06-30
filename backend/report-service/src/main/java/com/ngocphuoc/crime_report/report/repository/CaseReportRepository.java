@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +51,21 @@ public interface CaseReportRepository extends JpaRepository<CaseReport, Long> {
     );
 
     @Query("""
+            SELECT c
+            FROM CaseReport c
+            WHERE c.assignedOfficerId = :officerId
+              AND (:status IS NULL OR c.status = :status)
+              AND (:urgencyLevel IS NULL OR c.urgencyLevel = :urgencyLevel)
+            ORDER BY c.createdAt DESC
+            """)
+    Page<CaseReport> findAssignedOfficerCases(
+            @Param("officerId") Long officerId,
+            @Param("status") CaseStatus status,
+            @Param("urgencyLevel") UrgencyLevel urgencyLevel,
+            Pageable pageable
+    );
+
+    @Query("""
         SELECT c
         FROM CaseReport c
         where c.assignedUnitId = :unitId
@@ -74,6 +90,28 @@ public interface CaseReportRepository extends JpaRepository<CaseReport, Long> {
     Page<CaseReport> findAdminCases(
             @Param("status") CaseStatus status,
             @Param("urgencyLevel") UrgencyLevel urgencyLevel,
+            Pageable pageable
+    );
+
+    @Query("""
+            SELECT c
+            FROM CaseReport c
+            JOIN c.crimeType ct
+            WHERE (:status IS NULL OR c.status = :status)
+              AND (:urgencyLevel IS NULL OR c.urgencyLevel = :urgencyLevel)
+              AND (
+                    :keyword IS NULL
+                    OR LOWER(c.trackingCode) LIKE :keyword
+                    OR LOWER(c.description) LIKE :keyword
+                    OR LOWER(c.addressText) LIKE :keyword
+                    OR LOWER(ct.name) LIKE :keyword
+                  )
+            ORDER BY c.createdAt DESC
+            """)
+    Page<CaseReport> findCommanderCases(
+            @Param("status") CaseStatus status,
+            @Param("urgencyLevel") UrgencyLevel urgencyLevel,
+            @Param("keyword") String keyword,
             Pageable pageable
     );
 
@@ -105,4 +143,15 @@ public interface CaseReportRepository extends JpaRepository<CaseReport, Long> {
             @Param("toTime") LocalDateTime toTime,
             @Param("urgencyLevel") UrgencyLevel urgencyLevel
     );
+
+    @Query("""
+        SELECT c
+        FROM CaseReport c
+        JOIN FETCH c.crimeType ct
+        WHERE c.status = com.ngocphuoc.crime_report.enums.CaseStatus.NEW_RECEIVED
+        AND c.assignedOfficerId IS NULL
+        AND c.assignedUnitId IS NULL
+        ORDER BY c.createdAt DESC
+    """)
+    List<CaseReport> findDispatchCandidates();
 }

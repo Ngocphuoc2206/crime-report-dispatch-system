@@ -22,7 +22,8 @@ async function request<T>(
   if (options.auth) {
     const token =
       typeof window !== "undefined"
-        ? localStorage.getItem("accessToken")
+        ? sessionStorage.getItem("accessToken") ??
+          localStorage.getItem("accessToken")
         : null;
 
     if (token) {
@@ -87,6 +88,13 @@ export const apiClient = {
     request<T>(path, {
       ...options,
       method: "PUT",
+      body: body ? JSON.stringify(body) : undefined,
+    }),
+
+  patch: <T, B = unknown>(path: string, body?: B, options?: RequestOptions) =>
+    request<T>(path, {
+      ...options,
+      method: "PATCH",
       body: body ? JSON.stringify(body) : undefined,
     }),
 

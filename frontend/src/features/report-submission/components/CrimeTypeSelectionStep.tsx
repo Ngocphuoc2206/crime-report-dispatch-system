@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import { AnonymousModeToggle } from "@/features/report-submission/components/AnonymousModeToggle";
 import { CrimeTypeCard } from "@/features/report-submission/components/CrimeTypeCard";
 import { ReportStepIndicator } from "@/features/report-submission/components/ReportStepIndicator";
-import { fallbackCrimeTypes } from "@/features/report-submission/data/fallbackCrimeTypes";
 import { crimeTypeService } from "@/features/report-submission/services/crimeTypeService";
 import { reportDraftStorage } from "@/features/report-submission/services/reportDraftStorage";
 import type { CrimeType } from "@/features/report-submission/types/reportSubmission.types";
@@ -77,9 +76,9 @@ export function CrimeTypeSelectionStep() {
         if (!mounted) return;
 
         if (data.length === 0) {
-          setCrimeTypes(fallbackCrimeTypes);
+          setCrimeTypes([]);
           setApiErrorMessage(
-            "API chưa có dữ liệu loại tin báo. Đang hiển thị dữ liệu mẫu.",
+            "API chưa có dữ liệu loại tin báo.",
           );
           return;
         }
@@ -88,11 +87,11 @@ export function CrimeTypeSelectionStep() {
       } catch (error) {
         if (!mounted) return;
 
-        setCrimeTypes(fallbackCrimeTypes);
+        setCrimeTypes([]);
         setApiErrorMessage(
           error instanceof Error
-            ? `Không tải được loại tin báo từ API: ${error.message}. Đang hiển thị dữ liệu mẫu.`
-            : "Không tải được loại tin báo từ API. Đang hiển thị dữ liệu mẫu.",
+            ? `Không tải được loại tin báo từ API: ${error.message}.`
+            : "Không tải được loại tin báo từ API.",
         );
       } finally {
         if (mounted) {
@@ -191,6 +190,12 @@ export function CrimeTypeSelectionStep() {
           </div>
         ) : (
           <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {crimeTypes.length === 0 ? (
+              <div className="rounded-lg border border-(--border) bg-white p-8 text-sm font-semibold text-slate-600 md:col-span-2 lg:col-span-4">
+                Hiện chưa có loại tin báo nào được cấu hình.
+              </div>
+            ) : null}
+
             {crimeTypes.map((crimeType) => (
               <CrimeTypeCard
                 key={crimeType.id}

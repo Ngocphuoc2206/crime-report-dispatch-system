@@ -24,6 +24,10 @@ public record OfficerCaseDetailResponse(
 
         Boolean anonymous,
 
+        Integer spamScore,
+        String spamLevel,
+        String spamReasons,
+
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
 

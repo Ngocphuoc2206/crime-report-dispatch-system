@@ -67,6 +67,15 @@ public class CaseReport {
     @Column(name = "assigned_officer_id")
     private Long assignedOfficerId;
 
+    @Column(name = "spam_score", nullable = false)
+    private Integer spamScore = 0;
+
+    @Column(name = "spam_level", nullable = false, length = 20)
+    private String spamLevel = "NONE";
+
+    @Column(name = "spam_reasons", columnDefinition = "TEXT")
+    private String spamReasons;
+
     @Version
     @Column(nullable = false)
     private Long version;

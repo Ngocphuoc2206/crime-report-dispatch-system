@@ -30,13 +30,17 @@ public class SmartDispatchService {
     private final DutyAssignmentRepository dutyAssignmentRepository;
     private final DispatchTaskRepository dispatchTaskRepository;
     private final ReportAssignmentClient reportAssignmentClient;
+    private final DispatchTaskHistoryService dispatchTaskHistoryService;
 
     @Transactional
     public SmartDispatchResponse dispatch(SmartDispatchRequest request){
         validateRequest(request);
 
         // Check case id is already dispatched
-        if (dispatchTaskRepository.existsByCaseId(request.caseId())){
+        if (dispatchTaskRepository.existsByCaseIdAndDispatchStatusIn(
+                request.caseId(),
+                List.of(DispatchStatus.PENDING, DispatchStatus.ASSIGNED)
+        )){
             throw new AppException(ErrorCode.CASE_ALREADY_DISPATCHED);
         }
 
@@ -82,6 +86,16 @@ public class SmartDispatchService {
                 dispatchTask.setDispatchStatus(DispatchStatus.ASSIGNED);
 
                 DispatchTask savedTask = dispatchTaskRepository.save(dispatchTask);
+                dispatchTaskHistoryService.record(
+                        savedTask,
+                        "SMART_DISPATCH",
+                        null,
+                        savedTask.getDispatchStatus(),
+                        null,
+                        null,
+                        "Automatically assigned to nearest available officer",
+                        "SYSTEM"
+                );
 
                 if (request.shouldUpdateReportAssignment()) {
                     reportAssignmentClient.updateAssignment(

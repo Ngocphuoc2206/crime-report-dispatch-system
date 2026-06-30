@@ -1,0 +1,4 @@
+ALTER TABLE case_report
+    ADD COLUMN spam_score INT NOT NULL DEFAULT 0,
+    ADD COLUMN spam_level VARCHAR(20) NOT NULL DEFAULT 'NONE',
+    ADD COLUMN spam_reasons TEXT NULL;
