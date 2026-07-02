@@ -16,10 +16,13 @@ import type {
 
 type StatusFilter = "ALL" | AssignedCaseStatus;
 
+const PAGE_SIZE = 10;
+
 export function DispatcherAssignedContent() {
   const [assignedCases, setAssignedCases] = useState<AssignedCase[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+  const [currentPage, setCurrentPage] = useState(0);
   const [selectedCase, setSelectedCase] = useState<AssignedCase | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -74,6 +77,22 @@ export function DispatcherAssignedContent() {
     (item) => item.status === "NEED_SUPPORT",
   ).length;
 
+  const totalPages = Math.ceil(filteredCases.length / PAGE_SIZE);
+  const pageIndex =
+    totalPages === 0 ? 0 : Math.min(currentPage, totalPages - 1);
+  const paginatedCases = filteredCases.slice(
+    pageIndex * PAGE_SIZE,
+    pageIndex * PAGE_SIZE + PAGE_SIZE,
+  );
+  const displayStart = filteredCases.length === 0 ? 0 : pageIndex * PAGE_SIZE + 1;
+  const displayEnd =
+    filteredCases.length === 0
+      ? 0
+      : Math.min(
+          pageIndex * PAGE_SIZE + paginatedCases.length,
+          filteredCases.length,
+        );
+
   async function handleReassign(
     caseItem: AssignedCase,
     option: ReassignUnitOption,
@@ -111,13 +130,13 @@ export function DispatcherAssignedContent() {
 
   async function handleRecall(taskId: string, caseCode: string) {
     try {
-      const updated = await dispatcherAssignedService.recallTask(taskId);
+      await dispatcherAssignedService.recallTask(taskId);
 
       setAssignedCases((current) =>
-        current.map((item) => (item.id === taskId ? updated : item)),
+        current.filter((item) => item.id !== taskId),
       );
 
-      showToast(`Da thu hoi dieu phoi ho so ${caseCode}`);
+      showToast(`Da thu hoi va dua ho so ${caseCode} ve hang doi dieu phoi`);
     } catch (error) {
       showToast(
         error instanceof Error
@@ -138,6 +157,7 @@ export function DispatcherAssignedContent() {
   function resetFilters() {
     setSearchTerm("");
     setStatusFilter("ALL");
+    setCurrentPage(0);
   }
 
   return (
@@ -193,7 +213,10 @@ export function DispatcherAssignedContent() {
 
             <input
               value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
+              onChange={(event) => {
+                setSearchTerm(event.target.value);
+                setCurrentPage(0);
+              }}
               placeholder="VD: INC-9021, Unit 405, Nguyễn Văn..."
               className="mt-2 w-full rounded-lg border border-red-200 px-4 py-3 outline-none 
               focus:border-(--primary) focus:ring-4 focus:ring-red-100"
@@ -207,9 +230,10 @@ export function DispatcherAssignedContent() {
 
             <select
               value={statusFilter}
-              onChange={(event) =>
-                setStatusFilter(event.target.value as StatusFilter)
-              }
+              onChange={(event) => {
+                setStatusFilter(event.target.value as StatusFilter);
+                setCurrentPage(0);
+              }}
               className="mt-2 w-full rounded-lg border border-red-200 px-4 py-3 outline-none 
               focus:border-(--primary) focus:ring-4 focus:ring-red-100"
             >
@@ -278,7 +302,7 @@ export function DispatcherAssignedContent() {
                 </tr>
               ) : null}
 
-              {filteredCases.map((item) => (
+              {paginatedCases.map((item) => (
                 <tr key={item.id} className="hover:bg-red-50/50">
                   <td className="px-5 py-5">
                     <p className="font-black text-red-900">#{item.caseCode}</p>
@@ -329,7 +353,7 @@ export function DispatcherAssignedContent() {
                     <div className="flex justify-end gap-2">
                       <Link
                         href={`/dispatcher/assigned/${encodeURIComponent(
-                          item.caseCode,
+                          item.id,
                         )}`}
                         className="rounded-lg border border-red-200 px-3 py-2 font-bold text-slate-700 hover:bg-red-50"
                       >
@@ -367,21 +391,49 @@ export function DispatcherAssignedContent() {
 
         <footer className="flex items-center justify-between border-t border-red-100 bg-red-50/60 px-5 py-4 text-sm text-slate-600">
           <p>
-            Hiển thị {filteredCases.length === 0 ? 0 : 1}-
-            {filteredCases.length} trong tổng số{" "}
+            Hiển thị {displayStart}-{displayEnd} trong tổng số{" "}
             {assignedCases.length} hồ sơ đã phân công
           </p>
 
-          <div className="flex items-center gap-2">
-            <button className="rounded-md px-3 py-2 text-slate-400">‹</button>
-            <button className="rounded-md bg-(--primary) px-3 py-2 font-black text-white">
-              1
-            </button>
-            <button className="rounded-md px-3 py-2 font-black text-slate-600">
-              2
-            </button>
-            <button className="rounded-md px-3 py-2 text-slate-600">›</button>
-          </div>
+          {totalPages > 0 ? (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={pageIndex <= 0}
+                onClick={() => setCurrentPage((page) => Math.max(0, page - 1))}
+                className="rounded-md px-3 py-2 text-slate-600 disabled:text-slate-400"
+              >
+                ‹
+              </button>
+
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setCurrentPage(index)}
+                  className={[
+                    "rounded-md px-3 py-2 font-black",
+                    index === pageIndex
+                      ? "bg-(--primary) text-white"
+                      : "text-slate-600 hover:bg-white",
+                  ].join(" ")}
+                >
+                  {index + 1}
+                </button>
+              ))}
+
+              <button
+                type="button"
+                disabled={pageIndex >= totalPages - 1}
+                onClick={() =>
+                  setCurrentPage((page) => Math.min(totalPages - 1, page + 1))
+                }
+                className="rounded-md px-3 py-2 text-slate-600 disabled:text-slate-400"
+              >
+                ›
+              </button>
+            </div>
+          ) : null}
         </footer>
       </section>
     </div>

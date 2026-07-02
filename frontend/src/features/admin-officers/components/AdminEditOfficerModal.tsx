@@ -103,7 +103,7 @@ export function AdminEditOfficerModal({
               <input
                 value={badgeNumber}
                 onChange={(event) => setBadgeNumber(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-red-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                className="mt-2 w-full rounded-lg border border-red-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               />
             </label>
 
@@ -115,7 +115,7 @@ export function AdminEditOfficerModal({
                 onChange={(event) =>
                   setRank(event.target.value as AdminOfficerRank)
                 }
-                className="mt-2 w-full rounded-lg border border-red-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                className="mt-2 w-full rounded-lg border border-red-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               >
                 {rankOptions.map((item) => (
                   <option key={item} value={item}>
@@ -133,7 +133,7 @@ export function AdminEditOfficerModal({
               <input
                 value={unitId}
                 onChange={(event) => setUnitId(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-red-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                className="mt-2 w-full rounded-lg border border-red-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               />
             </label>
           </div>
@@ -148,7 +148,7 @@ export function AdminEditOfficerModal({
               onChange={(event) => setNote(event.target.value)}
               rows={4}
               placeholder="Nhập lý do thay đổi thông tin hồ sơ..."
-              className="mt-2 w-full resize-none rounded-lg border border-red-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+              className="mt-2 w-full resize-none rounded-lg border border-red-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             />
           </label>
         </div>
@@ -165,7 +165,7 @@ export function AdminEditOfficerModal({
           <button
             type="button"
             onClick={handleSave}
-            className="rounded-lg bg-(--primary) px-5 py-3 font-black text-white hover:bg-(--primary-hover)"
+            className="rounded-lg bg-[var(--primary)] px-5 py-3 font-black text-white hover:bg-[var(--primary-hover)]"
           >
             Lưu thay đổi
           </button>

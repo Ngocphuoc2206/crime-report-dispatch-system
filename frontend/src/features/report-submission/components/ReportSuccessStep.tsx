@@ -4,16 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { reportDraftStorage } from "@/features/report-submission/services/reportDraftStorage";
 import type { SubmittedReportResult } from "@/features/report-submission/types/reportSubmission.types";
+import { formatVietnamDateTime } from "@/utils/dateTime";
 
 function formatSubmittedAt(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat("vi-VN", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
+  return formatVietnamDateTime(value);
 }
 
 export function ReportSuccessStep() {

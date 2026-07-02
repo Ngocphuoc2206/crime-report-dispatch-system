@@ -17,22 +17,20 @@ const nextStatusOptions: Array<{
   label: string;
   value: CommanderCaseStatus;
 }> = [
-  { label: "Dang xac minh", value: "VERIFYING" },
-  { label: "Dieu tra", value: "INVESTIGATING" },
-  { label: "Da giai quyet", value: "RESOLVED" },
-  { label: "Spam / Fake", value: "SPAM_OR_FAKE" },
-  { label: "Da ket thuc", value: "CLOSED" },
+  { label: "Đang xác minh", value: "VERIFYING" },
+  { label: "Đang điều tra", value: "INVESTIGATING" },
+  { label: "Đã giải quyết", value: "RESOLVED" },
+  { label: "Spam / giả mạo", value: "SPAM_OR_FAKE" },
 ];
 
 function getStatusLabel(status: CommanderCaseStatus) {
   const map: Record<CommanderCaseStatus, string> = {
-    NEW: "Moi tiep nhan",
-    PROCESSING: "Dang xu ly",
-    VERIFYING: "Dang xac minh",
-    INVESTIGATING: "Dieu tra",
-    RESOLVED: "Da giai quyet",
-    SPAM_OR_FAKE: "Spam / Fake",
-    CLOSED: "Da ket thuc",
+    NEW: "Mới tiếp nhận",
+    PROCESSING: "Đang xử lý",
+    VERIFYING: "Đang xác minh",
+    INVESTIGATING: "Đang điều tra",
+    RESOLVED: "Đã giải quyết",
+    SPAM_OR_FAKE: "Spam / giả mạo",
   };
 
   return map[status];
@@ -56,7 +54,7 @@ export function CommanderStatusUpdateModal({
       <section className="w-full max-w-xl overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl">
         <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
           <h2 className="text-2xl font-bold text-slate-950">
-            Cap nhat trang thai
+            Cập nhật trạng thái
           </h2>
 
           <button
@@ -70,17 +68,17 @@ export function CommanderStatusUpdateModal({
 
         <div className="p-6">
           <p className="text-sm font-bold uppercase tracking-wide text-slate-500">
-            Ho so
+            Hồ sơ
           </p>
 
-          <p className="mt-2 font-mono text-3xl font-black text-[var(--primary)]">
+          <p className="mt-2 font-mono text-2xl font-bold text-[var(--primary)]">
             #{caseItem.code}
           </p>
 
           <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-5 rounded-lg border border-slate-200 bg-slate-50 p-5">
             <div>
               <p className="text-sm font-semibold text-slate-500">
-                Trang thai hien tai
+                Trạng thái hiện tại
               </p>
               <p className="mt-2 font-bold text-slate-950">
                 {getStatusLabel(caseItem.status)}
@@ -91,7 +89,7 @@ export function CommanderStatusUpdateModal({
 
             <label>
               <span className="text-sm font-semibold text-slate-500">
-                Trang thai moi
+                Trạng thái mới
               </span>
 
               <select
@@ -113,7 +111,7 @@ export function CommanderStatusUpdateModal({
           <label className="mt-6 block">
             <div className="flex items-center justify-between">
               <span className="text-sm font-bold text-slate-700">
-                Ghi chu xu ly *
+                Ghi chú xử lý *
               </span>
 
               <span className="text-sm text-slate-500">{note.length} / 500</span>
@@ -124,18 +122,18 @@ export function CommanderStatusUpdateModal({
               onChange={(event) => setNote(event.target.value)}
               maxLength={500}
               rows={5}
-              placeholder="Nhap chi tiet ve quyet dinh chuyen doi trang thai..."
+              placeholder="Nhập chi tiết về quyết định chuyển đổi trạng thái..."
               className="mt-3 w-full resize-none rounded-md border border-slate-200 bg-white px-4 py-3 text-slate-800 outline-none placeholder:text-slate-400 focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             />
           </label>
 
           <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-5">
             <p className="font-bold text-[var(--primary)]">
-              Tac dong nghiep vu
+              Tác động nghiệp vụ
             </p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Hanh dong nay se gui thong bao den cac don vi lien quan va ghi
-              nhan vao lich su xu ly.
+              Hành động này sẽ ghi nhận vào lịch sử xử lý và đồng bộ trạng thái
+              cho các đơn vị liên quan.
             </p>
           </div>
         </div>
@@ -146,7 +144,7 @@ export function CommanderStatusUpdateModal({
             onClick={onClose}
             className="rounded-md border border-slate-200 px-5 py-3 font-bold text-slate-700 hover:bg-slate-50"
           >
-            Huy
+            Huỷ
           </button>
 
           <button
@@ -155,7 +153,7 @@ export function CommanderStatusUpdateModal({
             onClick={() => onConfirm(nextStatus, note)}
             className="rounded-md bg-[var(--primary)] px-5 py-3 font-bold text-white hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:bg-slate-300"
           >
-            Xac nhan cap nhat
+            Xác nhận cập nhật
           </button>
         </footer>
       </section>

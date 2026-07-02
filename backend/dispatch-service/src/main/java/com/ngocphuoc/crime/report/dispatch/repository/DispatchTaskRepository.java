@@ -9,7 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DispatchTaskRepository extends JpaRepository<DispatchTask, Long> {
-    Optional<DispatchTask> findByCaseId(Long caseId);
+    Optional<DispatchTask> findFirstByCaseIdOrderByCreatedAtDesc(Long caseId);
+
+    Optional<DispatchTask> findFirstByCaseIdAndDispatchStatusInOrderByCreatedAtDesc(
+            Long caseId,
+            Collection<DispatchStatus> statuses
+    );
 
     boolean existsByCaseId(Long caseId);
 

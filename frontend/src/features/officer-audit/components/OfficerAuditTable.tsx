@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { OfficerAuditActionBadge } from "@/features/officer-audit/components/OfficerAuditActionBadge";
 import type { AuditLogItem } from "@/features/officer-audit/types/officerAudit.types";
+import { formatVietnamDateTime } from "@/utils/dateTime";
 
 type OfficerAuditTableProps = {
   logs: AuditLogItem[];
@@ -12,18 +13,7 @@ type OfficerAuditTableProps = {
 };
 
 function formatDateTime(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  }).format(date);
+  return formatVietnamDateTime(value);
 }
 
 function getVisiblePages(page: number, totalPages: number) {

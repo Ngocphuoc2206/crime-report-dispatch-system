@@ -140,7 +140,7 @@ export function AdminUpdateRoleModal({
           </div>
 
           <div className="mt-7 rounded-xl border border-red-200 bg-red-50 p-5">
-            <p className="font-black text-(--primary)">
+            <p className="font-black text-[var(--primary)]">
               Cảnh báo: Việc thay đổi phân quyền có thể ảnh hưởng đến khả năng
               truy cập tài liệu và thao tác trên hệ thống.
             </p>
@@ -164,7 +164,7 @@ export function AdminUpdateRoleModal({
           <button
             type="button"
             onClick={handleSave}
-            className="rounded-lg bg-[var(--primary)] px-5 py-3 font-black text-white hover:bg-(--primary-hover)"
+            className="rounded-lg bg-[var(--primary)] px-5 py-3 font-black text-white hover:bg-[var(--primary-hover)]"
           >
             Lưu thay đổi
           </button>

@@ -121,7 +121,7 @@ export function AdminUrgencyRulesContent() {
   return (
     <div className="relative px-8 py-8">
       {toast ? (
-        <div className="fixed bottom-8 right-8 z-50 rounded-xl bg-white px-5 py-4 font-black text-slate-900 shadow-2xl ring-1 ring-slate-200">
+        <div className="fixed bottom-8 right-8 z-50 rounded-xl bg-white px-6 py-4 font-black text-slate-900 shadow-2xl ring-1 ring-slate-200">
           {toast}
         </div>
       ) : null}
@@ -147,7 +147,7 @@ export function AdminUrgencyRulesContent() {
       </section>
 
       {error ? (
-        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-[var(--primary)]">
+        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm font-semibold text-[var(--primary)]">
           {error}
         </section>
       ) : null}
@@ -193,7 +193,7 @@ export function AdminUrgencyRulesContent() {
             </div>
           </section>
 
-          <section className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <section className="mt-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
             {isLoading ? (
               <div className="p-8 text-center font-semibold text-slate-600">
                 Đang tải danh sách quy tắc...
@@ -201,25 +201,25 @@ export function AdminUrgencyRulesContent() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[980px] text-left text-sm">
-                  <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                  <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-500">
                     <tr>
-                      <th className="px-5 py-4">ID</th>
-                      <th className="px-5 py-4">Mã rule</th>
-                      <th className="px-5 py-4">Mô tả điều kiện</th>
-                      <th className="px-5 py-4">Điểm cộng</th>
-                      <th className="px-5 py-4">Trạng thái</th>
-                      <th className="px-5 py-4">Thao tác</th>
+                      <th className="px-6 py-4">ID</th>
+                      <th className="px-6 py-4">Mã rule</th>
+                      <th className="px-6 py-4">Mô tả điều kiện</th>
+                      <th className="px-6 py-4">Điểm cộng</th>
+                      <th className="px-6 py-4">Trạng thái</th>
+                      <th className="px-6 py-4">Thao tác</th>
                     </tr>
                   </thead>
 
                   <tbody className="divide-y divide-slate-200">
                     {filteredRules.map((rule) => (
                       <tr key={rule.id} className="hover:bg-slate-50">
-                        <td className="px-5 py-5 text-slate-700">
+                        <td className="px-6 py-4 text-slate-700">
                           #{rule.id}
                         </td>
 
-                        <td className="px-5 py-5">
+                        <td className="px-6 py-4">
                           <div className="font-black text-slate-900">
                             {rule.ruleCode}
                           </div>
@@ -228,19 +228,19 @@ export function AdminUrgencyRulesContent() {
                           </div>
                         </td>
 
-                        <td className="max-w-sm px-5 py-5 leading-7 text-slate-700">
+                        <td className="max-w-sm px-6 py-4 leading-7 text-slate-700">
                           {rule.description}
                         </td>
 
-                        <td className="px-5 py-5 font-black text-[var(--primary)]">
+                        <td className="px-6 py-4 font-black text-[var(--primary)]">
                           +{rule.scoreDelta}
                         </td>
 
-                        <td className="px-5 py-5">
+                        <td className="px-6 py-4">
                           <AdminUrgencyRuleStatusBadge status={rule.status} />
                         </td>
 
-                        <td className="px-5 py-5">
+                        <td className="px-6 py-4">
                           <button
                             type="button"
                             onClick={() => openEditModal(rule)}
@@ -256,7 +256,7 @@ export function AdminUrgencyRulesContent() {
               </div>
             )}
 
-            <footer className="flex items-center justify-between border-t border-slate-200 px-5 py-4 text-sm text-slate-600">
+            <footer className="flex items-center justify-between border-t border-slate-200 px-6 py-4 text-sm text-slate-600">
               <p>
                 Hiển thị {filteredRules.length} của {rules.length} kết quả
               </p>

@@ -1,6 +1,7 @@
 import { apiClient } from "@/services/apiClient";
 import { endpoints } from "@/services/endpoints";
 import type { AdminUser, AdminUserRole } from "@/features/admin-users/types/adminUser.types";
+import { formatVietnamDateTime } from "@/utils/dateTime";
 
 type AdminUserApiItem = {
   id: number;
@@ -22,7 +23,7 @@ function toUser(item: AdminUserApiItem): AdminUser {
     phone: item.phone ?? "",
     roles: item.roles as AdminUserRole[],
     status: item.active ? "ACTIVE" : "LOCKED",
-    createdAt: item.createdAt,
+    createdAt: formatVietnamDateTime(item.createdAt),
   };
 }
 

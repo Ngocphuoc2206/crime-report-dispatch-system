@@ -5,6 +5,7 @@ import type {
   PendingDispatchPriority,
   PendingDispatchStatus,
 } from "@/features/dispatcher-pending/types/dispatcherPending.types";
+import { formatVietnamTime, getBackendDateTimeMs } from "@/utils/dateTime";
 
 type BackendCaseStatus =
   | "NEW_RECEIVED"
@@ -32,19 +33,8 @@ type PendingDispatchApiItem = {
   spamReasons?: string | null;
 };
 
-function formatTime(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
-
 function formatWaitingTime(value: string) {
-  const date = new Date(value);
-  const diffMs = Date.now() - date.getTime();
+  const diffMs = Date.now() - getBackendDateTimeMs(value);
 
   if (Number.isNaN(diffMs) || diffMs < 0) return "--";
 
@@ -74,7 +64,7 @@ function toPendingCase(item: PendingDispatchApiItem): PendingDispatchCase {
         ? "Chua tinh"
         : `${item.nearestDistanceKm.toFixed(1)} km`,
     waitTime: formatWaitingTime(item.createdAt),
-    createdAt: formatTime(item.createdAt),
+    createdAt: formatVietnamTime(item.createdAt),
     status: statusFromBackend(item.status),
     suggestedUnit: item.suggestedUnitName || "Can goi y tu dispatch-service",
     description: item.description,

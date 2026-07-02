@@ -10,6 +10,7 @@ import type {
   CommanderMapFilter,
   CommanderMapReport,
 } from "@/features/commander-dashboard/types/commanderMap.types";
+import { getBackendDateTimeMs } from "@/utils/dateTime";
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -19,6 +20,34 @@ const initialFilter: CommanderMapFilter = {
   fromDate: today,
   toDate: today,
 };
+
+const hcmBounds = {
+  minLat: 10.35,
+  maxLat: 11.15,
+  minLng: 106.35,
+  maxLng: 107.05,
+};
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function projectHcmCoordinate(latitude: number, longitude: number) {
+  const rawX =
+    ((longitude - hcmBounds.minLng) /
+      (hcmBounds.maxLng - hcmBounds.minLng)) *
+    100;
+  const rawY =
+    100 -
+    ((latitude - hcmBounds.minLat) /
+      (hcmBounds.maxLat - hcmBounds.minLat)) *
+      100;
+
+  return {
+    x: clamp(rawX, 6, 94),
+    y: clamp(rawY, 8, 92),
+  };
+}
 
 function isInvalidDateRange(filter: CommanderMapFilter) {
   if (!filter.fromDate || !filter.toDate) return false;
@@ -31,36 +60,31 @@ function isInvalidDateRange(filter: CommanderMapFilter) {
 function mapHeatmapToReports(
   items: CommanderMapHeatmapPoint[],
 ): CommanderMapReport[] {
-  const latitudes = items.map((item) => Number(item.latitude));
-  const longitudes = items.map((item) => Number(item.longitude));
-  const minLat = Math.min(...latitudes);
-  const maxLat = Math.max(...latitudes);
-  const minLng = Math.min(...longitudes);
-  const maxLng = Math.max(...longitudes);
-
   return items.map((item, index) => {
     const latitude = Number(item.latitude);
     const longitude = Number(item.longitude);
-    const x =
-      maxLng === minLng ? 50 : 8 + ((longitude - minLng) / (maxLng - minLng)) * 84;
-    const y =
-      maxLat === minLat ? 50 : 92 - ((latitude - minLat) / (maxLat - minLat)) * 84;
+    const projected =
+      Number.isFinite(latitude) && Number.isFinite(longitude)
+        ? projectHcmCoordinate(latitude, longitude)
+        : { x: 15 + index * 8, y: 20 + index * 6 };
 
     return {
       id: String(item.caseId),
       code: String(item.caseId),
-      title: item.crimeTypeName || "Tin bao",
-      category: item.crimeTypeName || "Tin bao",
+      title: item.crimeTypeName || "Tin báo",
+      category: item.crimeTypeName || "Tin báo",
       location:
         Number.isFinite(latitude) && Number.isFinite(longitude)
           ? `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`
-          : "Chua co toa do",
+          : "Chưa có toạ độ",
+      latitude,
+      longitude,
       district: "ALL",
       severity: item.urgencyLevel,
       status: item.status,
       reportedAt: item.createdAt,
-      x: Number.isFinite(x) ? x : 15 + index * 8,
-      y: Number.isFinite(y) ? y : 20 + index * 6,
+      x: projected.x,
+      y: projected.y,
     };
   });
 }
@@ -111,7 +135,7 @@ export function CommanderMapContent() {
         appliedFilter.severity === "ALL" ||
         report.severity === appliedFilter.severity;
 
-      const reportDate = new Date(report.reportedAt).getTime();
+      const reportDate = getBackendDateTimeMs(report.reportedAt);
       const fromDate = new Date(`${appliedFilter.fromDate}T00:00:00`).getTime();
       const toDate = new Date(`${appliedFilter.toDate}T23:59:59`).getTime();
 
@@ -124,10 +148,23 @@ export function CommanderMapContent() {
     });
   }, [appliedFilter, reports]);
 
+  const mapSummary = useMemo(() => {
+    return {
+      total: filteredReports.length,
+      critical: filteredReports.filter((report) => report.severity === "CRITICAL")
+        .length,
+      active: filteredReports.filter(
+        (report) => report.status !== "RESOLVED" && report.status !== "SPAM_OR_FAKE",
+      ).length,
+      resolved: filteredReports.filter((report) => report.status === "RESOLVED")
+        .length,
+    };
+  }, [filteredReports]);
+
   function handleApplyFilter() {
     if (isInvalidDateRange(filter)) {
       setFormError(
-        'Loi: "Tu ngay" khong the lon hon "Den ngay". Vui long dieu chinh lai khoang thoi gian.',
+        'Lỗi: "Từ ngày" không thể lớn hơn "Đến ngày". Vui lòng điều chỉnh lại khoảng thời gian.',
       );
       setHasDataError(true);
       return;
@@ -152,7 +189,7 @@ export function CommanderMapContent() {
 
   return (
     <div className="relative bg-slate-50">
-      <div className="absolute left-8 top-8 z-30 w-88">
+      <div className="absolute left-8 top-8 z-30 w-80">
         <CommanderMapFilterPanel
           filter={filter}
           onChange={setFilter}
@@ -161,13 +198,13 @@ export function CommanderMapContent() {
         />
       </div>
 
-      <div className="absolute right-8 top-8 z-30 rounded-xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
+      <div className="absolute right-[23rem] top-8 z-30 rounded-xl border border-slate-200 bg-white px-5 py-3 shadow-sm">
         <p className="text-sm font-medium text-slate-600">
           <span className="mr-3 inline-flex size-2 rounded-full bg-[var(--primary)]" />
-          <span className="text-2xl font-black text-slate-950">
+          <span className="text-xl font-bold text-slate-950">
             {filteredReports.length}
           </span>{" "}
-          ket qua dang hien thi
+          kết quả đang hiển thị
         </p>
       </div>
 
@@ -190,6 +227,8 @@ export function CommanderMapContent() {
             hasError={hasDataError}
             onRetry={handleRetry}
             resultCount={filteredReports.length}
+            selectedReport={selectedReport}
+            summary={mapSummary}
           />
         </div>
       </div>

@@ -74,7 +74,7 @@ export function AdminStatusBadge({ status }: { status: AdminUserStatus }) {
         config.className,
       ].join(" ")}
     >
-      ● {config.label}
+      • {config.label}
     </span>
   );
 }

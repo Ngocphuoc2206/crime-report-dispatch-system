@@ -1,6 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import {
+  AdminDataTable,
+  AdminTableBody,
+  AdminTableEmpty,
+  AdminTableHead,
+  AdminTableShell,
+  AdminTd,
+  AdminTh,
+} from "@/features/admin-dashboard/components/AdminDataTable";
 import { AdminCreateUserModal } from "@/features/admin-users/components/AdminCreateUserModal";
 import {
   AdminRoleBadge,
@@ -18,11 +27,14 @@ import { AdminLockUserConfirmModal } from "./AdminLockUserConfirmModal";
 type RoleFilter = "ALL" | AdminUserRole;
 type StatusFilter = "ALL" | AdminUserStatus;
 
+const pageSize = 10;
+
 export function AdminUsersContent() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("ALL");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
+  const [page, setPage] = useState(1);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -42,7 +54,7 @@ export function AdminUsersContent() {
       setApiError(
         error instanceof Error
           ? error.message
-          : "Khong tai duoc danh sach nguoi dung.",
+          : "Không tải được danh sách người dùng.",
       );
     } finally {
       setIsLoading(false);
@@ -68,7 +80,6 @@ export function AdminUsersContent() {
 
       const matchedRole =
         roleFilter === "ALL" || user.roles.includes(roleFilter);
-
       const matchedStatus =
         statusFilter === "ALL" || user.status === statusFilter;
 
@@ -76,18 +87,27 @@ export function AdminUsersContent() {
     });
   }, [users, searchTerm, roleFilter, statusFilter]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * pageSize;
+  const pagedUsers = filteredUsers.slice(pageStart, pageStart + pageSize);
+  const visibleStart = filteredUsers.length === 0 ? 0 : pageStart + 1;
+  const visibleEnd = Math.min(pageStart + pagedUsers.length, filteredUsers.length);
+
   function showSuccess(message: string) {
     setToast(message);
+    window.setTimeout(() => setToast(null), 2200);
+  }
 
-    window.setTimeout(() => {
-      setToast(null);
-    }, 2200);
+  function resetPaging() {
+    setPage(1);
   }
 
   function handleResetFilter() {
     setSearchTerm("");
     setRoleFilter("ALL");
     setStatusFilter("ALL");
+    setPage(1);
   }
 
   function handleCreateUser(user: AdminUser) {
@@ -95,6 +115,7 @@ export function AdminUsersContent() {
       .create(user)
       .then((createdUser) => {
         setUsers((current) => [createdUser, ...current]);
+        setPage(1);
         setCreateModalOpen(false);
         showSuccess("Tạo người dùng thành công");
       })
@@ -122,10 +143,6 @@ export function AdminUsersContent() {
             : "Không cập nhật được phân quyền.",
         );
       });
-  }
-
-  function handleRequestLockUser(user: AdminUser) {
-    setLockingUser(user);
   }
 
   function handleConfirmLockUser(userId: string) {
@@ -167,7 +184,7 @@ export function AdminUsersContent() {
     <div className="relative px-8 py-8">
       {toast ? (
         <div className="fixed bottom-8 right-8 z-50 rounded-xl bg-white px-6 py-4 font-black text-slate-900 shadow-2xl ring-1 ring-slate-200">
-          ✓ {toast}
+          OK {toast}
         </div>
       ) : null}
 
@@ -195,14 +212,13 @@ export function AdminUsersContent() {
         <h1 className="text-4xl font-black text-slate-950">
           Quản lý người dùng
         </h1>
-
         <p className="mt-3 text-slate-600">
           Tạo tài khoản, phân quyền và kiểm soát trạng thái truy cập hệ thống.
         </p>
       </section>
 
       {apiError ? (
-        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-[var(--primary)]">
+        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm font-semibold text-[var(--primary)]">
           {apiError}
         </section>
       ) : null}
@@ -211,30 +227,35 @@ export function AdminUsersContent() {
         <div className="grid gap-4 xl:grid-cols-[1.4fr_0.8fr_0.8fr_auto_auto]">
           <input
             value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
+            onChange={(event) => {
+              setSearchTerm(event.target.value);
+              resetPaging();
+            }}
             placeholder="Tìm kiếm theo ID, tên, email..."
             className="rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
           />
 
           <select
             value={roleFilter}
-            onChange={(event) =>
-              setRoleFilter(event.target.value as RoleFilter)
-            }
+            onChange={(event) => {
+              setRoleFilter(event.target.value as RoleFilter);
+              resetPaging();
+            }}
             className="rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
           >
-            <option value="ALL">Tất cả Role</option>
-            <option value="OFFICER">Officer</option>
-            <option value="DISPATCHER">Dispatcher</option>
-            <option value="COMMANDER">Commander</option>
-            <option value="ADMIN">Admin</option>
+            <option value="ALL">Tất cả vai trò</option>
+            <option value="OFFICER">Cán bộ</option>
+            <option value="DISPATCHER">Điều phối</option>
+            <option value="COMMANDER">Chỉ huy</option>
+            <option value="ADMIN">Quản trị viên</option>
           </select>
 
           <select
             value={statusFilter}
-            onChange={(event) =>
-              setStatusFilter(event.target.value as StatusFilter)
-            }
+            onChange={(event) => {
+              setStatusFilter(event.target.value as StatusFilter);
+              resetPaging();
+            }}
             className="rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
           >
             <option value="ALL">Tất cả trạng thái</option>
@@ -261,128 +282,126 @@ export function AdminUsersContent() {
         </div>
       </section>
 
-      <section className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[1200px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-              <tr>
-                <th className="px-5 py-4">ID</th>
-                <th className="px-5 py-4">Username</th>
-                <th className="px-5 py-4">Họ và tên</th>
-                <th className="px-5 py-4">Email</th>
-                <th className="px-5 py-4">Số điện thoại</th>
-                <th className="px-5 py-4">Role</th>
-                <th className="px-5 py-4">Trạng thái</th>
-                <th className="px-5 py-4">Ngày tạo</th>
-                <th className="px-5 py-4 text-right">Thao tác</th>
+      <AdminTableShell>
+        <AdminDataTable minWidthClassName="min-w-[1200px]">
+          <AdminTableHead>
+            <tr>
+              <AdminTh>ID</AdminTh>
+              <AdminTh>Tên đăng nhập</AdminTh>
+              <AdminTh>Họ và tên</AdminTh>
+              <AdminTh>Email</AdminTh>
+              <AdminTh>Số điện thoại</AdminTh>
+              <AdminTh>Vai trò</AdminTh>
+              <AdminTh>Trạng thái</AdminTh>
+              <AdminTh>Ngày tạo</AdminTh>
+              <AdminTh className="text-right">Thao tác</AdminTh>
+            </tr>
+          </AdminTableHead>
+
+          <AdminTableBody>
+            {isLoading ? (
+              <AdminTableEmpty colSpan={9}>
+                Đang tải danh sách người dùng...
+              </AdminTableEmpty>
+            ) : null}
+
+            {!isLoading && filteredUsers.length === 0 ? (
+              <AdminTableEmpty colSpan={9}>
+                Hiện chưa có người dùng nào.
+              </AdminTableEmpty>
+            ) : null}
+
+            {pagedUsers.map((user) => (
+              <tr key={user.id} className="hover:bg-slate-50">
+                <AdminTd className="font-medium text-slate-700">
+                  {user.id}
+                </AdminTd>
+                <AdminTd className="font-black text-slate-950">
+                  {user.username}
+                </AdminTd>
+                <AdminTd className="text-slate-700">{user.fullName}</AdminTd>
+                <AdminTd className="text-slate-600">{user.email}</AdminTd>
+                <AdminTd className="text-slate-600">{user.phone}</AdminTd>
+                <AdminTd>
+                  <div className="flex flex-wrap gap-2">
+                    {user.roles.map((role) => (
+                      <AdminRoleBadge key={role} role={role} />
+                    ))}
+                  </div>
+                </AdminTd>
+                <AdminTd>
+                  <AdminStatusBadge status={user.status} />
+                </AdminTd>
+                <AdminTd className="text-slate-500">{user.createdAt}</AdminTd>
+                <AdminTd>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setEditingUser(user)}
+                      className="rounded-lg border border-slate-200 px-4 py-2 font-bold text-slate-700 hover:bg-blue-50"
+                    >
+                      Phân quyền
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (user.status === "LOCKED") {
+                          handleUnlockUser(user.id);
+                          return;
+                        }
+
+                        setLockingUser(user);
+                      }}
+                      className={[
+                        "rounded-lg px-4 py-2 font-bold",
+                        user.status === "LOCKED"
+                          ? "bg-green-50 text-green-700 hover:bg-green-100"
+                          : "bg-red-50 text-[var(--primary)] hover:bg-red-100",
+                      ].join(" ")}
+                    >
+                      {user.status === "LOCKED" ? "Mở khóa" : "Khóa"}
+                    </button>
+                  </div>
+                </AdminTd>
               </tr>
-            </thead>
+            ))}
+          </AdminTableBody>
+        </AdminDataTable>
 
-            <tbody className="divide-y divide-slate-200">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={9} className="px-5 py-10 text-center text-sm font-semibold text-slate-500">
-                    Đang tải danh sách người dùng...
-                  </td>
-                </tr>
-              ) : null}
-
-              {!isLoading && filteredUsers.length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="px-5 py-10 text-center text-sm font-semibold text-slate-500">
-                    Hiện chưa có người dùng nào.
-                  </td>
-                </tr>
-              ) : null}
-
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-50">
-                  <td className="px-5 py-5 font-medium text-slate-700">
-                    {user.id}
-                  </td>
-
-                  <td className="px-5 py-5 font-black text-slate-950">
-                    {user.username}
-                  </td>
-
-                  <td className="px-5 py-5 text-slate-700">{user.fullName}</td>
-
-                  <td className="px-5 py-5 text-slate-600">{user.email}</td>
-
-                  <td className="px-5 py-5 text-slate-600">{user.phone}</td>
-
-                  <td className="px-5 py-5">
-                    <div className="flex flex-wrap gap-2">
-                      {user.roles.map((role) => (
-                        <AdminRoleBadge key={role} role={role} />
-                      ))}
-                    </div>
-                  </td>
-
-                  <td className="px-5 py-5">
-                    <AdminStatusBadge status={user.status} />
-                  </td>
-
-                  <td className="px-5 py-5 text-slate-500">{user.createdAt}</td>
-
-                  <td className="px-5 py-5">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setEditingUser(user)}
-                        className="rounded-lg border border-slate-200 px-4 py-2 font-bold text-slate-700 hover:bg-blue-50"
-                      >
-                        Phân quyền
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (user.status === "LOCKED") {
-                            handleUnlockUser(user.id);
-                            return;
-                          }
-
-                          handleRequestLockUser(user);
-                        }}
-                        className={[
-                          "rounded-lg px-4 py-2 font-bold",
-                          user.status === "LOCKED"
-                            ? "bg-green-50 text-green-700 hover:bg-green-100"
-                            : "bg-red-50 text-(--primary) hover:bg-red-100",
-                        ].join(" ")}
-                      >
-                        {user.status === "LOCKED" ? "Mở khóa" : "Khóa"}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <footer className="flex flex-col gap-3 border-t border-slate-200 px-5 py-4 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
+        <footer className="flex flex-col gap-3 border-t border-slate-200 px-6 py-4 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
           <p>
-            Hiển thị {filteredUsers.length === 0 ? 0 : 1}-{filteredUsers.length} trong số {users.length} người dùng
+            Hiển thị {visibleStart}-{visibleEnd} trong số{" "}
+            {filteredUsers.length} người dùng
           </p>
 
           <div className="flex items-center gap-2">
-            <button className="rounded-md px-3 py-2 text-slate-400">‹</button>
-            <button className="rounded-md bg-slate-200 px-3 py-2 font-black text-slate-800">
-              1
+            <button
+              type="button"
+              disabled={currentPage <= 1}
+              onClick={() => setPage((value) => Math.max(1, value - 1))}
+              className="rounded-md px-3 py-2 font-black text-slate-600 disabled:cursor-not-allowed disabled:text-slate-300"
+            >
+              &lt;
             </button>
-            <button className="rounded-md px-3 py-2 font-black text-slate-600">
-              2
+
+            <span className="rounded-md bg-[var(--primary)] px-3 py-2 font-black text-white">
+              {currentPage}
+            </span>
+
+            <span className="px-2 text-slate-500">/ {totalPages}</span>
+
+            <button
+              type="button"
+              disabled={currentPage >= totalPages}
+              onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
+              className="rounded-md px-3 py-2 font-black text-slate-600 disabled:cursor-not-allowed disabled:text-slate-300"
+            >
+              &gt;
             </button>
-            <button className="rounded-md px-3 py-2 font-black text-slate-600">
-              3
-            </button>
-            <span className="px-2 text-slate-400">...</span>
-            <button className="rounded-md px-3 py-2 text-slate-600">›</button>
           </div>
         </footer>
-      </section>
+      </AdminTableShell>
     </div>
   );
 }

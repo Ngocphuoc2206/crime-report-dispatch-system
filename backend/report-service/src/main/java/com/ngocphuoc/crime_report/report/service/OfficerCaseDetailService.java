@@ -3,32 +3,30 @@ package com.ngocphuoc.crime_report.report.service;
 import com.ngocphuoc.crime_report.common.ErrorCode;
 import com.ngocphuoc.crime_report.identity.entity.ReporterIdentity;
 import com.ngocphuoc.crime_report.identity.repository.ReporterIdentityRepository;
-import com.ngocphuoc.crime_report.report.client.dispatch.DispatchClient;
 import com.ngocphuoc.crime_report.report.client.evidence.EvidenceClient;
 import com.ngocphuoc.crime_report.report.dto.response.EvidenceMetadataResponse;
 import com.ngocphuoc.crime_report.report.dto.response.OfficerCaseDetailResponse;
-import com.ngocphuoc.crime_report.report.dto.response.OfficerCaseResponse;
-import com.ngocphuoc.crime_report.report.dto.response.OfficerProfileResponse;
+import com.ngocphuoc.crime_report.report.dto.response.OfficerCaseHistoryResponse;
+import com.ngocphuoc.crime_report.report.entity.CaseHistory;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
+import com.ngocphuoc.crime_report.report.repository.CaseHistoryRepository;
 import com.ngocphuoc.crime_report.report.repository.CaseReportRepository;
 import com.ngocphuoc.crime_report.shared.exception.AppException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class OfficerCaseDetailService {
     private final CaseReportRepository caseReportRepository;
-    private final DispatchClient dispatchClient;
     private final EvidenceClient evidenceClient;
     private final ReporterIdentityRepository reporterIdentityRepository;
     private final OfficerPermissionService officerPermissionService;
+    private final CaseHistoryRepository caseHistoryRepository;
 
     @Transactional(readOnly = true)
     public OfficerCaseDetailResponse getCaseDetail(
@@ -44,12 +42,19 @@ public class OfficerCaseDetailService {
         List<EvidenceMetadataResponse> evidences =
                 evidenceClient.getEvidenceMetadataByCaseId(caseReport.getId());
 
-        return toResponse(caseReport, evidences);
+        List<OfficerCaseHistoryResponse> histories = caseHistoryRepository
+                .findByCaseIdOrderByCreatedAtDesc(caseReport.getId())
+                .stream()
+                .map(this::toHistoryResponse)
+                .toList();
+
+        return toResponse(caseReport, evidences, histories);
     }
 
     private OfficerCaseDetailResponse toResponse(
             CaseReport caseReport,
-            List<EvidenceMetadataResponse> evidences
+            List<EvidenceMetadataResponse> evidences,
+            List<OfficerCaseHistoryResponse> histories
     ){
         boolean isAnonymous = true;
         ReporterIdentity reporterIdentity = reporterIdentityRepository.findByCaseReportId(caseReport.getId())
@@ -84,7 +89,22 @@ public class OfficerCaseDetailService {
                 caseReport.getCreatedAt(),
                 caseReport.getUpdatedAt(),
 
-                evidences
+                evidences,
+                histories
+        );
+    }
+
+    private OfficerCaseHistoryResponse toHistoryResponse(CaseHistory history) {
+        return new OfficerCaseHistoryResponse(
+                history.getId(),
+                history.getAction(),
+                history.getOldStatus(),
+                history.getNewStatus(),
+                history.getNote(),
+                history.getActorUserId(),
+                history.getActorOfficerId(),
+                history.getActorUnitId(),
+                history.getCreatedAt()
         );
     }
 

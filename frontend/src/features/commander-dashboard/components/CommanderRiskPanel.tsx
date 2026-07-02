@@ -15,8 +15,8 @@ export function CommanderRiskPanel({ levels }: CommanderRiskPanelProps) {
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-950">Muc do nguy cap</h2>
-        <span className="text-2xl font-black text-[var(--primary)]">!</span>
+        <h2 className="text-xl font-bold text-slate-950">Mức độ nguy cấp</h2>
+        <span className="text-xl font-bold text-[var(--primary)]">!</span>
       </div>
 
       <div className="mt-12 flex h-4 overflow-hidden rounded-full bg-slate-100">

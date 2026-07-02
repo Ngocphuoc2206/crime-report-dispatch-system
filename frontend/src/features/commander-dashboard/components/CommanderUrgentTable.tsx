@@ -6,11 +6,11 @@ type CommanderUrgentTableProps = {
 };
 
 function getStatusClassName(status: string) {
-  if (status.includes("Moi") || status.includes("NEW")) {
+  if (status.includes("Mới") || status.includes("Moi") || status.includes("NEW")) {
     return "border-red-200 bg-red-50 text-[var(--primary)]";
   }
 
-  if (status.includes("Dieu") || status.includes("TRANSFERRED")) {
+  if (status.includes("Điều") || status.includes("Dieu") || status.includes("TRANSFERRED")) {
     return "border-orange-200 bg-orange-50 text-orange-700";
   }
 
@@ -21,15 +21,15 @@ export function CommanderUrgentTable({ cases }: CommanderUrgentTableProps) {
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between border-b border-slate-200 pb-5">
-        <h2 className="text-2xl font-bold text-[var(--primary)]">
-          Tin bao khan cap can chu y
+        <h2 className="text-xl font-bold text-[var(--primary)]">
+          Tin báo khẩn cấp cần chú ý
         </h2>
 
         <Link
           href="/commander/cases"
           className="text-sm font-bold text-[var(--primary)]"
         >
-          Xem tat ca
+          Xem tất cả
         </Link>
       </div>
 
@@ -37,11 +37,11 @@ export function CommanderUrgentTable({ cases }: CommanderUrgentTableProps) {
         <table className="w-full min-w-180 text-left text-sm">
           <thead className="text-xs uppercase tracking-wide text-slate-500">
             <tr>
-              <th className="px-3 py-3">Ma HS</th>
-              <th className="px-3 py-3">Loai vu viec</th>
-              <th className="px-3 py-3">Dia diem</th>
-              <th className="px-3 py-3">Trang thai</th>
-              <th className="px-3 py-3">Thoi gian</th>
+              <th className="px-3 py-3">Mã HS</th>
+              <th className="px-3 py-3">Loại vụ việc</th>
+              <th className="px-3 py-3">Địa điểm</th>
+              <th className="px-3 py-3">Trạng thái</th>
+              <th className="px-3 py-3">Thời gian</th>
               <th className="px-3 py-3"></th>
             </tr>
           </thead>
@@ -49,7 +49,7 @@ export function CommanderUrgentTable({ cases }: CommanderUrgentTableProps) {
           <tbody className="divide-y divide-slate-200">
             {cases.map((item) => (
               <tr key={item.id} className="hover:bg-slate-50">
-                <td className="px-3 py-4 font-black text-slate-950">
+                <td className="px-3 py-4 font-bold text-slate-950">
                   #{item.code}
                 </td>
 

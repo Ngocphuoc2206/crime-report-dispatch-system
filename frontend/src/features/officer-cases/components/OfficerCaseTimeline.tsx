@@ -1,19 +1,9 @@
 import type { OfficerCaseTimelineItem } from "@/features/officer-cases/types/officerCase.types";
+import { formatVietnamDateTime } from "@/utils/dateTime";
 
 type OfficerCaseTimelineProps = {
   items: OfficerCaseTimelineItem[];
 };
-
-function formatDateTime(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat("vi-VN", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
-}
 
 export function OfficerCaseTimeline({ items }: OfficerCaseTimelineProps) {
   return (
@@ -40,7 +30,7 @@ export function OfficerCaseTimeline({ items }: OfficerCaseTimelineProps) {
                 {item.description}
               </p>
               <p className="mt-2 text-xs text-slate-500">
-                {formatDateTime(item.occurredAt)} • {item.actor}
+                {formatVietnamDateTime(item.occurredAt)} • {item.actor}
               </p>
             </div>
           </li>

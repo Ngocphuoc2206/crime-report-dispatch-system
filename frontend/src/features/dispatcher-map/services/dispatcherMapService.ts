@@ -28,12 +28,10 @@ type DispatchMapUnitApiItem = {
   longitude: number | string | null;
 };
 
-function toPercent(value: number | string, fallback: number) {
+function toCoordinate(value: number | string | null, fallback: number) {
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return fallback;
-
-  const normalized = Math.abs(numeric % 100);
-  return Math.min(92, Math.max(8, normalized));
+  return numeric;
 }
 
 function statusFromBackend(status: string): DispatcherMapStatus {
@@ -54,8 +52,8 @@ function toMapCase(item: DispatchMapCaseApiItem, index: number): DispatcherMapCa
     location: item.address || `${item.latitude}, ${item.longitude}`,
     district: "Khu vuc tu ban do",
     reportedAt: "--",
-    lat: toPercent(item.latitude, 18 + index * 13),
-    lng: toPercent(item.longitude, 22 + index * 17),
+    lat: toCoordinate(item.latitude, 10.7769 + index * 0.01),
+    lng: toCoordinate(item.longitude, 106.7009 + index * 0.01),
     nearestUnit: "Dang tinh toan",
     eta: "--",
     description: `Tin bao ${item.title} duoc ghi nhan tren ban do dieu phoi.`,
@@ -69,8 +67,8 @@ function toMapUnit(item: DispatchMapUnitApiItem, index: number): DispatcherMapUn
     unitName: item.unitName,
     status: item.status,
     location: item.address || "Chua cap nhat vi tri",
-    lat: toPercent(item.latitude ?? 0, 20 + index * 11),
-    lng: toPercent(item.longitude ?? 0, 25 + index * 9),
+    lat: toCoordinate(item.latitude, 10.7769 + index * 0.012),
+    lng: toCoordinate(item.longitude, 106.7009 + index * 0.012),
   };
 }
 

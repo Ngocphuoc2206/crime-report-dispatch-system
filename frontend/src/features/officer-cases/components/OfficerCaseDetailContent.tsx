@@ -14,6 +14,7 @@ import type {
   OfficerCase,
   OfficerCaseStatus,
 } from "@/features/officer-cases/types/officerCase.types";
+import { getBackendDateTimeMs } from "@/utils/dateTime";
 
 type OfficerCaseDetailContentProps = {
   caseCode: string;
@@ -21,12 +22,19 @@ type OfficerCaseDetailContentProps = {
   backLabel?: string;
 };
 
-function formatLockTime(expiresAt?: string | null) {
-  if (!expiresAt) return "";
+function getLockRemainingMs(expiresAt?: string | null, nowMs = Date.now()) {
+  if (!expiresAt) return 0;
 
-  const diff = new Date(expiresAt).getTime() - Date.now();
-  const minutes = Math.max(0, Math.floor(diff / 1000 / 60));
-  const seconds = Math.max(0, Math.floor((diff / 1000) % 60));
+  const expiresAtMs = getBackendDateTimeMs(expiresAt);
+  if (Number.isNaN(expiresAtMs)) return 0;
+
+  return Math.max(0, expiresAtMs - nowMs);
+}
+
+function formatLockTime(expiresAt?: string | null, nowMs = Date.now()) {
+  const diff = getLockRemainingMs(expiresAt, nowMs);
+  const minutes = Math.floor(diff / 1000 / 60);
+  const seconds = Math.floor((diff / 1000) % 60);
 
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
@@ -53,6 +61,7 @@ export function OfficerCaseDetailContent({
   const [isMutating, setIsMutating] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
   const loadCaseDetail = useCallback(async () => {
     setIsLoading(true);
@@ -74,6 +83,12 @@ export function OfficerCaseDetailContent({
   useEffect(() => {
     void loadCaseDetail();
   }, [loadCaseDetail]);
+
+  useEffect(() => {
+    const timerId = window.setInterval(() => setNowMs(Date.now()), 1000);
+
+    return () => window.clearInterval(timerId);
+  }, []);
 
   function showToast(message: string) {
     setToast(message);
@@ -128,11 +143,18 @@ export function OfficerCaseDetailContent({
     );
   }
 
-  const activeLock = caseDetail.lock?.active ? caseDetail.lock : null;
+  const lockRemainingMs = getLockRemainingMs(caseDetail.lock?.expiresAt, nowMs);
+  const activeLock =
+    caseDetail.status === "UNDER_VERIFICATION" &&
+    caseDetail.lock?.active &&
+    lockRemainingMs > 0
+      ? caseDetail.lock
+      : null;
   const isLockedByMe = Boolean(activeLock?.lockedByMe);
   const isLockedByOther = Boolean(activeLock && !activeLock.lockedByMe);
   const canOperate = isLockedByMe && caseDetail.status === "UNDER_VERIFICATION";
   const canAccept = !activeLock && caseDetail.status === "NEW_RECEIVED";
+  const canAcquireLock = !activeLock && caseDetail.status === "UNDER_VERIFICATION";
 
   return (
     <div className="px-6 py-8">
@@ -157,7 +179,7 @@ export function OfficerCaseDetailContent({
               </h2>
               <p className="mt-1 text-sm text-white/85">
                 Hệ thống sẽ tự động giải phóng khóa sau{" "}
-                {formatLockTime(activeLock?.expiresAt)}
+                {formatLockTime(activeLock?.expiresAt, nowMs)}
               </p>
             </div>
 
@@ -347,6 +369,22 @@ export function OfficerCaseDetailContent({
             </h2>
 
             <div className="mt-5 space-y-3">
+              {canAcquireLock ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    void runAction(
+                      () => officerCaseService.acquireLock(caseDetail.id),
+                      "Đã nhận quyền xử lý hồ sơ",
+                    )
+                  }
+                  disabled={isMutating}
+                  className="w-full rounded-md bg-(--primary) px-5 py-3 font-bold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Nhận quyền xử lý
+                </button>
+              ) : null}
+
               <button
                 type="button"
                 onClick={() =>

@@ -40,6 +40,18 @@ export type OfficerCaseTimelineItem = {
   occurredAt: string;
 };
 
+export type OfficerCaseHistoryApiItem = {
+  id: number;
+  action: string;
+  oldStatus?: OfficerCaseStatus | string | null;
+  newStatus?: OfficerCaseStatus | string | null;
+  note?: string | null;
+  actorUserId?: number | null;
+  actorOfficerId?: number | null;
+  actorUnitId?: number | null;
+  createdAt: string;
+};
+
 export type OfficerCase = {
   id: number;
   code: string;
@@ -109,6 +121,7 @@ export type OfficerCaseDetailApiItem = {
   createdAt: string;
   updatedAt?: string | null;
   evidences: OfficerCaseEvidenceApiItem[];
+  histories?: OfficerCaseHistoryApiItem[];
 };
 
 export type OfficerCaseEvidenceApiItem = {

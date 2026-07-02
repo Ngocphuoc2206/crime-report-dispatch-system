@@ -118,7 +118,7 @@ export function AdminCrimeTypesContent() {
       </section>
 
       {apiError ? (
-        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-[var(--primary)]">
+        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm font-semibold text-[var(--primary)]">
           {apiError}
         </section>
       ) : null}
@@ -162,25 +162,25 @@ export function AdminCrimeTypesContent() {
         </div>
       </section>
 
-      <section className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <section className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1100px] text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-500">
               <tr>
-                <th className="px-5 py-4">ID</th>
-                <th className="px-5 py-4">Mã loại</th>
-                <th className="px-5 py-4">Tên loại tội phạm</th>
-                <th className="px-5 py-4">Mô tả</th>
-                <th className="px-5 py-4">Category ID</th>
-                <th className="px-5 py-4">Điểm cơ sở</th>
-                <th className="px-5 py-4">Trạng thái</th>
+                <th className="px-6 py-4">ID</th>
+                <th className="px-6 py-4">Mã loại</th>
+                <th className="px-6 py-4">Tên loại tội phạm</th>
+                <th className="px-6 py-4">Mô tả</th>
+                <th className="px-6 py-4">Category ID</th>
+                <th className="px-6 py-4">Điểm cơ sở</th>
+                <th className="px-6 py-4">Trạng thái</th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-slate-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-10 text-center text-sm font-semibold text-slate-500">
+                  <td colSpan={7} className="px-6 py-10 text-center text-sm font-semibold text-slate-500">
                     Đang tải danh mục loại tội phạm...
                   </td>
                 </tr>
@@ -188,7 +188,7 @@ export function AdminCrimeTypesContent() {
 
               {!isLoading && filteredCrimeTypes.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-10 text-center text-sm font-semibold text-slate-500">
+                  <td colSpan={7} className="px-6 py-10 text-center text-sm font-semibold text-slate-500">
                     Hiện chưa có loại tội phạm nào.
                   </td>
                 </tr>
@@ -196,31 +196,31 @@ export function AdminCrimeTypesContent() {
 
               {filteredCrimeTypes.map((item) => (
                 <tr key={item.id} className="hover:bg-slate-50">
-                  <td className="px-5 py-5 text-slate-700">{item.id}</td>
+                  <td className="px-6 py-4 text-slate-700">{item.id}</td>
 
-                  <td className="px-5 py-5 font-black text-slate-800">
+                  <td className="px-6 py-4 font-black text-slate-800">
                     {item.code}
                   </td>
 
-                  <td className="px-5 py-5 font-black text-slate-950">
+                  <td className="px-6 py-4 font-black text-slate-950">
                     {item.name}
                   </td>
 
-                  <td className="max-w-sm px-5 py-5 leading-6 text-slate-600">
+                  <td className="max-w-sm px-6 py-4 leading-6 text-slate-600">
                     {item.description}
                   </td>
 
-                  <td className="px-5 py-5">
+                  <td className="px-6 py-4">
                     <span className="rounded-md bg-slate-100 px-3 py-1 font-bold text-slate-700">
                       {item.categoryId}
                     </span>
                   </td>
 
-                  <td className="px-5 py-5 font-black text-[var(--primary)]">
+                  <td className="px-6 py-4 font-black text-[var(--primary)]">
                     {item.baseScore}
                   </td>
 
-                  <td className="px-5 py-5">
+                  <td className="px-6 py-4">
                     <AdminCrimeTypeStatusBadge status={item.status} />
                   </td>
                 </tr>
@@ -229,7 +229,7 @@ export function AdminCrimeTypesContent() {
           </table>
         </div>
 
-        <footer className="flex items-center justify-between border-t border-slate-200 px-5 py-4 text-sm text-slate-600">
+        <footer className="flex items-center justify-between border-t border-slate-200 px-6 py-4 text-sm text-slate-600">
           <p>
             Hiển thị {filteredCrimeTypes.length === 0 ? 0 : 1}-{filteredCrimeTypes.length} của {crimeTypes.length} bản
             ghi

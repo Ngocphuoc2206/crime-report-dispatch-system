@@ -85,7 +85,7 @@ export function AdminCreateCrimeTypeModal({
           <div className="grid gap-5 md:grid-cols-2">
             <label>
               <span className="text-sm font-black text-slate-700">
-                Mã loại <span className="text-(--primary)">*</span>
+                Mã loại <span className="text-[var(--primary)]">*</span>
               </span>
 
               <input
@@ -93,27 +93,27 @@ export function AdminCreateCrimeTypeModal({
                 onChange={(event) => setCode(event.target.value)}
                 placeholder="VD: TC02"
                 className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none 
-                focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               />
             </label>
 
             <label>
               <span className="text-sm font-black text-slate-700">
-                Tên loại tội phạm <span className="text-(--primary)">*</span>
+                Tên loại tội phạm <span className="text-[var(--primary)]">*</span>
               </span>
 
               <input
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 placeholder="VD: Lừa đảo qua mạng"
-                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               />
             </label>
           </div>
 
           <label className="mt-5 block">
             <span className="text-sm font-black text-slate-700">
-              Mô tả <span className="text-(--primary)">*</span>
+              Mô tả <span className="text-[var(--primary)]">*</span>
             </span>
 
             <textarea
@@ -122,14 +122,14 @@ export function AdminCreateCrimeTypeModal({
               rows={4}
               placeholder="Mô tả ngắn về loại tội phạm này..."
               className="mt-2 w-full resize-none rounded-lg border border-slate-200 px-4 py-3 
-              outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+              outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             />
           </label>
 
           <div className="mt-5 grid gap-5 md:grid-cols-3">
             <label>
               <span className="text-sm font-black text-slate-700">
-                Category ID <span className="text-(--primary)">*</span>
+                Category ID <span className="text-[var(--primary)]">*</span>
               </span>
 
               <input
@@ -138,13 +138,13 @@ export function AdminCreateCrimeTypeModal({
                 onChange={(event) => setCategoryId(event.target.value)}
                 placeholder="VD: 40"
                 className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none 
-                focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               />
             </label>
 
             <label>
               <span className="text-sm font-black text-slate-700">
-                Điểm cơ sở <span className="text-(--primary)">*</span>
+                Điểm cơ sở <span className="text-[var(--primary)]">*</span>
               </span>
 
               <input
@@ -154,7 +154,7 @@ export function AdminCreateCrimeTypeModal({
                 value={baseScore}
                 onChange={(event) => setBaseScore(event.target.value)}
                 placeholder="0 - 100"
-                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               />
 
               <p className="mt-1 text-xs text-slate-500">
@@ -172,7 +172,7 @@ export function AdminCreateCrimeTypeModal({
                 onChange={(event) =>
                   setStatus(event.target.value as AdminCrimeTypeStatus)
                 }
-                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               >
                 <option value="ACTIVE">Hoạt động</option>
                 <option value="INACTIVE">Ngừng hoạt động</option>
@@ -202,7 +202,7 @@ export function AdminCreateCrimeTypeModal({
             type="button"
             disabled={!canSubmit}
             onClick={handleSubmit}
-            className="rounded-lg bg-(--primary) px-5 py-3 font-black text-white hover:bg-(--primary-hover) disabled:cursor-not-allowed disabled:bg-slate-300"
+            className="rounded-lg bg-[var(--primary)] px-5 py-3 font-black text-white hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:bg-slate-300"
           >
             + Tạo loại tội phạm
           </button>

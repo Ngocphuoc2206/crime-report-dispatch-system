@@ -31,6 +31,7 @@ public record OfficerCaseDetailResponse(
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
 
-        List<EvidenceMetadataResponse> evidences
+        List<EvidenceMetadataResponse> evidences,
+        List<OfficerCaseHistoryResponse> histories
 )  {
 }

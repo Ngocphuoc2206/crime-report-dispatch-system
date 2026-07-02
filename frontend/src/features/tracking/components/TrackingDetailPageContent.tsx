@@ -72,7 +72,7 @@ function buildTimeline(report: ReportStatusResponse): TrackingTimelineItem[] {
     ...timelineDefinitions[status],
     occurredAt: index === 0 ? report.createdAt : undefined,
     state:
-      index < currentIndex
+      report.status === "RESOLVED" || index < currentIndex
         ? "completed"
         : index === currentIndex
           ? "current"

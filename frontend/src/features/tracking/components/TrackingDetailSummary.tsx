@@ -1,19 +1,13 @@
 import { TrackingStatusBadge } from "@/features/tracking/components/TrackingStatusBadge";
 import type { TrackingCaseDetail } from "@/features/tracking/types/tracking.types";
+import { formatVietnamDateTime } from "@/utils/dateTime";
 
 type TrackingDetailSummaryProps = {
   detail: TrackingCaseDetail;
 };
 
 function formatDate(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat("vi-VN", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
+  return formatVietnamDateTime(value);
 }
 
 export function TrackingDetailSummary({ detail }: TrackingDetailSummaryProps) {

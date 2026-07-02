@@ -12,6 +12,8 @@ import type {
 
 type RankFilter = "ALL" | AdminOfficerRank;
 
+const pageSize = 10;
+
 function getInitials(name: string) {
   const words = name.trim().split(/\s+/);
   if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
@@ -23,6 +25,7 @@ export function AdminOfficersContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [rankFilter, setRankFilter] = useState<RankFilter>("ALL");
   const [unitFilter, setUnitFilter] = useState("ALL");
+  const [page, setPage] = useState(1);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,10 +71,21 @@ export function AdminOfficersContent() {
     });
   }, [officers, searchTerm, rankFilter, unitFilter]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredOfficers.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * pageSize;
+  const pagedOfficers = filteredOfficers.slice(pageStart, pageStart + pageSize);
+  const visibleStart = filteredOfficers.length === 0 ? 0 : pageStart + 1;
+  const visibleEnd = Math.min(
+    pageStart + pagedOfficers.length,
+    filteredOfficers.length,
+  );
+
   function handleReset() {
     setSearchTerm("");
     setRankFilter("ALL");
     setUnitFilter("ALL");
+    setPage(1);
   }
 
   function handleCreateOfficer(officer: AdminOfficerProfile) {
@@ -79,6 +93,7 @@ export function AdminOfficersContent() {
       .create(officer)
       .then((createdOfficer) => {
         setOfficers((current) => [createdOfficer, ...current]);
+        setPage(1);
         setCreateModalOpen(false);
         setToast("Tạo hồ sơ cán bộ thành công");
         window.setTimeout(() => setToast(null), 2200);
@@ -118,7 +133,7 @@ export function AdminOfficersContent() {
       </section>
 
       {apiError ? (
-        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-[var(--primary)]">
+        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm font-semibold text-[var(--primary)]">
           {apiError}
         </section>
       ) : null}
@@ -131,7 +146,10 @@ export function AdminOfficersContent() {
             </span>
             <input
               value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
+              onChange={(event) => {
+                setSearchTerm(event.target.value);
+                setPage(1);
+              }}
               placeholder="Nhập Officer ID, họ tên hoặc số hiệu"
               className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             />
@@ -143,9 +161,10 @@ export function AdminOfficersContent() {
             </span>
             <select
               value={rankFilter}
-              onChange={(event) =>
-                setRankFilter(event.target.value as RankFilter)
-              }
+              onChange={(event) => {
+                setRankFilter(event.target.value as RankFilter);
+                setPage(1);
+              }}
               className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             >
               <option value="ALL">Tất cả cấp bậc</option>
@@ -165,7 +184,10 @@ export function AdminOfficersContent() {
             </span>
             <select
               value={unitFilter}
-              onChange={(event) => setUnitFilter(event.target.value)}
+              onChange={(event) => {
+                setUnitFilter(event.target.value);
+                setPage(1);
+              }}
               className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             >
               <option value="ALL">Tất cả đơn vị</option>
@@ -197,7 +219,7 @@ export function AdminOfficersContent() {
         </div>
       </section>
 
-      <section className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <section className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
         <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
           <h2 className="text-2xl font-black text-slate-950">
             Danh sách cán bộ
@@ -219,26 +241,26 @@ export function AdminOfficersContent() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-250 text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-500">
                 <tr>
-                  <th className="px-5 py-4">ID</th>
-                  <th className="px-5 py-4">Officer ID</th>
-                  <th className="px-5 py-4">Họ và tên</th>
-                  <th className="px-5 py-4">Số hiệu / Cấp bậc</th>
-                  <th className="px-5 py-4">Đơn vị</th>
-                  <th className="px-5 py-4">Trạng thái</th>
-                  <th className="px-5 py-4 text-right">Thao tác</th>
+                  <th className="px-6 py-4">ID</th>
+                  <th className="px-6 py-4">Officer ID</th>
+                  <th className="px-6 py-4">Họ và tên</th>
+                  <th className="px-6 py-4">Số hiệu / Cấp bậc</th>
+                  <th className="px-6 py-4">Đơn vị</th>
+                  <th className="px-6 py-4">Trạng thái</th>
+                  <th className="px-6 py-4 text-right">Thao tác</th>
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-slate-200">
-                {filteredOfficers.map((officer) => (
+                {pagedOfficers.map((officer) => (
                   <tr key={officer.id} className="hover:bg-slate-50">
-                    <td className="px-5 py-5 text-slate-700">
+                    <td className="px-6 py-4 text-slate-700">
                       {officer.userId}
                     </td>
 
-                    <td className="px-5 py-5">
+                    <td className="px-6 py-4">
                       <Link
                         href={`/admin/officers/${encodeURIComponent(
                           officer.officerId,
@@ -249,7 +271,7 @@ export function AdminOfficersContent() {
                       </Link>
                     </td>
 
-                    <td className="px-5 py-5">
+                    <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <span className="flex size-10 items-center justify-center rounded-full bg-slate-100 font-black text-[var(--primary)]">
                           {getInitials(officer.fullName)}
@@ -260,7 +282,7 @@ export function AdminOfficersContent() {
                       </div>
                     </td>
 
-                    <td className="px-5 py-5">
+                    <td className="px-6 py-4">
                       <p className="font-semibold text-slate-900">
                         {officer.badgeNumber}
                       </p>
@@ -269,7 +291,7 @@ export function AdminOfficersContent() {
                       </p>
                     </td>
 
-                    <td className="px-5 py-5">
+                    <td className="px-6 py-4">
                       <p className="font-semibold text-slate-800">
                         {officer.unitId}
                       </p>
@@ -278,11 +300,11 @@ export function AdminOfficersContent() {
                       </p>
                     </td>
 
-                    <td className="px-5 py-5">
+                    <td className="px-6 py-4">
                       <AdminOfficerStatusBadge status={officer.status} />
                     </td>
 
-                    <td className="px-5 py-5 text-right">
+                    <td className="px-6 py-4 text-right">
                       <Link
                         href={`/admin/officers/${encodeURIComponent(
                           officer.officerId,
@@ -299,11 +321,33 @@ export function AdminOfficersContent() {
           </div>
         )}
 
-        <footer className="flex items-center justify-between border-t border-slate-200 px-5 py-4 text-sm text-slate-600">
-          <p>
-            Hiển thị {filteredOfficers.length} trong số {officers.length} bản
-            ghi
-          </p>
+        <footer className="flex flex-col gap-3 border-t border-slate-200 px-6 py-4 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
+          <p>Hiển thị {visibleStart}-{visibleEnd} trong số {filteredOfficers.length} hồ sơ</p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={currentPage <= 1}
+              onClick={() => setPage((value) => Math.max(1, value - 1))}
+              className="rounded-md px-3 py-2 font-black text-slate-600 disabled:cursor-not-allowed disabled:text-slate-300"
+            >
+              &lt;
+            </button>
+
+            <span className="rounded-md bg-[var(--primary)] px-3 py-2 font-black text-white">
+              {currentPage}
+            </span>
+
+            <span className="px-2 text-slate-500">/ {totalPages}</span>
+
+            <button
+              type="button"
+              disabled={currentPage >= totalPages}
+              onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
+              className="rounded-md px-3 py-2 font-black text-slate-600 disabled:cursor-not-allowed disabled:text-slate-300"
+            >
+              &gt;
+            </button>
+          </div>
         </footer>
       </section>
     </div>

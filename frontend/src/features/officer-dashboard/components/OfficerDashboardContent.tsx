@@ -9,19 +9,14 @@ import {
 } from "@/features/officer-cases/components/OfficerCaseBadge";
 import { officerCaseService } from "@/features/officer-cases/services/officerCaseService";
 import type { OfficerCase } from "@/features/officer-cases/types/officerCase.types";
+import { formatVietnamDateTime } from "@/utils/dateTime";
 
 function formatDateTime(value: string) {
-  const date = new Date(value);
+  return formatVietnamDateTime(value);
+}
 
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
+function isActiveCase(item: OfficerCase) {
+  return item.status !== "RESOLVED" && item.status !== "SPAM_OR_FAKE";
 }
 
 export function OfficerDashboardContent() {
@@ -59,7 +54,9 @@ export function OfficerDashboardContent() {
       (item) => item.status === "UNDER_VERIFICATION",
     );
     const resolvedCases = cases.filter((item) => item.status === "RESOLVED");
-    const criticalCases = cases.filter((item) => item.priority === "CRITICAL");
+    const criticalCases = cases.filter(
+      (item) => isActiveCase(item) && item.priority === "CRITICAL",
+    );
 
     return [
       {
@@ -91,7 +88,11 @@ export function OfficerDashboardContent() {
   }, [cases, totalElements]);
 
   const highPriorityCases = cases
-    .filter((item) => item.priority === "CRITICAL" || item.priority === "HIGH")
+    .filter(
+      (item) =>
+        isActiveCase(item) &&
+        (item.priority === "CRITICAL" || item.priority === "HIGH"),
+    )
     .slice(0, 5);
 
   const recentCases = cases.slice(0, 8);

@@ -24,7 +24,7 @@ export type AdminRecentUser = {
   id: string;
   username: string;
   fullName: string;
-  role: "Officer" | "Dispatcher" | "Commander" | "Admin";
+  role: "OFFICER" | "DISPATCHER" | "COMMANDER" | "ADMIN";
   status: "ACTIVE" | "PENDING" | "LOCKED";
   createdAt: string;
 };

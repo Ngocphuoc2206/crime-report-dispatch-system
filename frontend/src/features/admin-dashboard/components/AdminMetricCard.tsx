@@ -55,7 +55,7 @@ export function AdminMetricCard({ metric }: AdminMetricCardProps) {
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center gap-2">
-        <span className={["text-lg", tone.icon].join(" ")}>▣</span>
+        <span className={["text-lg", tone.icon].join(" ")}>■</span>
         <p
           className={[
             "text-xs font-black uppercase tracking-wide",

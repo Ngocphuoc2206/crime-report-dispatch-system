@@ -86,8 +86,8 @@ export function DispatcherReassignUnitModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6 backdrop-blur-sm">
-      <section className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+      <section className="flex max-h-[calc(100dvh-2rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
         <header className="flex items-center justify-between border-b border-red-100 bg-red-50 px-6 py-5">
           <div>
             <h2 className="text-2xl font-black text-red-950">
@@ -103,13 +103,14 @@ export function DispatcherReassignUnitModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-3xl text-slate-400 hover:text-slate-900"
+            aria-label="Dong hop thoai doi don vi"
+            className="ml-4 rounded-lg px-2 text-3xl leading-none text-slate-400 hover:bg-white hover:text-slate-900"
           >
             x
           </button>
         </header>
 
-        <div className="space-y-5 p-6">
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-6">
           <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm leading-6 text-orange-800">
             He thong chi hien thi can bo dang san sang theo ca truc hien tai.
             Don vi cu se duoc giai phong sau khi doi dieu phoi thanh cong.
@@ -144,7 +145,7 @@ export function DispatcherReassignUnitModal({
                 <label
                   key={option.id}
                   className={[
-                    "flex cursor-pointer items-center justify-between rounded-xl border p-4",
+                    "flex cursor-pointer items-start justify-between gap-4 rounded-xl border p-4",
                     selectedOptionId === option.id
                       ? "border-(--primary) bg-red-50 ring-2 ring-red-100"
                       : "border-slate-200 bg-white",
@@ -197,7 +198,7 @@ export function DispatcherReassignUnitModal({
           </label>
         </div>
 
-        <footer className="flex justify-end gap-3 border-t border-red-100 bg-red-50/60 px-6 py-4">
+        <footer className="flex shrink-0 justify-end gap-3 border-t border-red-100 bg-red-50/60 px-6 py-4">
           <button
             type="button"
             onClick={onClose}

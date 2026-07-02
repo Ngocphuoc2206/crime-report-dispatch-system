@@ -49,6 +49,10 @@ const statusConfig: Record<
     label: "Đã xử lý",
     className: "bg-slate-100 text-slate-600 ring-slate-200",
   },
+  CANCELLED: {
+    label: "Đã thu hồi",
+    className: "bg-orange-50 text-orange-700 ring-orange-200",
+  },
 };
 
 export function DispatcherAssignedPriorityBadge({

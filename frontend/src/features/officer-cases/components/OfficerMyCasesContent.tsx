@@ -12,6 +12,7 @@ import type {
   OfficerCase,
   OfficerCasePage,
 } from "@/features/officer-cases/types/officerCase.types";
+import { formatVietnamDateTime, getBackendDateTimeMs } from "@/utils/dateTime";
 
 type MyCaseFilter = "ALL" | "CRITICAL" | "UNDER_VERIFICATION";
 
@@ -35,22 +36,12 @@ const emptyPage: OfficerCasePage<OfficerCase> = {
 };
 
 function formatDateTime(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
+  return formatVietnamDateTime(value);
 }
 
 function getLockText(item: OfficerCase) {
   if (item.lock?.lockedByMe && item.lock.expiresAt) {
-    const diff = new Date(item.lock.expiresAt).getTime() - Date.now();
+    const diff = getBackendDateTimeMs(item.lock.expiresAt) - Date.now();
     const minutes = Math.max(0, Math.floor(diff / 1000 / 60));
     const seconds = Math.max(0, Math.floor((diff / 1000) % 60));
 

@@ -17,8 +17,8 @@ export function CommanderRecentActivity({
 }: CommanderRecentActivityProps) {
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="text-2xl font-bold text-slate-950">
-        Hoat dong gan day
+      <h2 className="text-xl font-bold text-slate-950">
+        Hoạt động gần đây
       </h2>
 
       <div className="mt-6 space-y-6">
@@ -35,7 +35,7 @@ export function CommanderRecentActivity({
 
             <div>
               <p className="font-semibold leading-6 text-slate-700">
-                <span className="font-black text-slate-950">{item.title}</span>{" "}
+                <span className="font-bold text-slate-950">{item.title}</span>{" "}
                 {item.description}
               </p>
 

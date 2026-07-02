@@ -6,6 +6,8 @@ export type CommanderMapReport = {
   title: string;
   category: string;
   location: string;
+  latitude: number;
+  longitude: number;
   district: string;
   severity: CommanderMapSeverity;
   status: string;

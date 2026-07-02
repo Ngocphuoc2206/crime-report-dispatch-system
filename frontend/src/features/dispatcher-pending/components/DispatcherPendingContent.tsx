@@ -15,6 +15,8 @@ import type {
 
 type PriorityFilter = "ALL" | PendingDispatchPriority;
 
+const PAGE_SIZE = 10;
+
 export function DispatcherPendingContent() {
   const [cases, setCases] = useState<PendingDispatchCase[]>([]);
   const [loading, setLoading] = useState(false);
@@ -24,6 +26,7 @@ export function DispatcherPendingContent() {
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [districtFilter, setDistrictFilter] = useState("ALL");
   const [availableOnly, setAvailableOnly] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
 
   const filteredCases = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase();
@@ -59,6 +62,22 @@ export function DispatcherPendingContent() {
   const criticalCount = cases.filter(
     (item) => item.priority === "CRITICAL",
   ).length;
+
+  const totalPages = Math.ceil(filteredCases.length / PAGE_SIZE);
+  const pageIndex =
+    totalPages === 0 ? 0 : Math.min(currentPage, totalPages - 1);
+  const paginatedCases = filteredCases.slice(
+    pageIndex * PAGE_SIZE,
+    pageIndex * PAGE_SIZE + PAGE_SIZE,
+  );
+  const displayStart = filteredCases.length === 0 ? 0 : pageIndex * PAGE_SIZE + 1;
+  const displayEnd =
+    filteredCases.length === 0
+      ? 0
+      : Math.min(
+          pageIndex * PAGE_SIZE + paginatedCases.length,
+          filteredCases.length,
+        );
 
   async function loadCases() {
     setLoading(true);
@@ -119,6 +138,7 @@ export function DispatcherPendingContent() {
     setTypeFilter("ALL");
     setDistrictFilter("ALL");
     setAvailableOnly(false);
+    setCurrentPage(0);
   }
 
   return (
@@ -167,7 +187,10 @@ export function DispatcherPendingContent() {
 
               <input
                 value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
+                onChange={(event) => {
+                  setSearchTerm(event.target.value);
+                  setCurrentPage(0);
+                }}
                 placeholder="VD: INC-8492, Nguyễn Trãi..."
                 className="mt-2 w-full rounded-lg border border-red-200 bg-white px-4 py-3 outline-none 
                 focus:border-(--primary) focus:ring-4 focus:ring-red-100"
@@ -179,9 +202,10 @@ export function DispatcherPendingContent() {
 
               <select
                 value={priorityFilter}
-                onChange={(event) =>
-                  setPriorityFilter(event.target.value as PriorityFilter)
-                }
+                onChange={(event) => {
+                  setPriorityFilter(event.target.value as PriorityFilter);
+                  setCurrentPage(0);
+                }}
                 className="mt-2 w-full rounded-lg border border-red-200 bg-white px-4 py-3 outline-none 
                 focus:border-(--primary) focus:ring-4 focus:ring-red-100"
               >
@@ -200,7 +224,10 @@ export function DispatcherPendingContent() {
 
               <select
                 value={typeFilter}
-                onChange={(event) => setTypeFilter(event.target.value)}
+                onChange={(event) => {
+                  setTypeFilter(event.target.value);
+                  setCurrentPage(0);
+                }}
                 className="mt-2 w-full rounded-lg border border-red-200 bg-white px-4 py-3 outline-none 
                 focus:border-(--primary) focus:ring-4 focus:ring-red-100"
               >
@@ -217,7 +244,10 @@ export function DispatcherPendingContent() {
 
               <select
                 value={districtFilter}
-                onChange={(event) => setDistrictFilter(event.target.value)}
+                onChange={(event) => {
+                  setDistrictFilter(event.target.value);
+                  setCurrentPage(0);
+                }}
                 className="mt-2 w-full rounded-lg border border-red-200 bg-white px-4 py-3 outline-none 
                 focus:border-(--primary) focus:ring-4 focus:ring-red-100"
               >
@@ -233,7 +263,10 @@ export function DispatcherPendingContent() {
               <input
                 type="checkbox"
                 checked={availableOnly}
-                onChange={(event) => setAvailableOnly(event.target.checked)}
+                onChange={(event) => {
+                  setAvailableOnly(event.target.checked);
+                  setCurrentPage(0);
+                }}
                 className="size-5 accent-(--primary)"
               />
 
@@ -291,7 +324,7 @@ export function DispatcherPendingContent() {
                 </tr>
               ) : null}
 
-              {filteredCases.map((item) => (
+              {paginatedCases.map((item) => (
                 <tr key={item.id} className="hover:bg-red-50/50">
                   <td className="px-5 py-5 font-black text-red-900">
                     #{item.caseCode}
@@ -350,18 +383,47 @@ export function DispatcherPendingContent() {
 
         <footer className="flex items-center justify-between border-t border-red-100 bg-red-50/60 px-5 py-4 text-sm text-slate-600">
           <p>
-            Hiển thị {filteredCases.length === 0 ? 0 : 1}-
-            {filteredCases.length} trong tổng số{" "}
+            Hiển thị {displayStart}-{displayEnd} trong tổng số{" "}
             {cases.length} tin chờ điều phối
           </p>
 
-          {filteredCases.length > 0 ? (
+          {totalPages > 0 ? (
             <div className="flex items-center gap-2">
-              <button className="rounded-md px-3 py-2 text-slate-400">‹</button>
-              <button className="rounded-md bg-(--primary) px-3 py-2 font-black text-white">
-                1
+              <button
+                type="button"
+                disabled={pageIndex <= 0}
+                onClick={() => setCurrentPage((page) => Math.max(0, page - 1))}
+                className="rounded-md px-3 py-2 text-slate-600 disabled:text-slate-400"
+              >
+                ‹
               </button>
-              <button className="rounded-md px-3 py-2 text-slate-600">›</button>
+
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setCurrentPage(index)}
+                  className={[
+                    "rounded-md px-3 py-2 font-black",
+                    index === pageIndex
+                      ? "bg-(--primary) text-white"
+                      : "text-slate-600 hover:bg-white",
+                  ].join(" ")}
+                >
+                  {index + 1}
+                </button>
+              ))}
+
+              <button
+                type="button"
+                disabled={pageIndex >= totalPages - 1}
+                onClick={() =>
+                  setCurrentPage((page) => Math.min(totalPages - 1, page + 1))
+                }
+                className="rounded-md px-3 py-2 text-slate-600 disabled:text-slate-400"
+              >
+                ›
+              </button>
             </div>
           ) : null}
         </footer>

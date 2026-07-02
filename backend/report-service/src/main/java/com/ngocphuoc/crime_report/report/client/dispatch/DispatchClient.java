@@ -7,10 +7,12 @@ import com.ngocphuoc.crime_report.report.dto.response.SmartDispatchResponse;
 import com.ngocphuoc.crime_report.shared.exception.AppException;
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -18,10 +20,12 @@ import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DispatchClient {
     private static final String INTERNAL_TOKEN_HEADER = "X-Internal-Token";
     private static final String SMART_DISPATCH_PATH = "/api/dispatch/smart-dispatch";
     private static final String OFFICER_BY_USER_ID = "/api/internal/officers/by-user/{userId}";
+    private static final String COMPLETE_DISPATCH_BY_CASE_PATH = "/api/dispatch/tasks/by-case/{caseId}/complete";
 
     private final RestClient.Builder restClientBuilder;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -77,11 +81,32 @@ public class DispatchClient {
         return Objects.requireNonNull(response).getData();
     }
 
+    public void completeDispatchForCase(Long caseId, String note) {
+        RestClient restClient = restClientBuilder.build();
+
+        try {
+            restClient.patch()
+                    .uri(dispatchServiceUrl + COMPLETE_DISPATCH_BY_CASE_PATH, caseId)
+                    .header(INTERNAL_TOKEN_HEADER, internalToken)
+                    .body(new CompleteDispatchRequest("COMPLETED", note))
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<ApiResponse<Object>>() {});
+        } catch (RestClientException exception) {
+            log.warn("Could not complete dispatch task for caseId={}", caseId, exception);
+        }
+    }
+
     private record SmartDispatchRequest(
             Long caseId,
             BigDecimal incidentLatitude,
             BigDecimal incidentLongitude,
             Boolean updateReportAssignment
+    ) {
+    }
+
+    private record CompleteDispatchRequest(
+            String status,
+            String note
     ) {
     }
 }

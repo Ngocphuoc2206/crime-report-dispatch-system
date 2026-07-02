@@ -11,6 +11,7 @@ import type {
   CommanderActivityType,
 } from "@/features/commander-activity/types/commanderActivity.types";
 import { commanderCaseService } from "@/features/commander-cases/services/commanderCaseService";
+import { formatVietnamDateTime } from "@/utils/dateTime";
 
 type ActivityFilter = "ALL" | CommanderActivityType;
 
@@ -18,11 +19,11 @@ const filterOptions: Array<{
   label: string;
   value: ActivityFilter;
 }> = [
-  { label: "Tat ca su kien", value: "ALL" },
-  { label: "Tiep nhan khan cap", value: "EMERGENCY_SIGNAL" },
-  { label: "Nhan xu ly", value: "CASE_ACCEPTED" },
-  { label: "Cap nhat trang thai", value: "STATUS_UPDATED" },
-  { label: "Hoan tat", value: "CASE_COMPLETED" },
+  { label: "Tất cả sự kiện", value: "ALL" },
+  { label: "Tiếp nhận khẩn cấp", value: "EMERGENCY_SIGNAL" },
+  { label: "Nhận xử lý", value: "CASE_ACCEPTED" },
+  { label: "Cập nhật trạng thái", value: "STATUS_UPDATED" },
+  { label: "Hoàn tất", value: "CASE_COMPLETED" },
   { label: "Spam", value: "SPAM_BLOCKED" },
 ];
 
@@ -79,12 +80,7 @@ export function CommanderActivityContent() {
               ? "STATUS_UPDATED"
               : "CASE_ACCEPTED",
           priority: item.urgencyLevel,
-          timeLabel: new Intl.DateTimeFormat("vi-VN", {
-            hour: "2-digit",
-            minute: "2-digit",
-            day: "2-digit",
-            month: "2-digit",
-          }).format(new Date(item.createdAt)),
+          timeLabel: formatVietnamDateTime(item.createdAt),
           occurredAt: item.createdAt,
           actor: item.actor,
         })),
@@ -94,7 +90,7 @@ export function CommanderActivityContent() {
       setApiError(
         error instanceof Error
           ? error.message
-          : "Khong ket noi duoc backend commander activity.",
+          : "Không kết nối được backend hoạt động chỉ huy.",
       );
     } finally {
       setIsLoading(false);
@@ -133,18 +129,18 @@ export function CommanderActivityContent() {
     <div className="px-8 py-8">
       <section className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-4xl font-black text-slate-950">
-            Hoat dong xu ly gan day
+          <h1 className="text-3xl font-bold text-slate-950">
+            Hoạt động xử lý gần đây
           </h1>
 
           <p className="mt-3 text-slate-600">
-            Giam sat luong xu ly va trang thai cap nhat cua cac tin bao trong he
-            thong.
+            Giám sát luồng xử lý và trạng thái cập nhật của các tin báo trong hệ
+            thống.
           </p>
         </div>
 
         <label className="flex items-center gap-3">
-          <span className="text-sm font-bold text-slate-600">Hien thi:</span>
+          <span className="text-sm font-bold text-slate-600">Hiển thị:</span>
 
           <select
             value={pageSize}
@@ -154,9 +150,9 @@ export function CommanderActivityContent() {
             }}
             className="rounded-md border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
           >
-            <option value="10">10 su kien</option>
-            <option value="20">20 su kien</option>
-            <option value="50">50 su kien</option>
+            <option value="10">10 sự kiện</option>
+            <option value="20">20 sự kiện</option>
+            <option value="50">50 sự kiện</option>
           </select>
         </label>
       </section>
@@ -172,7 +168,7 @@ export function CommanderActivityContent() {
           <input
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Tim ma tin bao, can bo, noi dung..."
+            placeholder="Tìm mã tin báo, cán bộ, nội dung..."
             className="w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-slate-800 outline-none placeholder:text-slate-400 focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
           />
 
@@ -195,13 +191,13 @@ export function CommanderActivityContent() {
             onClick={handleResetFilter}
             className="rounded-md border border-slate-200 px-5 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50"
           >
-            Dat lai
+            Đặt lại
           </button>
         </div>
 
         {isLoading ? (
           <div className="p-8 text-center font-semibold text-slate-600">
-            Dang tai hoat dong gan day...
+            Đang tải hoạt động gần đây...
           </div>
         ) : filteredActivities.length === 0 ? (
           <div className="flex min-h-88 items-center justify-center p-8 text-center">
@@ -211,11 +207,11 @@ export function CommanderActivityContent() {
               </div>
 
               <h2 className="mt-6 text-2xl font-bold text-slate-950">
-                Khong tim thay su kien
+                Không tìm thấy sự kiện
               </h2>
 
               <p className="mt-3 max-w-md text-slate-600">
-                Khong co hoat dong nao khop voi bo loc hoac tu khoa hien tai.
+                Không có hoạt động nào khớp với bộ lọc hoặc từ khoá hiện tại.
               </p>
 
               <button
@@ -223,7 +219,7 @@ export function CommanderActivityContent() {
                 onClick={handleResetFilter}
                 className="mt-6 rounded-lg border border-slate-200 px-6 py-3 font-bold text-slate-700 hover:bg-slate-50"
               >
-                Xoa bo loc
+                Xoá bộ lọc
               </button>
             </div>
           </div>
@@ -259,7 +255,7 @@ export function CommanderActivityContent() {
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div>
                         <div className="flex flex-wrap items-center gap-3">
-                          <h2 className="font-mono text-2xl font-black text-slate-950">
+                          <h2 className="font-mono text-xl font-bold text-slate-950">
                             {item.title}
                           </h2>
 
@@ -275,7 +271,7 @@ export function CommanderActivityContent() {
                         </p>
 
                         <p className="mt-3 text-sm text-slate-500">
-                          Tac nhan: {item.actor}
+                          Tác nhân: {item.actor}
                         </p>
                       </div>
 
@@ -290,7 +286,7 @@ export function CommanderActivityContent() {
                           )}`}
                           className="mt-6 inline-flex rounded-md border border-red-200 px-5 py-2 text-sm font-bold text-[var(--primary)] hover:bg-red-50"
                         >
-                          Mo ho so
+                          Mở hồ sơ
                         </Link>
                       </div>
                     </div>
@@ -303,11 +299,11 @@ export function CommanderActivityContent() {
 
         <footer className="flex flex-col gap-3 border-t border-slate-200 px-6 py-4 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
           <p>
-            Hien thi {filteredActivities.length} trong tong so{" "}
-            {activities.length} su kien
+            Hiển thị {filteredActivities.length} trong tổng số{" "}
+            {activities.length} sự kiện
           </p>
 
-          <p>Cap nhat gan nhat: 14:32:45 hom nay</p>
+          <p>Dữ liệu lấy trực tiếp từ backend.</p>
         </footer>
       </section>
     </div>

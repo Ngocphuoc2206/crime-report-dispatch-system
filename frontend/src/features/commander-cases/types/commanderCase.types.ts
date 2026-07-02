@@ -7,8 +7,7 @@ export type CommanderCaseStatus =
   | "VERIFYING"
   | "INVESTIGATING"
   | "RESOLVED"
-  | "SPAM_OR_FAKE"
-  | "CLOSED";
+  | "SPAM_OR_FAKE";
 
 export type CommanderCaseAttachment = {
   id: string;
@@ -46,6 +45,8 @@ export type CommanderCase = {
   spamReasons?: string | null;
   description: string;
   coordinate: string;
+  latitude?: number | null;
+  longitude?: number | null;
   locationWarning?: string;
   attachments: CommanderCaseAttachment[];
   histories: CommanderCaseHistory[];

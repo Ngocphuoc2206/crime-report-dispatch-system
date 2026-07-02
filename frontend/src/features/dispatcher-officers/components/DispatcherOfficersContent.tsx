@@ -12,6 +12,8 @@ import type {
 
 type QuickFilter = "ALL" | "AVAILABLE_ONLY";
 
+const PAGE_SIZE = 10;
+
 const defaultAdvancedFilters: DispatcherOfficerAdvancedFilters = {
   status: "ALL",
   shift: "ALL",
@@ -68,6 +70,7 @@ export function DispatcherOfficersContent() {
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("ALL");
+  const [currentPage, setCurrentPage] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [advancedFilters, setAdvancedFilters] =
     useState<DispatcherOfficerAdvancedFilters>(defaultAdvancedFilters);
@@ -153,6 +156,23 @@ export function DispatcherOfficersContent() {
 
   const stats = localStats;
 
+  const totalPages = Math.ceil(filteredOfficers.length / PAGE_SIZE);
+  const pageIndex =
+    totalPages === 0 ? 0 : Math.min(currentPage, totalPages - 1);
+  const paginatedOfficers = filteredOfficers.slice(
+    pageIndex * PAGE_SIZE,
+    pageIndex * PAGE_SIZE + PAGE_SIZE,
+  );
+  const displayStart =
+    filteredOfficers.length === 0 ? 0 : pageIndex * PAGE_SIZE + 1;
+  const displayEnd =
+    filteredOfficers.length === 0
+      ? 0
+      : Math.min(
+          pageIndex * PAGE_SIZE + paginatedOfficers.length,
+          filteredOfficers.length,
+        );
+
   async function loadOfficers() {
     setLoading(true);
 
@@ -199,10 +219,12 @@ export function DispatcherOfficersContent() {
         onClose={() => setDrawerOpen(false)}
         onApply={(nextFilters) => {
           setAdvancedFilters(nextFilters);
+          setCurrentPage(0);
         }}
         onReset={() => {
           setAdvancedFilters(defaultAdvancedFilters);
           setQuickFilter("ALL");
+          setCurrentPage(0);
         }}
       />
 
@@ -220,7 +242,10 @@ export function DispatcherOfficersContent() {
         <div className="flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={() => setQuickFilter("ALL")}
+            onClick={() => {
+              setQuickFilter("ALL");
+              setCurrentPage(0);
+            }}
             className={[
               "rounded-lg px-5 py-3 font-black",
               quickFilter === "ALL"
@@ -233,7 +258,10 @@ export function DispatcherOfficersContent() {
 
           <button
             type="button"
-            onClick={() => setQuickFilter("AVAILABLE_ONLY")}
+            onClick={() => {
+              setQuickFilter("AVAILABLE_ONLY");
+              setCurrentPage(0);
+            }}
             className={[
               "rounded-lg px-5 py-3 font-black",
               quickFilter === "AVAILABLE_ONLY"
@@ -317,6 +345,7 @@ export function DispatcherOfficersContent() {
             onClick={() => {
               setAdvancedFilters(defaultAdvancedFilters);
               setQuickFilter("ALL");
+              setCurrentPage(0);
             }}
             className="ml-auto rounded-lg border border-red-200 bg-white px-4 py-2 font-black text-[var(--primary)] hover:bg-red-50"
           >
@@ -340,7 +369,10 @@ export function DispatcherOfficersContent() {
           <div className="flex flex-col gap-3 md:flex-row md:items-center">
             <input
               value={keyword}
-              onChange={(event) => setKeyword(event.target.value)}
+              onChange={(event) => {
+                setKeyword(event.target.value);
+                setCurrentPage(0);
+              }}
               placeholder="Tìm theo tên, số hiệu, đơn vị, hồ sơ..."
               className="w-full min-w-[320px] rounded-lg border border-red-200 px-4 py-3 outline-none 
               focus:border-(--primary) focus:ring-4 focus:ring-red-100"
@@ -372,7 +404,7 @@ export function DispatcherOfficersContent() {
             </thead>
 
             <tbody className="divide-y divide-red-100">
-              {filteredOfficers.map((officer) => {
+              {paginatedOfficers.map((officer) => {
                 const canDispatch = officer.status === "AVAILABLE";
 
                 return (
@@ -478,20 +510,49 @@ export function DispatcherOfficersContent() {
 
         <footer className="flex items-center justify-between border-t border-red-100 bg-red-50/60 px-5 py-4 text-sm text-slate-600">
           <p>
-            Hiển thị 1-{filteredOfficers.length} trong tổng số {officers.length}{" "}
+            Hiển thị {displayStart}-{displayEnd} trong tổng số {officers.length}{" "}
             cán bộ
           </p>
 
-          <div className="flex items-center gap-2">
-            <button className="rounded-md px-3 py-2 text-slate-400">‹</button>
-            <button className="rounded-md bg-(--primary) px-3 py-2 font-black text-white">
-              1
-            </button>
-            <button className="rounded-md px-3 py-2 font-black text-slate-600">
-              2
-            </button>
-            <button className="rounded-md px-3 py-2 text-slate-600">›</button>
-          </div>
+          {totalPages > 0 ? (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={pageIndex <= 0}
+                onClick={() => setCurrentPage((page) => Math.max(0, page - 1))}
+                className="rounded-md px-3 py-2 text-slate-600 disabled:text-slate-400"
+              >
+                ‹
+              </button>
+
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setCurrentPage(index)}
+                  className={[
+                    "rounded-md px-3 py-2 font-black",
+                    index === pageIndex
+                      ? "bg-(--primary) text-white"
+                      : "text-slate-600 hover:bg-white",
+                  ].join(" ")}
+                >
+                  {index + 1}
+                </button>
+              ))}
+
+              <button
+                type="button"
+                disabled={pageIndex >= totalPages - 1}
+                onClick={() =>
+                  setCurrentPage((page) => Math.min(totalPages - 1, page + 1))
+                }
+                className="rounded-md px-3 py-2 text-slate-600 disabled:text-slate-400"
+              >
+                ›
+              </button>
+            </div>
+          ) : null}
         </footer>
       </section>
     </div>

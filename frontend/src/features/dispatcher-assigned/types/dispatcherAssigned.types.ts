@@ -5,7 +5,8 @@ export type AssignedCaseStatus =
   | "ACKNOWLEDGED"
   | "ON_SITE"
   | "NEED_SUPPORT"
-  | "RESOLVED";
+  | "RESOLVED"
+  | "CANCELLED";
 
 export type AssignedCase = {
   id: string;

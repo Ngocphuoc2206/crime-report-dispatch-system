@@ -13,23 +13,45 @@ import type {
   CommanderCase,
   CommanderCaseStatus,
 } from "@/features/commander-cases/types/commanderCase.types";
+import { formatVietnamDateTime } from "@/utils/dateTime";
 
 type CommanderCaseDetailContentProps = {
   caseCode: string;
 };
 
 function formatDateTime(value: string) {
-  const date = new Date(value);
+  return formatVietnamDateTime(value);
+}
 
-  if (Number.isNaN(date.getTime())) return value;
+function hasValidCoordinates(caseItem: CommanderCase) {
+  return (
+    typeof caseItem.latitude === "number" &&
+    typeof caseItem.longitude === "number" &&
+    Number.isFinite(caseItem.latitude) &&
+    Number.isFinite(caseItem.longitude)
+  );
+}
 
-  return new Intl.DateTimeFormat("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
+function getOpenStreetMapEmbedUrl(latitude: number, longitude: number) {
+  const delta = 0.006;
+  const bbox = [
+    longitude - delta,
+    latitude - delta,
+    longitude + delta,
+    latitude + delta,
+  ].join(",");
+
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(
+    bbox,
+  )}&layer=mapnik&marker=${encodeURIComponent(`${latitude},${longitude}`)}`;
+}
+
+function getOpenStreetMapUrl(latitude: number, longitude: number) {
+  return `https://www.openstreetmap.org/?mlat=${encodeURIComponent(
+    String(latitude),
+  )}&mlon=${encodeURIComponent(String(longitude))}#map=17/${encodeURIComponent(
+    String(latitude),
+  )}/${encodeURIComponent(String(longitude))}`;
 }
 
 export function CommanderCaseDetailContent({
@@ -53,7 +75,7 @@ export function CommanderCaseDetailContent({
       setError(
         loadError instanceof Error
           ? loadError.message
-          : "Khong ket noi duoc backend commander case detail.",
+          : "Không kết nối được backend chi tiết hồ sơ chỉ huy.",
       );
     } finally {
       setIsLoading(false);
@@ -70,7 +92,7 @@ export function CommanderCaseDetailContent({
     return (
       <div className="px-8 py-8">
         <section className="rounded-xl border border-slate-200 bg-white p-8 text-center font-semibold text-slate-600 shadow-sm">
-          Dang tai chi tiet ho so...
+          Đang tải chi tiết hồ sơ...
         </section>
       </div>
     );
@@ -81,14 +103,14 @@ export function CommanderCaseDetailContent({
       <div className="px-8 py-8">
         <section className="rounded-xl border border-red-200 bg-red-50 p-8">
           <h1 className="text-2xl font-bold text-[var(--primary)]">
-            Khong tim thay ho so
+            Không tìm thấy hồ sơ
           </h1>
 
           <Link
             href="/commander/cases"
             className="mt-6 inline-flex rounded-lg bg-[var(--primary)] px-6 py-3 font-bold text-white"
           >
-            Quay lai danh sach
+            Quay lại danh sách
           </Link>
         </section>
       </div>
@@ -97,7 +119,14 @@ export function CommanderCaseDetailContent({
 
   const activeCase = caseItem;
   const readOnly =
-    activeCase.status === "SPAM_OR_FAKE" || activeCase.status === "CLOSED";
+    activeCase.status === "SPAM_OR_FAKE" || activeCase.status === "RESOLVED";
+  const canShowMap = hasValidCoordinates(activeCase);
+  const mapEmbedUrl = canShowMap
+    ? getOpenStreetMapEmbedUrl(activeCase.latitude!, activeCase.longitude!)
+    : null;
+  const mapUrl = canShowMap
+    ? getOpenStreetMapUrl(activeCase.latitude!, activeCase.longitude!)
+    : null;
 
   function handleConfirmUpdate(nextStatus: CommanderCaseStatus, note: string) {
     void commanderCaseService
@@ -105,14 +134,14 @@ export function CommanderCaseDetailContent({
       .then((updatedCase) => {
         setCaseItem(updatedCase);
         setUpdateModalOpen(false);
-        setToast("Cap nhat trang thai thanh cong");
+        setToast("Cập nhật trạng thái thành công");
         window.setTimeout(() => setToast(null), 2200);
       })
       .catch((updateError) => {
         setError(
           updateError instanceof Error
             ? updateError.message
-            : "Khong cap nhat duoc trang thai.",
+            : "Không cập nhật được trạng thái.",
         );
       });
   }
@@ -141,12 +170,12 @@ export function CommanderCaseDetailContent({
       {readOnly ? (
         <section className="mb-6 rounded-xl border-l-4 border-slate-400 bg-white px-6 py-5 shadow-sm">
           <h2 className="text-xl font-bold text-slate-950">
-            Ho so nay da ket thuc xu ly va chi doc
+            Hồ sơ này đã kết thúc xử lý và chỉ đọc
           </h2>
 
           <p className="mt-2 text-slate-600">
-            Tat ca thao tac cap nhat da bi vo hieu hoa. Ban chi co the xem lai
-            thong tin lich su cua ho so nay.
+            Tất cả thao tác cập nhật đã bị vô hiệu hoá. Bạn chỉ có thể xem lại
+            thông tin lịch sử của hồ sơ này.
           </p>
         </section>
       ) : null}
@@ -157,12 +186,12 @@ export function CommanderCaseDetailContent({
             href="/commander/cases"
             className="text-sm font-bold text-slate-500 hover:text-[var(--primary)]"
           >
-            &lt; Quay lai danh sach ho so
+            &lt; Quay lại danh sách hồ sơ
           </Link>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <span className="text-sm font-bold uppercase tracking-wide text-slate-500">
-              Ma ho so: {activeCase.code}
+              Mã hồ sơ: {activeCase.code}
             </span>
 
             <CommanderStatusBadge status={activeCase.status} />
@@ -174,7 +203,7 @@ export function CommanderCaseDetailContent({
             />
           </div>
 
-          <h1 className="mt-4 max-w-4xl text-4xl font-black text-slate-950">
+          <h1 className="mt-4 max-w-4xl text-3xl font-bold text-slate-950">
             {activeCase.title}
           </h1>
         </div>
@@ -186,15 +215,7 @@ export function CommanderCaseDetailContent({
             onClick={() => setUpdateModalOpen(true)}
             className="rounded-lg bg-[var(--primary)] px-5 py-3 font-bold text-white hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:bg-slate-300"
           >
-            Cap nhat
-          </button>
-
-          <button
-            type="button"
-            disabled={readOnly}
-            className="rounded-lg border border-slate-200 px-5 py-3 font-bold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Chuyen tiep
+            Cập nhật
           </button>
         </div>
       </section>
@@ -203,13 +224,13 @@ export function CommanderCaseDetailContent({
         <div className="space-y-6">
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-bold text-slate-950">
-              Chi tiet tin bao
+              Chi tiết tin báo
             </h2>
 
             <dl className="mt-6 grid gap-6 md:grid-cols-2">
               <div>
                 <dt className="text-sm font-bold uppercase text-slate-500">
-                  Nguoi bao tin
+                  Người báo tin
                 </dt>
                 <dd className="mt-2 text-slate-800">
                   {activeCase.reporter.name}
@@ -218,7 +239,7 @@ export function CommanderCaseDetailContent({
 
               <div>
                 <dt className="text-sm font-bold uppercase text-slate-500">
-                  Thoi gian tiep nhan
+                  Thời gian tiếp nhận
                 </dt>
                 <dd className="mt-2 text-slate-800">
                   {formatDateTime(activeCase.receivedAt)}
@@ -227,14 +248,14 @@ export function CommanderCaseDetailContent({
 
               <div>
                 <dt className="text-sm font-bold uppercase text-slate-500">
-                  Phan loai he thong
+                  Phân loại hệ thống
                 </dt>
                 <dd className="mt-2 text-slate-800">{activeCase.category}</dd>
               </div>
 
               <div>
                 <dt className="text-sm font-bold uppercase text-slate-500">
-                  Do tin cay ban dau
+                  Độ tin cậy ban đầu
                 </dt>
                 <dd className="mt-2 font-bold text-[var(--primary)]">
                   {activeCase.confidence}
@@ -244,7 +265,7 @@ export function CommanderCaseDetailContent({
 
             <div className="mt-6">
               <p className="text-sm font-bold uppercase text-slate-500">
-                Noi dung mo ta
+                Nội dung mô tả
               </p>
 
               {activeCase.spamLevel && activeCase.spamLevel !== "NONE" ? (
@@ -265,11 +286,11 @@ export function CommanderCaseDetailContent({
 
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-2xl font-bold text-slate-950">
-              Du lieu dinh kem
+              Dữ liệu đính kèm
             </h2>
 
             {activeCase.attachments.length === 0 ? (
-              <p className="mt-5 text-slate-500">Khong co tep dinh kem.</p>
+              <p className="mt-5 text-slate-500">Không có tệp đính kèm.</p>
             ) : (
               <div className="mt-5 grid gap-4 md:grid-cols-3">
                 {activeCase.attachments.map((file) => (
@@ -290,27 +311,48 @@ export function CommanderCaseDetailContent({
 
         <aside className="space-y-6">
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex h-40 items-center justify-center rounded-lg bg-slate-100 text-4xl text-slate-500">
-              Map
-            </div>
+            {mapEmbedUrl ? (
+              <iframe
+                title={`Bản đồ vị trí hồ sơ ${activeCase.code}`}
+                src={mapEmbedUrl}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="h-56 w-full rounded-lg border border-slate-200"
+              />
+            ) : (
+              <div className="flex h-40 items-center justify-center rounded-lg bg-slate-100 px-5 text-center text-sm font-semibold text-slate-500">
+                Chưa có toạ độ hợp lệ để hiển thị bản đồ.
+              </div>
+            )}
 
             <h2 className="mt-6 text-xl font-bold text-slate-950">
-              Vi tri bao cao
+              Vị trí báo cáo
             </h2>
 
             <p className="mt-3 text-slate-600">
-              Toa do: {activeCase.coordinate}
+              Toạ độ: {activeCase.coordinate}
             </p>
+
+            {mapUrl ? (
+              <a
+                href={mapUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-4 inline-flex rounded-md border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:border-[var(--primary)] hover:text-[var(--primary)]"
+              >
+                Mở trên bản đồ
+              </a>
+            ) : null}
 
             {activeCase.locationWarning ? (
               <p className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm font-bold text-[var(--primary)]">
-                Canh bao: {activeCase.locationWarning}
+                Cảnh báo: {activeCase.locationWarning}
               </p>
             ) : null}
           </article>
 
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-bold text-slate-950">Lich su xu ly</h2>
+            <h2 className="text-2xl font-bold text-slate-950">Lịch sử xử lý</h2>
 
             <div className="mt-6 space-y-6">
               {activeCase.histories.map((history) => (
@@ -345,7 +387,7 @@ export function CommanderCaseDetailContent({
                     </p>
 
                     <p className="mt-1 text-xs text-slate-500">
-                      Boi: {history.actor}
+                      Bởi: {history.actor}
                     </p>
                   </div>
                 </div>

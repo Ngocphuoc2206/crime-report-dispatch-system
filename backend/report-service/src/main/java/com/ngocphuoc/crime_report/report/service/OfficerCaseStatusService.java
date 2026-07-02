@@ -96,6 +96,13 @@ public class OfficerCaseStatusService {
                 )
         );
 
+        if (isTerminalStatus(newStatus)) {
+            dispatchClient.completeDispatchForCase(
+                    caseReport.getId(),
+                    "Case status changed to " + newStatus.name()
+            );
+        }
+
         return new UpdateCaseStatusResponse(
                 caseReport.getId(),
                 caseReport.getTrackingCode(),
@@ -147,6 +154,10 @@ public class OfficerCaseStatusService {
             throw new AppException(ErrorCode.ROLE_NOT_ALLOWED_FOR_TRANSITION);
         }
         throw new AppException(ErrorCode.ACCESS_DENIED);
+    }
+
+    private boolean isTerminalStatus(CaseStatus status) {
+        return status == CaseStatus.RESOLVED || status == CaseStatus.SPAM_OR_FAKE;
     }
 
     private boolean hasRole(Authentication authentication, String roleOfficer) {

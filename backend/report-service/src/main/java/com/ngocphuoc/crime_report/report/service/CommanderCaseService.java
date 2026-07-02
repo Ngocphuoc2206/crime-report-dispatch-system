@@ -8,6 +8,7 @@ import com.ngocphuoc.crime_report.report.dto.response.CommanderActivityResponse;
 import com.ngocphuoc.crime_report.report.dto.response.CommanderCaseDetailResponse;
 import com.ngocphuoc.crime_report.report.dto.response.CommanderCaseHistoryResponse;
 import com.ngocphuoc.crime_report.report.dto.response.CommanderCaseResponse;
+import com.ngocphuoc.crime_report.report.client.dispatch.DispatchClient;
 import com.ngocphuoc.crime_report.report.entity.CaseHistory;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
 import com.ngocphuoc.crime_report.report.repository.CaseHistoryRepository;
@@ -28,6 +29,7 @@ public class CommanderCaseService {
     private final CaseReportRepository caseReportRepository;
     private final CaseHistoryRepository caseHistoryRepository;
     private final CaseStatusStateMachine caseStatusStateMachine;
+    private final DispatchClient dispatchClient;
 
     @Transactional(readOnly = true)
     public Page<CommanderCaseResponse> getCases(
@@ -80,6 +82,13 @@ public class CommanderCaseService {
         history.setNewStatus(newStatus.name());
         history.setNote(request.note());
         caseHistoryRepository.save(history);
+
+        if (isTerminalStatus(newStatus)) {
+            dispatchClient.completeDispatchForCase(
+                    caseReport.getId(),
+                    "Commander changed case status to " + newStatus.name()
+            );
+        }
 
         return getDetail(trackingCode);
     }
@@ -153,5 +162,9 @@ public class CommanderCaseService {
         }
 
         return "%" + keyword.trim().toLowerCase() + "%";
+    }
+
+    private boolean isTerminalStatus(CaseStatus status) {
+        return status == CaseStatus.RESOLVED || status == CaseStatus.SPAM_OR_FAKE;
     }
 }

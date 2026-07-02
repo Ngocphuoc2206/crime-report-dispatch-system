@@ -6,6 +6,7 @@ import type {
   DispatchPriorityCase,
 } from "@/features/dispatcher-dashboard/types/dispatcherDashboard.types";
 import type { PendingDispatchPriority } from "@/features/dispatcher-pending/types/dispatcherPending.types";
+import { formatVietnamDateTime } from "@/utils/dateTime";
 
 type DispatchOverviewApiItem = {
   waitingCases: number;
@@ -38,18 +39,6 @@ type DispatchActivityApiItem = {
   urgencyLevel: PendingDispatchPriority | null;
   createdAt: string;
 };
-
-function formatTime(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    day: "2-digit",
-    month: "2-digit",
-  }).format(date);
-}
 
 export const dispatcherDashboardService = {
   async getMetrics(): Promise<DispatchMetric[]> {
@@ -111,7 +100,7 @@ export const dispatcherDashboardService = {
       type: item.crimeTypeName || item.title,
       priority: item.urgencyLevel,
       location: item.address || "Chua cap nhat dia chi",
-      createdAt: formatTime(item.createdAt),
+      createdAt: formatVietnamDateTime(item.createdAt),
       waitingTime: "--",
       spamScore: item.spamScore,
       spamLevel: item.spamLevel,
@@ -131,7 +120,7 @@ export const dispatcherDashboardService = {
       id: String(item.id),
       title: `${item.trackingCode || `CASE-${item.caseId}`} - ${item.action}`,
       description: item.description,
-      time: formatTime(item.createdAt),
+      time: formatVietnamDateTime(item.createdAt),
       tone:
         item.urgencyLevel === "CRITICAL"
           ? "danger"
