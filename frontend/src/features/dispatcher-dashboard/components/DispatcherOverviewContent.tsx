@@ -73,7 +73,7 @@ export function DispatcherOverviewContent() {
         <div className="space-y-6">
           <DispatcherPriorityQueue />
 
-          <div className="grid gap-6 xl:grid-cols-2">
+          <div className="grid items-start gap-6 xl:grid-cols-2">
             <DispatcherLiveMapPreview />
             <DispatcherActivityTimeline />
           </div>

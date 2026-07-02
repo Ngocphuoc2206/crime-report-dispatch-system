@@ -76,6 +76,27 @@ public class CaseReport {
     @Column(name = "spam_reasons", columnDefinition = "TEXT")
     private String spamReasons;
 
+    @Column(name = "fake_score", nullable = false)
+    private Integer fakeScore = 0;
+
+    @Column(name = "ai_confidence", nullable = false)
+    private Integer aiConfidence = 0;
+
+    @Column(name = "ai_decision", length = 50)
+    private String aiDecision;
+
+    @Column(name = "spam_detection_source", nullable = false, length = 50)
+    private String spamDetectionSource = "RULE_BASED";
+
+    @Column(name = "ai_model", length = 100)
+    private String aiModel;
+
+    @Column(name = "ai_checked_at")
+    private LocalDateTime aiCheckedAt;
+
+    @Column(name = "ai_error", columnDefinition = "TEXT")
+    private String aiError;
+
     @Version
     @Column(nullable = false)
     private Long version;

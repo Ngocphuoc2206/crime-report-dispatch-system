@@ -39,6 +39,13 @@ type CommanderCaseApiItem = {
   spamScore?: number | null;
   spamLevel?: "NONE" | "LOW" | "MEDIUM" | "HIGH" | null;
   spamReasons?: string | null;
+  fakeScore?: number | null;
+  aiConfidence?: number | null;
+  aiDecision?: string | null;
+  spamDetectionSource?: string | null;
+  aiModel?: string | null;
+  aiCheckedAt?: string | null;
+  aiError?: string | null;
   createdAt: string;
   updatedAt: string | null;
 };
@@ -221,6 +228,13 @@ function toCase(item: CommanderCaseApiItem, histories: CommanderCaseHistory[] = 
     spamScore: item.spamScore,
     spamLevel: item.spamLevel,
     spamReasons: item.spamReasons,
+    fakeScore: item.fakeScore,
+    aiConfidence: item.aiConfidence,
+    aiDecision: item.aiDecision,
+    spamDetectionSource: item.spamDetectionSource,
+    aiModel: item.aiModel,
+    aiCheckedAt: item.aiCheckedAt,
+    aiError: item.aiError,
     description: item.description,
     coordinate: latitude && longitude ? `${latitude}, ${longitude}` : "Chưa có toạ độ",
     latitude: hasCoordinates ? latitudeValue : null,

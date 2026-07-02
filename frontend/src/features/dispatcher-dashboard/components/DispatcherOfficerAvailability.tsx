@@ -21,7 +21,7 @@ const statusConfig: Record<
     borderClassName: "border-l-green-500",
   },
   BUSY: {
-    label: "Đang xử lý",
+    label: "Đang bận",
     className: "bg-red-50 text-red-700",
     borderClassName: "border-l-red-400",
   },
@@ -55,9 +55,9 @@ export function DispatcherOfficerAvailability() {
       try {
         const data = await dispatcherOfficerService.getAvailability();
 
-        if (!ignore && data.length > 0) {
+        if (!ignore) {
           setUnits(
-            data.slice(0, 6).map((officer) => ({
+            data.map((officer) => ({
               id: officer.id,
               unitCode: officer.unitCode,
               name: officer.fullName,
@@ -96,14 +96,21 @@ export function DispatcherOfficerAvailability() {
   });
 
   return (
-    <aside className="rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
-      <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-        <h2 className="text-xl font-bold text-slate-900">Tình trạng cán bộ</h2>
+    <aside className="flex max-h-[42rem] flex-col rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
+      <header className="flex shrink-0 items-center justify-between border-b border-slate-200 px-6 py-5">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900">
+            Tình trạng cán bộ
+          </h2>
+          <p className="mt-1 text-xs font-semibold uppercase text-slate-500">
+            {filteredUnits.length} / {units.length} cán bộ
+          </p>
+        </div>
 
         <button className="text-sm font-bold text-slate-500">...</button>
       </header>
 
-      <div className="mx-6 mt-5 grid grid-cols-3 rounded-lg bg-slate-50 p-1 text-center text-sm font-bold text-slate-600 ring-1 ring-slate-200">
+      <div className="mx-6 mt-5 grid shrink-0 grid-cols-3 rounded-lg bg-slate-50 p-1 text-center text-sm font-bold text-slate-600 ring-1 ring-slate-200">
         {filterOptions.map((option) => {
           const isActive = option.value === activeFilter;
 
@@ -125,7 +132,7 @@ export function DispatcherOfficerAvailability() {
         })}
       </div>
 
-      <div className="space-y-4 p-6">
+      <div className="mt-5 min-h-0 flex-1 space-y-4 overflow-y-auto px-6 pb-6 pr-4 [scrollbar-color:#cbd5e1_transparent] [scrollbar-width:thin]">
         {filteredUnits.length === 0 ? (
           <p className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-500">
             {units.length === 0

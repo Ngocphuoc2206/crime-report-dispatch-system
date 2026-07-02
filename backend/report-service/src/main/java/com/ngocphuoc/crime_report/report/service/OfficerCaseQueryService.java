@@ -91,6 +91,13 @@ public class OfficerCaseQueryService {
                 caseReport.getSpamScore(),
                 caseReport.getSpamLevel(),
                 caseReport.getSpamReasons(),
+                caseReport.getFakeScore(),
+                caseReport.getAiConfidence(),
+                caseReport.getAiDecision(),
+                caseReport.getSpamDetectionSource(),
+                caseReport.getAiModel(),
+                caseReport.getAiCheckedAt(),
+                caseReport.getAiError(),
 
                 caseReport.getCreatedAt(),
                 caseReport.getUpdatedAt()

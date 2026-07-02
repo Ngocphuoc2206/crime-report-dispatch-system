@@ -140,7 +140,7 @@ export function CommanderCasesContent() {
         <div className="grid gap-4 lg:grid-cols-[1fr_1fr_1.4fr_auto_auto]">
           <label className="block">
             <span className="text-sm font-bold text-slate-600">
-              Trạng thái
+              Trạng thái hồ sơ
             </span>
 
             <select
@@ -150,7 +150,7 @@ export function CommanderCasesContent() {
               }
               className="mt-2 w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-slate-800 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             >
-              <option value="ALL">Tất cả trạng thái</option>
+              <option value="ALL">Tất cả trạng thái hồ sơ</option>
               <option value="NEW">Mới tiếp nhận</option>
               <option value="PROCESSING">Đang xử lý</option>
               <option value="VERIFYING">Đang xác minh</option>
@@ -230,7 +230,7 @@ export function CommanderCasesContent() {
                     <th className="px-5 py-4">Mô tả ngắn</th>
                     <th className="px-5 py-4">Địa điểm</th>
                     <th className="px-5 py-4">Mức nguy cấp</th>
-                    <th className="px-5 py-4">Trạng thái</th>
+                    <th className="px-5 py-4">Trạng thái hồ sơ</th>
                   </tr>
                 </thead>
 

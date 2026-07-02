@@ -80,6 +80,10 @@ function toReassignOption(item: OfficerAvailabilityApiItem): ReassignUnitOption 
   };
 }
 
+function isActiveDispatchTask(item: AssignedDispatchTaskApiItem) {
+  return item.dispatchStatus !== "COMPLETED" && item.dispatchStatus !== "CANCELLED";
+}
+
 export const dispatcherAssignedService = {
   async getAssignedCases(): Promise<AssignedCase[]> {
     const response = await apiClient.get<AssignedDispatchTaskApiItem[]>(
@@ -87,7 +91,7 @@ export const dispatcherAssignedService = {
       { auth: true },
     );
 
-    return response.map(toAssignedCase);
+    return response.filter(isActiveDispatchTask).map(toAssignedCase);
   },
 
   async recallTask(taskId: string): Promise<AssignedCase> {

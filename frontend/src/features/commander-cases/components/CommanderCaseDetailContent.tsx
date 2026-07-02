@@ -54,6 +54,12 @@ function getOpenStreetMapUrl(latitude: number, longitude: number) {
   )}/${encodeURIComponent(String(longitude))}`;
 }
 
+function getSpamSourceLabel(source?: string | null) {
+  if (source === "HYBRID") return "Rule + AI";
+  if (source === "RULE_BASED") return "Rule-based";
+  return source || "Chưa cập nhật";
+}
+
 export function CommanderCaseDetailContent({
   caseCode,
 }: CommanderCaseDetailContentProps) {
@@ -275,6 +281,18 @@ export function CommanderCaseDetailContent({
                     Điểm: {activeCase.spamScore ?? 0}
                     {activeCase.spamReasons ? ` - ${activeCase.spamReasons}` : ""}
                   </p>
+                  <p className="mt-2 text-xs font-semibold text-red-800">
+                    Nguồn phân tích: {getSpamSourceLabel(activeCase.spamDetectionSource)}
+                    {activeCase.aiDecision ? ` - AI: ${activeCase.aiDecision}` : ""}
+                    {activeCase.aiConfidence != null
+                      ? ` - Tin cậy AI: ${activeCase.aiConfidence}%`
+                      : ""}
+                  </p>
+                  {activeCase.aiError ? (
+                    <p className="mt-2 rounded-md border border-red-200 bg-white px-3 py-2 text-xs text-red-800">
+                      AI fallback: {activeCase.aiError}
+                    </p>
+                  ) : null}
                 </div>
               ) : null}
 

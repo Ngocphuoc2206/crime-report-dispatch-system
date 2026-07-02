@@ -1,5 +1,6 @@
 export type CommanderCaseSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 export type CommanderCaseSpamLevel = "NONE" | "LOW" | "MEDIUM" | "HIGH";
+export type CommanderCaseSpamSource = "RULE_BASED" | "HYBRID" | string;
 
 export type CommanderCaseStatus =
   | "NEW"
@@ -43,6 +44,13 @@ export type CommanderCase = {
   spamScore?: number | null;
   spamLevel?: CommanderCaseSpamLevel | null;
   spamReasons?: string | null;
+  fakeScore?: number | null;
+  aiConfidence?: number | null;
+  aiDecision?: string | null;
+  spamDetectionSource?: CommanderCaseSpamSource | null;
+  aiModel?: string | null;
+  aiCheckedAt?: string | null;
+  aiError?: string | null;
   description: string;
   coordinate: string;
   latitude?: number | null;

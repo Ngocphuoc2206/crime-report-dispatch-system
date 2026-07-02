@@ -21,6 +21,13 @@ public record CommanderCaseResponse(
         Integer spamScore,
         String spamLevel,
         String spamReasons,
+        Integer fakeScore,
+        Integer aiConfidence,
+        String aiDecision,
+        String spamDetectionSource,
+        String aiModel,
+        LocalDateTime aiCheckedAt,
+        String aiError,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {

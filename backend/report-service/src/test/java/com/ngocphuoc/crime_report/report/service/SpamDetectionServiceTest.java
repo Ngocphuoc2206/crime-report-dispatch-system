@@ -12,8 +12,7 @@ public class SpamDetectionServiceTest {
     private final SpamDetectionService spamDetectionService = new SpamDetectionService();
 
     @Test
-    void shouldDetectSpamReport(){
-        // Arrange
+    void shouldDetectSpamReport() {
         CreateReportRequest request = request(
                 "Khuyến mãi vay tiền nhanh click www.vaynhanh.com nhận tiền ngay",
                 false,
@@ -21,17 +20,29 @@ public class SpamDetectionServiceTest {
                 false
         );
 
-        //Act
         SpamDetectionResult spamDetectionResult = spamDetectionService.analyze(request);
 
-        // Assert
         Assertions.assertEquals("HIGH", spamDetectionResult.level());
         Assertions.assertTrue(spamDetectionResult.score() >= 80);
     }
 
     @Test
-    void shouldKeepEmergencyReportAsNotSpam(){
-        // Arrange
+    void shouldDetectBettingPromotionLinkAsHighSpam() {
+        CreateReportRequest request = request(
+                "Nhà cái 8xbet đến từ châu Âu: https://8xbetpromo.com/",
+                false,
+                false,
+                false
+        );
+
+        SpamDetectionResult spamDetectionResult = spamDetectionService.analyze(request);
+
+        Assertions.assertEquals("HIGH", spamDetectionResult.level());
+        Assertions.assertTrue(spamDetectionResult.score() >= 80);
+    }
+
+    @Test
+    void shouldKeepEmergencyReportAsNotSpam() {
         CreateReportRequest request = request(
                 "Có người đang cầm dao, đang uy hiếp một người khác, có người bị thương",
                 true,
@@ -39,10 +50,8 @@ public class SpamDetectionServiceTest {
                 true
         );
 
-        // Act
         SpamDetectionResult spamDetectionResult = spamDetectionService.analyze(request);
 
-        // Assert
         Assertions.assertEquals("NONE", spamDetectionResult.level());
         Assertions.assertEquals(0, spamDetectionResult.score());
     }
@@ -51,15 +60,15 @@ public class SpamDetectionServiceTest {
             String description,
             boolean isHappeningNow,
             boolean hasWeapon,
-            boolean hasInjuredPerson)
-    {
+            boolean hasInjuredPerson
+    ) {
         return new CreateReportRequest(
                 1L,
                 description,
                 LocalDateTime.now(),
-                false,
-                false,
-                false,
+                isHappeningNow,
+                hasWeapon,
+                hasInjuredPerson,
                 BigDecimal.valueOf(10.776889),
                 BigDecimal.valueOf(106.700806),
                 "Phường Bến Nghé, Quận 1, TP.HCM",

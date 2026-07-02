@@ -158,7 +158,7 @@ export function DispatcherAssignedDetailContent({
     return (
       <div className="px-8 py-8">
         <section className="rounded-xl border border-red-200 bg-white p-8">
-          <h1 className="text-3xl font-black text-[var(--primary)]">
+          <h1 className="text-3xl font-bold text-[var(--primary)]">
             Không tìm thấy nhiệm vụ điều phối
           </h1>
 
@@ -168,7 +168,7 @@ export function DispatcherAssignedDetailContent({
 
           <Link
             href="/dispatcher/assigned"
-            className="mt-6 inline-flex rounded-lg bg-[var(--primary)] px-5 py-3 font-black text-white"
+            className="mt-6 inline-flex rounded-lg bg-[var(--primary)] px-5 py-3 font-bold text-white"
           >
             Quay lại danh sách
           </Link>
@@ -180,7 +180,7 @@ export function DispatcherAssignedDetailContent({
   return (
     <div className="relative px-8 py-8">
       {toast ? (
-        <div className="fixed bottom-8 right-8 z-50 rounded-xl bg-white px-6 py-4 font-black text-slate-900 shadow-2xl ring-1 ring-red-100">
+        <div className="fixed bottom-8 right-8 z-50 rounded-xl bg-white px-6 py-4 font-bold text-slate-900 shadow-2xl ring-1 ring-red-100">
           {toast}
         </div>
       ) : null}
@@ -205,7 +205,7 @@ export function DispatcherAssignedDetailContent({
             type="button"
             disabled={!canOperate}
             onClick={() => setSelectedCase(currentCase)}
-            className="rounded-lg bg-[var(--primary)] px-5 py-3 font-black text-white hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:bg-slate-300"
+            className="rounded-lg bg-[var(--primary)] px-5 py-3 font-bold text-white hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:bg-slate-300"
           >
             Đổi đơn vị
           </button>
@@ -214,7 +214,7 @@ export function DispatcherAssignedDetailContent({
             type="button"
             disabled={!canOperate}
             onClick={() => void handleRecall()}
-            className="rounded-lg border border-orange-200 bg-white px-5 py-3 font-black text-orange-700 hover:bg-orange-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400"
+            className="rounded-lg border border-orange-200 bg-white px-5 py-3 font-bold text-orange-700 hover:bg-orange-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400"
           >
             Thu hồi
           </button>
@@ -226,15 +226,15 @@ export function DispatcherAssignedDetailContent({
           <section className="rounded-xl border border-red-200 bg-white p-6 shadow-sm">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-black uppercase text-[var(--primary)]">
+                <p className="text-sm font-bold uppercase text-[var(--primary)]">
                   Nhiệm vụ điều phối
                 </p>
 
-                <h1 className="mt-2 text-4xl font-black text-slate-950">
+                <h1 className="mt-2 text-3xl font-bold text-slate-950">
                   #{currentCase.caseCode}
                 </h1>
 
-                <p className="mt-2 text-lg font-semibold text-slate-700">
+                <p className="mt-2 text-base font-semibold text-slate-700">
                   {currentCase.title}
                 </p>
               </div>
@@ -256,9 +256,7 @@ export function DispatcherAssignedDetailContent({
           </section>
 
           <section className="rounded-xl border border-red-200 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-black text-red-950">
-              Thông tin xử lý
-            </h2>
+            <h2 className="text-xl font-bold text-red-950">Thông tin xử lý</h2>
 
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <InfoBlock
@@ -280,7 +278,7 @@ export function DispatcherAssignedDetailContent({
 
         <aside className="rounded-xl border border-red-200 bg-white shadow-sm">
           <header className="border-b border-red-100 px-5 py-4">
-            <h2 className="text-2xl font-black text-red-950">
+            <h2 className="text-xl font-bold text-red-950">
               Nhật ký điều phối
             </h2>
           </header>
@@ -298,7 +296,7 @@ export function DispatcherAssignedDetailContent({
                 className="rounded-xl border border-red-100 bg-red-50/40 p-4"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <p className="font-black text-slate-950">
+                  <p className="font-bold text-slate-950">
                     {actionLabels[item.action] ?? item.action}
                   </p>
                   <span className="text-xs font-bold text-slate-500">
@@ -327,10 +325,10 @@ export function DispatcherAssignedDetailContent({
 function InfoBlock({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-red-100 bg-slate-50 p-4">
-      <p className="text-xs font-black uppercase tracking-wide text-slate-500">
+      <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
         {label}
       </p>
-      <p className="mt-2 font-black text-slate-950">{value}</p>
+      <p className="mt-2 font-semibold text-slate-950">{value}</p>
     </div>
   );
 }

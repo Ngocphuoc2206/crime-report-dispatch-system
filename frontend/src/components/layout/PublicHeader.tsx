@@ -34,12 +34,13 @@ function EmblemIcon() {
 export function PublicHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathName = usePathname();
+
   return (
     <header className="sticky top-0 z-50 border-b border-(--border) bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-6 px-5 md:h-20 md:px-6">
+      <div className="grid h-18 w-full grid-cols-[1fr_auto] items-center gap-4 px-5 md:h-20 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:px-8 xl:px-12">
         <Link
           href="/"
-          className="flex min-w-0 items-center gap-3"
+          className="flex min-w-0 items-center gap-3 justify-self-start"
           aria-label="Trang chủ"
         >
           <EmblemIcon />
@@ -51,7 +52,7 @@ export function PublicHeader() {
 
         <nav
           aria-label="Điều hướng chính"
-          className="hidden items-center gap-7 md:flex"
+          className="hidden items-center justify-center gap-7 md:flex"
         >
           {navigation.map((item) => {
             const isActive =
@@ -78,7 +79,7 @@ export function PublicHeader() {
           })}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center justify-self-end md:flex">
           <Link
             href="/login"
             className="rounded-md bg-(--primary) px-3 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-(--primary-hover)"
@@ -88,7 +89,7 @@ export function PublicHeader() {
         </div>
 
         <div
-          className="relative md:hidden"
+          className="relative justify-self-end md:hidden"
           onMouseEnter={() => setIsMenuOpen(true)}
           onMouseLeave={() => setIsMenuOpen(false)}
         >
@@ -100,7 +101,6 @@ export function PublicHeader() {
             onClick={() => setIsMenuOpen((open) => !open)}
             className="relative flex size-11 items-center justify-center rounded-md border border-(--border) text-slate-700 transition-colors duration-300 hover:border-(--primary) hover:bg-red-50 hover:text-(--primary)"
           >
-            {/* Hamburger */}
             <svg
               aria-hidden="true"
               viewBox="0 0 24 24"
@@ -115,12 +115,11 @@ export function PublicHeader() {
                 d="M4 7h16M4 12h16M4 17h16"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
                 strokeLinecap="round"
+                strokeWidth="2"
               />
             </svg>
 
-            {/* Mũi tên */}
             <svg
               aria-hidden="true"
               viewBox="0 0 24 24"
@@ -135,9 +134,9 @@ export function PublicHeader() {
                 d="m6 15 6-6 6 6"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                strokeWidth="2"
               />
             </svg>
           </button>
@@ -170,7 +169,7 @@ export function PublicHeader() {
               </Link>
             ))}
 
-            <div className="mt-4 gap-2">
+            <div className="mt-4 grid">
               <Link
                 href="/login"
                 onClick={() => setIsMenuOpen(false)}
