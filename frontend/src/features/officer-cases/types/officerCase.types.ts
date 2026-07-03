@@ -7,6 +7,11 @@ export type OfficerCaseStatus =
 
 export type OfficerCasePriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 export type OfficerCaseSpamLevel = "NONE" | "LOW" | "MEDIUM" | "HIGH";
+export type OfficerCaseEvidenceVerificationStatus =
+  | "PENDING"
+  | "VERIFIED"
+  | "REJECTED"
+  | "NEEDS_MORE_INFO";
 
 export type OfficerCaseReporterMode = "anonymous" | "identified";
 
@@ -30,6 +35,10 @@ export type OfficerCaseEvidence = {
   type: string;
   size: string;
   uploadedAt: string;
+  verificationStatus: OfficerCaseEvidenceVerificationStatus;
+  verificationNote?: string | null;
+  verifiedByUserId?: number | null;
+  verifiedAt?: string | null;
 };
 
 export type OfficerCaseTimelineItem = {
@@ -133,6 +142,10 @@ export type OfficerCaseEvidenceApiItem = {
   fileType?: string | null;
   checksumSha256?: string | null;
   uploadedAt: string;
+  verificationStatus?: OfficerCaseEvidenceVerificationStatus | null;
+  verificationNote?: string | null;
+  verifiedByUserId?: number | null;
+  verifiedAt?: string | null;
 };
 
 export type OfficerCasePage<T> = {

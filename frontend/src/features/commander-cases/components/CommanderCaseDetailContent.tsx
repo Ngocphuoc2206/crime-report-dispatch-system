@@ -11,9 +11,12 @@ import { CommanderStatusUpdateModal } from "@/features/commander-cases/component
 import { commanderCaseService } from "@/features/commander-cases/services/commanderCaseService";
 import type {
   CommanderCase,
+  CommanderCaseEvidenceVerificationStatus,
   CommanderCaseStatus,
 } from "@/features/commander-cases/types/commanderCase.types";
+import { endpoints } from "@/services/endpoints";
 import { formatVietnamDateTime } from "@/utils/dateTime";
+import { openEvidenceFile } from "@/utils/evidenceDownload";
 
 type CommanderCaseDetailContentProps = {
   caseCode: string;
@@ -60,6 +63,28 @@ function getSpamSourceLabel(source?: string | null) {
   return source || "Chưa cập nhật";
 }
 
+const evidenceVerificationLabels: Record<
+  CommanderCaseEvidenceVerificationStatus,
+  { label: string; className: string }
+> = {
+  PENDING: {
+    label: "Chưa xem",
+    className: "border-slate-200 bg-slate-100 text-slate-700",
+  },
+  VERIFIED: {
+    label: "Hợp lệ",
+    className: "border-green-200 bg-green-50 text-green-700",
+  },
+  REJECTED: {
+    label: "Không hợp lệ",
+    className: "border-red-200 bg-red-50 text-red-700",
+  },
+  NEEDS_MORE_INFO: {
+    label: "Cần bổ sung",
+    className: "border-amber-200 bg-amber-50 text-amber-700",
+  },
+};
+
 export function CommanderCaseDetailContent({
   caseCode,
 }: CommanderCaseDetailContentProps) {
@@ -67,6 +92,7 @@ export function CommanderCaseDetailContent({
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMutating, setIsMutating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function loadDetail() {
@@ -150,6 +176,30 @@ export function CommanderCaseDetailContent({
             : "Không cập nhật được trạng thái.",
         );
       });
+  }
+
+  async function updateEvidenceVerification(
+    evidenceId: string,
+    status: CommanderCaseEvidenceVerificationStatus,
+  ) {
+    const note = window.prompt("Ghi chú xác minh minh chứng", "");
+    setIsMutating(true);
+    setError(null);
+
+    try {
+      await commanderCaseService.updateEvidenceVerification(evidenceId, status, note);
+      await loadDetail();
+      setToast("Đã cập nhật trạng thái minh chứng");
+      window.setTimeout(() => setToast(null), 2200);
+    } catch (updateError) {
+      setError(
+        updateError instanceof Error
+          ? updateError.message
+          : "Không cập nhật được trạng thái minh chứng.",
+      );
+    } finally {
+      setIsMutating(false);
+    }
   }
 
   return (
@@ -320,6 +370,72 @@ export function CommanderCaseDetailContent({
                     <p className="mt-2 text-sm text-slate-500">
                       {file.type.toUpperCase()} - {file.size}
                     </p>
+                    <span
+                      className={[
+                        "mt-3 inline-flex rounded-full border px-3 py-1 text-xs font-bold",
+                        evidenceVerificationLabels[file.verificationStatus].className,
+                      ].join(" ")}
+                    >
+                      {evidenceVerificationLabels[file.verificationStatus].label}
+                    </span>
+                    {file.verificationNote ? (
+                      <p className="mt-2 text-xs text-slate-500">
+                        Ghi chú: {file.verificationNote}
+                      </p>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void openEvidenceFile(
+                          endpoints.commanderEvidenceDownload(file.id),
+                          file.name,
+                        )
+                      }
+                      className="mt-4 rounded-md border border-red-200 px-3 py-2 text-sm font-bold text-[var(--primary)] hover:bg-red-50"
+                    >
+                      Xem / tải
+                    </button>
+                    {!readOnly ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        disabled={isMutating}
+                        onClick={() =>
+                          void updateEvidenceVerification(file.id, "VERIFIED")
+                        }
+                        className="rounded-md border border-green-200 px-3 py-2 text-xs font-bold text-green-700 hover:bg-green-50 disabled:opacity-60"
+                      >
+                        Hợp lệ
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isMutating}
+                        onClick={() =>
+                          void updateEvidenceVerification(file.id, "REJECTED")
+                        }
+                        className="rounded-md border border-red-200 px-3 py-2 text-xs font-bold text-red-700 hover:bg-red-50 disabled:opacity-60"
+                      >
+                        Không hợp lệ
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isMutating}
+                        onClick={() =>
+                          void updateEvidenceVerification(
+                            file.id,
+                            "NEEDS_MORE_INFO",
+                          )
+                        }
+                        className="rounded-md border border-amber-200 px-3 py-2 text-xs font-bold text-amber-700 hover:bg-amber-50 disabled:opacity-60"
+                      >
+                        Cần bổ sung
+                      </button>
+                    </div>
+                    ) : (
+                      <p className="mt-3 rounded-md bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-500">
+                        Hồ sơ đã kết thúc, minh chứng chỉ còn để xem lại.
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>

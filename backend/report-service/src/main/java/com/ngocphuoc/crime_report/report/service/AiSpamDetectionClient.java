@@ -58,7 +58,7 @@ public class AiSpamDetectionClient {
                     .requestFactory(requestFactory)
                     .build();
 
-            String prompt = buildPrompt(request, crimeType, ruleResult);
+            String prompt = buildPromptV2(request, crimeType, ruleResult);
 
             Map<String, Object> body = Map.of(
                     "model", model,
@@ -106,7 +106,7 @@ public class AiSpamDetectionClient {
         }
     }
 
-    private String buildPrompt(
+    private String buildPromptV2(
             CreateReportRequest request,
             CrimeType crimeType,
             SpamDetectionResult ruleResult
@@ -192,17 +192,31 @@ public class AiSpamDetectionClient {
             return AiSpamDetectionResult.fallback("AI response has no output");
         }
 
-        JsonNode content = output.get(0).path("content");
-        if (!content.isArray() || content.isEmpty()) {
-            return AiSpamDetectionResult.fallback("AI response has no content");
-        }
-
-        String jsonText = content.get(0).path("text").asText();
+        String jsonText = extractOutputText(output);
         if (jsonText == null || jsonText.isBlank()) {
             return AiSpamDetectionResult.fallback("AI response text is empty");
         }
 
         return objectMapper.readValue(jsonText, AiSpamDetectionResult.class);
+    }
+
+    private String extractOutputText(JsonNode output) {
+        for (JsonNode outputItem : output) {
+            JsonNode content = outputItem.path("content");
+            if (!content.isArray() || content.isEmpty()) {
+                continue;
+            }
+
+            for (JsonNode contentItem : content) {
+                String type = contentItem.path("type").asText();
+                String text = contentItem.path("text").asText();
+                if ("output_text".equals(type) && text != null && !text.isBlank()) {
+                    return text;
+                }
+            }
+        }
+
+        return null;
     }
 
     private String safe(String value) {

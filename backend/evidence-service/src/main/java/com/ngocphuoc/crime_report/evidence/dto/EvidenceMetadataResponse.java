@@ -10,6 +10,10 @@ public record EvidenceMetadataResponse(
         Long sizeBytes,
         String fileType,
         String checksumSha256,
-        LocalDateTime uploadedAt
+        LocalDateTime uploadedAt,
+        String verificationStatus,
+        String verificationNote,
+        Long verifiedByUserId,
+        LocalDateTime verifiedAt
 ) {
 }

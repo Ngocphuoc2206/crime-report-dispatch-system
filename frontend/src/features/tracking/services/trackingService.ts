@@ -5,4 +5,15 @@ import type { ReportStatusResponse } from "@/features/tracking/types/tracking.ty
 export const trackingService = {
   getStatus: (trackingCode: string) =>
     apiClient.get<ReportStatusResponse>(endpoints.reportStatus(trackingCode)),
+
+  uploadSupplementalEvidence: (trackingCode: string, files: File[]) => {
+    const formData = new FormData();
+
+    files.forEach((file) => formData.append("files", file, file.name));
+
+    return apiClient.postForm<{ trackingCode: string }>(
+      endpoints.reportEvidences(trackingCode),
+      formData,
+    );
+  },
 };

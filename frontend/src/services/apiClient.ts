@@ -66,6 +66,35 @@ async function request<T>(
   return responseBody.data;
 }
 
+function getAuthToken() {
+  return typeof window !== "undefined"
+    ? sessionStorage.getItem("accessToken") ?? localStorage.getItem("accessToken")
+    : null;
+}
+
+async function requestBlob(path: string, options: RequestOptions = {}) {
+  const url = `${env.apiBaseUrl}${path}`;
+  const headers = new Headers(options.headers);
+
+  if (options.auth) {
+    const token = getAuthToken();
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+  }
+
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
+  }
+
+  return response.blob();
+}
+
 export const apiClient = {
   get: <T>(path: string, options?: RequestOptions) =>
     request<T>(path, { ...options, method: "GET" }),
@@ -100,4 +129,7 @@ export const apiClient = {
 
   delete: <T>(path: string, options?: RequestOptions) =>
     request<T>(path, { ...options, method: "DELETE" }),
+
+  blob: (path: string, options?: RequestOptions) =>
+    requestBlob(path, { ...options, method: "GET" }),
 };

@@ -3,6 +3,7 @@ import { endpoints } from "@/services/endpoints";
 import type {
   CommanderCase,
   CommanderCaseAttachment,
+  CommanderCaseEvidenceVerificationStatus,
   CommanderCaseHistory,
   CommanderCaseSeverity,
   CommanderCaseStatus,
@@ -50,6 +51,20 @@ type CommanderCaseApiItem = {
   updatedAt: string | null;
 };
 
+type CommanderCaseEvidenceApiItem = {
+  id: number;
+  caseId: number;
+  originalFilename: string;
+  contentType?: string | null;
+  sizeBytes?: number | null;
+  fileType?: string | null;
+  uploadedAt: string;
+  verificationStatus?: CommanderCaseEvidenceVerificationStatus | null;
+  verificationNote?: string | null;
+  verifiedByUserId?: number | null;
+  verifiedAt?: string | null;
+};
+
 type CommanderCaseHistoryApiItem = {
   id: number;
   action: string;
@@ -61,6 +76,7 @@ type CommanderCaseHistoryApiItem = {
 };
 
 type CommanderCaseDetailApiItem = CommanderCaseApiItem & {
+  evidences?: CommanderCaseEvidenceApiItem[];
   histories: CommanderCaseHistoryApiItem[];
 };
 
@@ -133,6 +149,38 @@ function toSummary(value: string) {
   return value.length > 160 ? `${value.slice(0, 157)}...` : value;
 }
 
+function formatFileSize(sizeBytes?: number | null) {
+  if (!sizeBytes) return "Không rõ";
+
+  if (sizeBytes < 1024 * 1024) {
+    return `${Math.max(1, Math.round(sizeBytes / 1024))} KB`;
+  }
+
+  return `${(sizeBytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function toAttachment(file: CommanderCaseEvidenceApiItem): CommanderCaseAttachment {
+  const fileType = (file.fileType || file.contentType || "image").toLowerCase();
+  const normalizedType =
+    fileType.includes("video")
+      ? "video"
+      : fileType.includes("audio")
+        ? "audio"
+        : "image";
+
+  return {
+    id: String(file.id),
+    name: file.originalFilename,
+    type: normalizedType,
+    size: formatFileSize(file.sizeBytes),
+    uploadedAt: file.uploadedAt,
+    verificationStatus: file.verificationStatus ?? "PENDING",
+    verificationNote: file.verificationNote,
+    verifiedByUserId: file.verifiedByUserId,
+    verifiedAt: file.verifiedAt,
+  };
+}
+
 function getBackendStatusLabel(status?: BackendCaseStatus | null) {
   const labels: Record<BackendCaseStatus, string> = {
     NEW_RECEIVED: "Mới tiếp nhận",
@@ -202,14 +250,18 @@ function toHistory(item: CommanderCaseHistoryApiItem): CommanderCaseHistory {
   };
 }
 
-function toCase(item: CommanderCaseApiItem, histories: CommanderCaseHistory[] = []): CommanderCase {
+function toCase(
+  item: CommanderCaseApiItem,
+  histories: CommanderCaseHistory[] = [],
+  evidences: CommanderCaseEvidenceApiItem[] = [],
+): CommanderCase {
   const latitude = item.latitude == null ? "" : String(item.latitude);
   const longitude = item.longitude == null ? "" : String(item.longitude);
   const latitudeValue = Number(item.latitude);
   const longitudeValue = Number(item.longitude);
   const hasCoordinates =
     Number.isFinite(latitudeValue) && Number.isFinite(longitudeValue);
-  const attachments: CommanderCaseAttachment[] = [];
+  const attachments = evidences.map(toAttachment);
 
   return {
     code: item.trackingCode,
@@ -285,6 +337,7 @@ export const commanderCaseService = {
             new Date(right.createdAt).getTime(),
         )
         .map(toHistory),
+      item.evidences ?? [],
     );
   },
 
@@ -315,8 +368,23 @@ export const commanderCaseService = {
             new Date(right.createdAt).getTime(),
         )
         .map(toHistory),
+      item.evidences ?? [],
     );
   },
+
+  updateEvidenceVerification: (
+    evidenceId: string | number,
+    status: CommanderCaseEvidenceVerificationStatus,
+    note: string | null,
+  ) =>
+    apiClient.patch<
+      CommanderCaseEvidenceApiItem,
+      { status: CommanderCaseEvidenceVerificationStatus; note: string | null }
+    >(
+      endpoints.commanderEvidenceVerification(evidenceId),
+      { status, note },
+      { auth: true },
+    ),
 
   getActivity: (limit = 20) =>
     apiClient.get<CommanderActivityApiItem[]>(

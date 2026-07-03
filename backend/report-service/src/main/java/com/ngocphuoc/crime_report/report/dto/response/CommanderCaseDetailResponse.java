@@ -31,6 +31,7 @@ public record CommanderCaseDetailResponse(
         String aiError,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
+        List<EvidenceMetadataResponse> evidences,
         List<CommanderCaseHistoryResponse> histories
 ) {
 }

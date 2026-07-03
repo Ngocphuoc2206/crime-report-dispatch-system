@@ -31,7 +31,11 @@ public class EvidenceMetadataService {
                 evidenceFile.getFileSize(),
                 evidenceFile.getFileType().name(),
                 evidenceFile.getChecksum(),
-                evidenceFile.getUploadedAt()
+                evidenceFile.getUploadedAt(),
+                evidenceFile.getVerificationStatus().name(),
+                evidenceFile.getVerificationNote(),
+                evidenceFile.getVerifiedByUserId(),
+                evidenceFile.getVerifiedAt()
         );
     }
 }

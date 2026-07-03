@@ -1,6 +1,11 @@
 export type CommanderCaseSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 export type CommanderCaseSpamLevel = "NONE" | "LOW" | "MEDIUM" | "HIGH";
 export type CommanderCaseSpamSource = "RULE_BASED" | "HYBRID" | string;
+export type CommanderCaseEvidenceVerificationStatus =
+  | "PENDING"
+  | "VERIFIED"
+  | "REJECTED"
+  | "NEEDS_MORE_INFO";
 
 export type CommanderCaseStatus =
   | "NEW"
@@ -15,6 +20,11 @@ export type CommanderCaseAttachment = {
   name: string;
   type: "image" | "audio" | "video" | "pdf";
   size: string;
+  uploadedAt?: string;
+  verificationStatus: CommanderCaseEvidenceVerificationStatus;
+  verificationNote?: string | null;
+  verifiedByUserId?: number | null;
+  verifiedAt?: string | null;
 };
 
 export type CommanderCaseHistory = {

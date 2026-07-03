@@ -2,6 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import {
+  allowedEvidenceMimeTypes,
+  formatFileSize,
+  getMaxFileSizeByKind,
+  MAX_EVIDENCE_FILES,
+  MAX_EVIDENCE_TOTAL_SIZE,
+} from "@/features/report-submission/data/evidenceUpload.config";
 import { TrackingDetailSummary } from "@/features/tracking/components/TrackingDetailSummary";
 import { TrackingTimeline } from "@/features/tracking/components/TrackingTimeline";
 import { trackingService } from "@/features/tracking/services/trackingService";
@@ -93,6 +100,10 @@ export function TrackingDetailPageContent({
   const [detail, setDetail] = useState<TrackingCaseDetail>();
   const [error, setError] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadError, setUploadError] = useState<string>();
+  const [uploadMessage, setUploadMessage] = useState<string>();
+  const [isUploading, setIsUploading] = useState(false);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -126,6 +137,74 @@ export function TrackingDetailPageContent({
       isActive = false;
     };
   }, [trackingCode]);
+
+  function validateFiles(files: File[]) {
+    if (files.length > MAX_EVIDENCE_FILES) {
+      return `Chỉ được gửi tối đa ${MAX_EVIDENCE_FILES} tệp.`;
+    }
+
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+    if (totalSize > MAX_EVIDENCE_TOTAL_SIZE) {
+      return "Tổng dung lượng minh chứng vượt quá giới hạn 190MB.";
+    }
+
+    for (const file of files) {
+      const kind = allowedEvidenceMimeTypes[file.type];
+      if (!kind) {
+        return `Tệp ${file.name} không đúng định dạng ảnh, video hoặc âm thanh.`;
+      }
+
+      if (file.size > getMaxFileSizeByKind(kind)) {
+        return `Tệp ${file.name} vượt quá dung lượng cho phép.`;
+      }
+    }
+
+    return null;
+  }
+
+  function handleSelectFiles(files: FileList | null) {
+    if (!files) return;
+
+    const nextFiles = Array.from(files);
+    const validationError = validateFiles(nextFiles);
+
+    setUploadError(validationError ?? undefined);
+    setUploadMessage(undefined);
+    setSelectedFiles(validationError ? [] : nextFiles);
+  }
+
+  async function handleUploadSupplementalEvidence() {
+    if (selectedFiles.length === 0) {
+      setUploadError("Vui lòng chọn ít nhất một tệp minh chứng.");
+      return;
+    }
+
+    const validationError = validateFiles(selectedFiles);
+    if (validationError) {
+      setUploadError(validationError);
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadError(undefined);
+    setUploadMessage(undefined);
+
+    try {
+      await trackingService.uploadSupplementalEvidence(trackingCode, selectedFiles);
+      const report = await trackingService.getStatus(trackingCode);
+      setDetail(toTrackingDetail(report));
+      setSelectedFiles([]);
+      setUploadMessage("Đã gửi minh chứng bổ sung. Cơ quan xử lý sẽ kiểm tra lại.");
+    } catch (uploadFailure) {
+      setUploadError(
+        uploadFailure instanceof Error
+          ? uploadFailure.message
+          : "Không gửi được minh chứng bổ sung.",
+      );
+    } finally {
+      setIsUploading(false);
+    }
+  }
 
   async function handleCopy() {
     await navigator.clipboard.writeText(trackingCode);
@@ -213,6 +292,86 @@ export function TrackingDetailPageContent({
         <section className="mt-10 grid gap-8 lg:grid-cols-[25rem_1fr]">
           <div className="space-y-5">
             <TrackingDetailSummary detail={detail} />
+            {detail.needsAdditionalEvidence ? (
+              <section className="rounded-xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
+                <h2 className="text-lg font-bold text-amber-950">
+                  Cần bổ sung minh chứng
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-amber-900">
+                  Cơ quan xử lý cần thêm tài liệu để tiếp tục xác minh tin báo.
+                  Vui lòng đọc ghi chú và gửi bổ sung ảnh, video hoặc âm thanh phù hợp.
+                </p>
+
+                <div className="mt-4 space-y-3">
+                  {(detail.evidenceRequests ?? []).map((request) => (
+                    <div
+                      key={request.id}
+                      className="rounded-lg border border-amber-200 bg-white p-4 text-sm text-slate-700"
+                    >
+                      <p className="font-bold text-slate-900">
+                        {request.originalFilename}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Yêu cầu lúc: {request.verifiedAt ?? request.uploadedAt}
+                      </p>
+                      <p className="mt-3 leading-6">
+                        {request.verificationNote ||
+                          "Vui lòng bổ sung minh chứng rõ ràng hơn cho nội dung đã báo."}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-5 rounded-lg border border-dashed border-amber-300 bg-white p-4">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*,video/*,audio/*"
+                    onChange={(event) => handleSelectFiles(event.target.files)}
+                    className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-md file:border-0 file:bg-[var(--primary)] file:px-4 file:py-2 file:font-bold file:text-white"
+                  />
+
+                  {selectedFiles.length > 0 ? (
+                    <div className="mt-4 space-y-2">
+                      {selectedFiles.map((file) => (
+                        <div
+                          key={`${file.name}-${file.size}`}
+                          className="flex items-center justify-between gap-3 rounded-md bg-slate-50 px-3 py-2 text-sm"
+                        >
+                          <span className="truncate font-semibold text-slate-700">
+                            {file.name}
+                          </span>
+                          <span className="shrink-0 text-xs text-slate-500">
+                            {formatFileSize(file.size)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {uploadError ? (
+                    <p className="mt-3 text-sm font-semibold text-[var(--primary)]">
+                      {uploadError}
+                    </p>
+                  ) : null}
+
+                  {uploadMessage ? (
+                    <p className="mt-3 text-sm font-semibold text-green-700">
+                      {uploadMessage}
+                    </p>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    disabled={isUploading}
+                    onClick={() => void handleUploadSupplementalEvidence()}
+                    className="mt-4 w-full rounded-md bg-[var(--primary)] px-5 py-3 font-bold text-white transition hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:bg-slate-300"
+                  >
+                    {isUploading ? "Đang gửi..." : "Gửi minh chứng bổ sung"}
+                  </button>
+                </div>
+              </section>
+            ) : null}
             <button
               type="button"
               onClick={handleCopy}

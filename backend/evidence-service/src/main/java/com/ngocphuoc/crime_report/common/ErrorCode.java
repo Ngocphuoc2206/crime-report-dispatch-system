@@ -10,6 +10,10 @@ public enum ErrorCode implements com.ngocphuoc.crime_report.shared.error.ErrorCo
             "EVIDENCE_1007",
             "Only image, video, or audio evidence files are supported"
     ),
+    EVIDENCE_CASE_CLOSED(
+            "EVIDENCE_1008",
+            "Case has already been closed, evidence can no longer be updated"
+    ),
 
     // Uncategorized
     UNCATEGORIZED_EXCEPTION("EVIDENCE_9998", "UNCATEGORIZED_EXCEPTION!")

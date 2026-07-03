@@ -9,6 +9,8 @@ import com.ngocphuoc.crime_report.report.dto.response.CommanderCaseDetailRespons
 import com.ngocphuoc.crime_report.report.dto.response.CommanderCaseHistoryResponse;
 import com.ngocphuoc.crime_report.report.dto.response.CommanderCaseResponse;
 import com.ngocphuoc.crime_report.report.client.dispatch.DispatchClient;
+import com.ngocphuoc.crime_report.report.client.evidence.EvidenceClient;
+import com.ngocphuoc.crime_report.report.dto.response.EvidenceMetadataResponse;
 import com.ngocphuoc.crime_report.report.entity.CaseHistory;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
 import com.ngocphuoc.crime_report.report.repository.CaseHistoryRepository;
@@ -30,6 +32,7 @@ public class CommanderCaseService {
     private final CaseHistoryRepository caseHistoryRepository;
     private final CaseStatusStateMachine caseStatusStateMachine;
     private final DispatchClient dispatchClient;
+    private final EvidenceClient evidenceClient;
 
     @Transactional(readOnly = true)
     public Page<CommanderCaseResponse> getCases(
@@ -53,7 +56,10 @@ public class CommanderCaseService {
                 .map(this::toHistoryResponse)
                 .toList();
 
-        return toDetailResponse(caseReport, histories);
+        List<EvidenceMetadataResponse> evidences =
+                evidenceClient.getEvidenceMetadataByCaseId(caseReport.getId());
+
+        return toDetailResponse(caseReport, histories, evidences);
     }
 
     @Transactional
@@ -128,7 +134,8 @@ public class CommanderCaseService {
 
     private CommanderCaseDetailResponse toDetailResponse(
             CaseReport caseReport,
-            List<CommanderCaseHistoryResponse> histories
+            List<CommanderCaseHistoryResponse> histories,
+            List<EvidenceMetadataResponse> evidences
     ) {
         return new CommanderCaseDetailResponse(
                 caseReport.getId(),
@@ -154,6 +161,7 @@ public class CommanderCaseService {
                 caseReport.getAiError(),
                 caseReport.getCreatedAt(),
                 caseReport.getUpdatedAt(),
+                evidences,
                 histories
         );
     }

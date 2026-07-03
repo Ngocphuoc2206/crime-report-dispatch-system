@@ -282,11 +282,19 @@ public class CaseReportService {
         CaseReport caseReport = caseReportRepository.findByTrackingCode(trackingCode)
                 .orElseThrow(() -> new AppException(ErrorCode.TRACKING_CODE_NOT_FOUND));
 
+        List<EvidenceMetadataResponse> evidenceRequests = evidenceClient
+                .getEvidenceMetadataByCaseId(caseReport.getId())
+                .stream()
+                .filter(evidence -> "NEEDS_MORE_INFO".equals(evidence.verificationStatus()))
+                .toList();
+
         return new ReportStatusResponse(
                 caseReport.getTrackingCode(),
                 caseReport.getStatus().name(),
                 toPublicDisplayStatus(caseReport.getStatus()),
-                caseReport.getCreatedAt()
+                caseReport.getCreatedAt(),
+                !evidenceRequests.isEmpty(),
+                evidenceRequests
         );
     }
 

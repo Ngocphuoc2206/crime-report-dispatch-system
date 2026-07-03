@@ -6,6 +6,7 @@ import type {
   OfficerCaseApiItem,
   OfficerCaseDetailApiItem,
   OfficerCaseEvidenceApiItem,
+  OfficerCaseEvidenceVerificationStatus,
   OfficerCaseHistoryApiItem,
   OfficerCaseLock,
   OfficerCasePage,
@@ -165,6 +166,10 @@ function toEvidence(item: OfficerCaseEvidenceApiItem) {
     type: item.fileType || item.contentType || "file",
     size: formatFileSize(item.sizeBytes),
     uploadedAt: item.uploadedAt,
+    verificationStatus: item.verificationStatus ?? "PENDING",
+    verificationNote: item.verificationNote,
+    verifiedByUserId: item.verifiedByUserId,
+    verifiedAt: item.verifiedAt,
   };
 }
 
@@ -324,4 +329,18 @@ export const officerCaseService = {
 
   releaseLock: (caseId: string | number) =>
     apiClient.delete<void>(endpoints.officerCaseLock(caseId), { auth: true }),
+
+  updateEvidenceVerification: (
+    evidenceId: string | number,
+    status: OfficerCaseEvidenceVerificationStatus,
+    note: string | null,
+  ) =>
+    apiClient.patch<
+      OfficerCaseEvidenceApiItem,
+      { status: OfficerCaseEvidenceVerificationStatus; note: string | null }
+    >(
+      endpoints.officerEvidenceVerification(evidenceId),
+      { status, note },
+      { auth: true },
+    ),
 };

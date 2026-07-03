@@ -2,9 +2,12 @@ package com.ngocphuoc.crime_report.evidence.service;
 
 import com.ngocphuoc.crime_report.common.ErrorCode;
 import com.ngocphuoc.crime_report.evidence.client.ReportClient;
+import com.ngocphuoc.crime_report.evidence.dto.EvidenceMetadataResponse;
 import com.ngocphuoc.crime_report.evidence.dto.ReportLookupResponse;
+import com.ngocphuoc.crime_report.evidence.dto.UpdateEvidenceVerificationRequest;
 import com.ngocphuoc.crime_report.evidence.entity.EvidenceFile;
 import com.ngocphuoc.crime_report.evidence.enums.EvidenceFileType;
+import com.ngocphuoc.crime_report.evidence.enums.EvidenceVerificationStatus;
 import com.ngocphuoc.crime_report.evidence.repository.EvidenceFileRepository;
 import com.ngocphuoc.crime_report.shared.exception.AppException;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
+import java.time.LocalDateTime;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +45,7 @@ public class EvidenceFileService {
             "video/", EvidenceFileType.VIDEO,
             "audio/", EvidenceFileType.AUDIO
     );
+    private static final List<String> CLOSED_CASE_STATUSES = List.of("RESOLVED", "SPAM_OR_FAKE");
 
     public EvidenceFileService(
             EvidenceFileRepository evidenceFileRepository,
@@ -61,6 +66,7 @@ public class EvidenceFileService {
         validateFileTypes(files);
 
         ReportLookupResponse report = reportClient.findByTrackingCode(trackingCode);
+        ensureReportCanAcceptEvidenceUpdates(report);
 
         try {
             if (Files.notExists(evidenceStorageDir)) {
@@ -126,6 +132,26 @@ public class EvidenceFileService {
                 )
                 .header(HttpHeaders.CONTENT_TYPE, evidence.getMimeType())
                 .body(resource);
+    }
+
+    public EvidenceMetadataResponse updateVerification(
+            Long evidenceId,
+            Long verifiedByUserId,
+            UpdateEvidenceVerificationRequest request
+    ) {
+        EvidenceFile evidence = getEvidenceByID(evidenceId);
+        ReportLookupResponse report = reportClient.findByTrackingCode(evidence.getTrackingCode());
+        ensureReportCanAcceptEvidenceUpdates(report);
+
+        EvidenceVerificationStatus status =
+                request.status() == null ? EvidenceVerificationStatus.PENDING : request.status();
+
+        evidence.setVerificationStatus(status);
+        evidence.setVerificationNote(normalizeNote(request.note()));
+        evidence.setVerifiedByUserId(verifiedByUserId);
+        evidence.setVerifiedAt(LocalDateTime.now());
+
+        return toMetadataResponse(evidenceFileRepository.save(evidence));
     }
 
     private void saveSingleFile(Long caseId, String trackingCode, MultipartFile file) {
@@ -233,6 +259,37 @@ public class EvidenceFileService {
             return HexFormat.of().formatHex(digest.digest());
         } catch (Exception exception) {
             throw new IllegalStateException("Failed to calculate file checksum", exception);
+        }
+    }
+
+    public EvidenceMetadataResponse toMetadataResponse(EvidenceFile evidenceFile) {
+        return new EvidenceMetadataResponse(
+                evidenceFile.getId(),
+                evidenceFile.getCaseId(),
+                evidenceFile.getOriginalFileName(),
+                evidenceFile.getMimeType(),
+                evidenceFile.getFileSize(),
+                evidenceFile.getFileType().name(),
+                evidenceFile.getChecksum(),
+                evidenceFile.getUploadedAt(),
+                evidenceFile.getVerificationStatus().name(),
+                evidenceFile.getVerificationNote(),
+                evidenceFile.getVerifiedByUserId(),
+                evidenceFile.getVerifiedAt()
+        );
+    }
+
+    private String normalizeNote(String note) {
+        if (note == null || note.isBlank()) {
+            return null;
+        }
+
+        return note.trim();
+    }
+
+    private void ensureReportCanAcceptEvidenceUpdates(ReportLookupResponse report) {
+        if (report != null && CLOSED_CASE_STATUSES.contains(report.status())) {
+            throw new AppException(ErrorCode.EVIDENCE_CASE_CLOSED);
         }
     }
 }

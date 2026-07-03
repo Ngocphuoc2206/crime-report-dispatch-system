@@ -1,6 +1,7 @@
 package com.ngocphuoc.crime_report.evidence.entity;
 
 import com.ngocphuoc.crime_report.evidence.enums.EvidenceFileType;
+import com.ngocphuoc.crime_report.evidence.enums.EvidenceVerificationStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,4 +47,17 @@ public class EvidenceFile {
 
     @Column(name = "uploaded_at", nullable = false, insertable = false, updatable = false)
     private LocalDateTime uploadedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "verification_status", nullable = false, length = 30)
+    private EvidenceVerificationStatus verificationStatus = EvidenceVerificationStatus.PENDING;
+
+    @Column(name = "verification_note", columnDefinition = "TEXT")
+    private String verificationNote;
+
+    @Column(name = "verified_by_user_id")
+    private Long verifiedByUserId;
+
+    @Column(name = "verified_at")
+    private LocalDateTime verifiedAt;
 }
