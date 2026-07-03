@@ -15,6 +15,14 @@ export type OfficerCaseEvidenceVerificationStatus =
 
 export type OfficerCaseReporterMode = "anonymous" | "identified";
 
+export type OfficerCaseReporterInfo = {
+  fullName?: string | null;
+  citizenId?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+};
+
 export type OfficerCaseLock = {
   caseId: number;
   lockedByUserId?: number | null;
@@ -79,6 +87,7 @@ export type OfficerCase = {
   spamLevel?: OfficerCaseSpamLevel | null;
   spamReasons?: string | null;
   reporterMode: OfficerCaseReporterMode;
+  reporter?: OfficerCaseReporterInfo | null;
   anonymousTemporaryId?: string;
   lock?: OfficerCaseLock | null;
   incident: {
@@ -127,6 +136,7 @@ export type OfficerCaseDetailApiItem = {
   spamLevel?: OfficerCaseSpamLevel | null;
   spamReasons?: string | null;
   anonymous: boolean;
+  reporter?: OfficerCaseReporterInfo | null;
   createdAt: string;
   updatedAt?: string | null;
   evidences: OfficerCaseEvidenceApiItem[];

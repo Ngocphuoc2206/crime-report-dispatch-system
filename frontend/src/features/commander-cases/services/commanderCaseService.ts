@@ -76,6 +76,14 @@ type CommanderCaseHistoryApiItem = {
 };
 
 type CommanderCaseDetailApiItem = CommanderCaseApiItem & {
+  anonymous?: boolean;
+  reporter?: {
+    fullName?: string | null;
+    citizenId?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    address?: string | null;
+  } | null;
   evidences?: CommanderCaseEvidenceApiItem[];
   histories: CommanderCaseHistoryApiItem[];
 };
@@ -272,8 +280,15 @@ function toCase(
     severity: item.urgencyLevel,
     status: statusFromBackend[item.status],
     reporter: {
-      mode: "anonymous",
-      name: "Người báo tin ẩn danh",
+      mode: item.anonymous === false ? "identified" : "anonymous",
+      name:
+        item.anonymous === false
+          ? item.reporter?.fullName || "Người báo tin đã định danh"
+          : "Người báo tin ẩn danh",
+      citizenId: item.reporter?.citizenId || undefined,
+      phone: item.reporter?.phone || undefined,
+      email: item.reporter?.email || undefined,
+      address: item.reporter?.address || undefined,
     },
     receivedAt: item.createdAt,
     confidence: `${item.urgencyLevel} - điểm tự động`,

@@ -1,12 +1,12 @@
 package com.ngocphuoc.crime_report.report.service;
 
 import com.ngocphuoc.crime_report.common.ErrorCode;
-import com.ngocphuoc.crime_report.identity.entity.ReporterIdentity;
-import com.ngocphuoc.crime_report.identity.repository.ReporterIdentityRepository;
+import com.ngocphuoc.crime_report.identity.service.ReporterIdentityService;
 import com.ngocphuoc.crime_report.report.client.evidence.EvidenceClient;
 import com.ngocphuoc.crime_report.report.dto.response.EvidenceMetadataResponse;
 import com.ngocphuoc.crime_report.report.dto.response.OfficerCaseDetailResponse;
 import com.ngocphuoc.crime_report.report.dto.response.OfficerCaseHistoryResponse;
+import com.ngocphuoc.crime_report.report.dto.response.ReporterInfoResponse;
 import com.ngocphuoc.crime_report.report.entity.CaseHistory;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
 import com.ngocphuoc.crime_report.report.repository.CaseHistoryRepository;
@@ -24,7 +24,7 @@ import java.util.List;
 public class OfficerCaseDetailService {
     private final CaseReportRepository caseReportRepository;
     private final EvidenceClient evidenceClient;
-    private final ReporterIdentityRepository reporterIdentityRepository;
+    private final ReporterIdentityService reporterIdentityService;
     private final OfficerPermissionService officerPermissionService;
     private final CaseHistoryRepository caseHistoryRepository;
 
@@ -56,13 +56,9 @@ public class OfficerCaseDetailService {
             List<EvidenceMetadataResponse> evidences,
             List<OfficerCaseHistoryResponse> histories
     ){
-        boolean isAnonymous = true;
-        ReporterIdentity reporterIdentity = reporterIdentityRepository.findByCaseReportId(caseReport.getId())
-                .orElseThrow(() -> new AppException(ErrorCode.REPORTER_NOT_FOUND));
-
-        if (reporterIdentity.getEncryptedFullName() == null){
-            isAnonymous = false;
-        }
+        ReporterInfoResponse reporter = reporterIdentityService.findReporterInfo(caseReport.getId())
+                .orElse(null);
+        boolean isAnonymous = reporter == null;
 
         return new OfficerCaseDetailResponse(
                 caseReport.getId(),
@@ -81,6 +77,7 @@ public class OfficerCaseDetailService {
                 caseReport.getAssignedOfficerId(),
 
                 isAnonymous,
+                reporter,
 
                 caseReport.getSpamScore(),
                 caseReport.getSpamLevel(),

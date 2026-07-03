@@ -242,6 +242,7 @@ function detailCaseFromApi(
     ...baseCase,
     category: item.crimeType,
     reporterMode: item.anonymous ? "anonymous" : "identified",
+    reporter: item.reporter,
     evidence: item.evidences.map(toEvidence),
     timeline: toTimeline(item.histories, baseCase.timeline[0]),
     lock,

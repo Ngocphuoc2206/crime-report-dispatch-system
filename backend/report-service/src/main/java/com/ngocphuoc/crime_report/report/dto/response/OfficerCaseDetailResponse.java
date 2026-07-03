@@ -23,6 +23,7 @@ public record OfficerCaseDetailResponse(
         Long assignedOfficerId,
 
         Boolean anonymous,
+        ReporterInfoResponse reporter,
 
         Integer spamScore,
         String spamLevel,

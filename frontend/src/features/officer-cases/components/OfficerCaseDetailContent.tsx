@@ -322,11 +322,50 @@ export function OfficerCaseDetailContent({
                   ? "ẨN DANH"
                   : "ĐÃ ĐỊNH DANH"}
               </p>
-              <p className="mt-3 text-sm leading-6 text-slate-600">
-                API chi tiết officer hiện chỉ trả trạng thái ẩn danh, chưa trả
-                dữ liệu định danh người trình báo.
-              </p>
-              {caseDetail.anonymousTemporaryId ? (
+              {caseDetail.reporterMode === "identified" && caseDetail.reporter ? (
+                <dl className="mt-5 grid gap-4 md:grid-cols-2">
+                  <div>
+                    <dt className="text-sm font-bold uppercase text-slate-500">
+                      Họ tên
+                    </dt>
+                    <dd className="mt-1 font-semibold text-slate-900">
+                      {caseDetail.reporter.fullName || "Chưa cập nhật"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-bold uppercase text-slate-500">
+                      CCCD / Định danh
+                    </dt>
+                    <dd className="mt-1 font-semibold text-slate-900">
+                      {caseDetail.reporter.citizenId || "Chưa cập nhật"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-bold uppercase text-slate-500">
+                      Số điện thoại
+                    </dt>
+                    <dd className="mt-1 font-semibold text-slate-900">
+                      {caseDetail.reporter.phone || "Chưa cập nhật"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-bold uppercase text-slate-500">
+                      Email
+                    </dt>
+                    <dd className="mt-1 font-semibold text-slate-900">
+                      {caseDetail.reporter.email || "Chưa cập nhật"}
+                    </dd>
+                  </div>
+                  <div className="md:col-span-2">
+                    <dt className="text-sm font-bold uppercase text-slate-500">
+                      Địa chỉ liên hệ
+                    </dt>
+                    <dd className="mt-1 font-semibold text-slate-900">
+                      {caseDetail.reporter.address || "Chưa cập nhật"}
+                    </dd>
+                  </div>
+                </dl>
+              ) : caseDetail.anonymousTemporaryId ? (
                 <p className="mt-4 text-sm font-bold text-slate-900">
                   Mã tham chiếu: {caseDetail.anonymousTemporaryId}
                 </p>

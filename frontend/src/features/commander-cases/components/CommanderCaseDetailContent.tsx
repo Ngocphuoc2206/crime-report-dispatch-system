@@ -290,6 +290,26 @@ export function CommanderCaseDetailContent({
                 </dt>
                 <dd className="mt-2 text-slate-800">
                   {activeCase.reporter.name}
+                  {activeCase.reporter.citizenId ? (
+                    <span className="mt-1 block text-sm text-slate-500">
+                      CCCD / Định danh: {activeCase.reporter.citizenId}
+                    </span>
+                  ) : null}
+                  {activeCase.reporter.phone ? (
+                    <span className="mt-1 block text-sm text-slate-500">
+                      SĐT: {activeCase.reporter.phone}
+                    </span>
+                  ) : null}
+                  {activeCase.reporter.email ? (
+                    <span className="mt-1 block text-sm text-slate-500">
+                      Email: {activeCase.reporter.email}
+                    </span>
+                  ) : null}
+                  {activeCase.reporter.address ? (
+                    <span className="mt-1 block text-sm text-slate-500">
+                      Địa chỉ: {activeCase.reporter.address}
+                    </span>
+                  ) : null}
                 </dd>
               </div>
 

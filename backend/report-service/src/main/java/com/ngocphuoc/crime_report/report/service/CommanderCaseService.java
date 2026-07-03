@@ -3,6 +3,7 @@ package com.ngocphuoc.crime_report.report.service;
 import com.ngocphuoc.crime_report.common.ErrorCode;
 import com.ngocphuoc.crime_report.enums.CaseStatus;
 import com.ngocphuoc.crime_report.enums.UrgencyLevel;
+import com.ngocphuoc.crime_report.identity.service.ReporterIdentityService;
 import com.ngocphuoc.crime_report.report.dto.request.UpdateCaseStatusRequest;
 import com.ngocphuoc.crime_report.report.dto.response.CommanderActivityResponse;
 import com.ngocphuoc.crime_report.report.dto.response.CommanderCaseDetailResponse;
@@ -11,6 +12,7 @@ import com.ngocphuoc.crime_report.report.dto.response.CommanderCaseResponse;
 import com.ngocphuoc.crime_report.report.client.dispatch.DispatchClient;
 import com.ngocphuoc.crime_report.report.client.evidence.EvidenceClient;
 import com.ngocphuoc.crime_report.report.dto.response.EvidenceMetadataResponse;
+import com.ngocphuoc.crime_report.report.dto.response.ReporterInfoResponse;
 import com.ngocphuoc.crime_report.report.entity.CaseHistory;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
 import com.ngocphuoc.crime_report.report.repository.CaseHistoryRepository;
@@ -33,6 +35,7 @@ public class CommanderCaseService {
     private final CaseStatusStateMachine caseStatusStateMachine;
     private final DispatchClient dispatchClient;
     private final EvidenceClient evidenceClient;
+    private final ReporterIdentityService reporterIdentityService;
 
     @Transactional(readOnly = true)
     public Page<CommanderCaseResponse> getCases(
@@ -137,6 +140,9 @@ public class CommanderCaseService {
             List<CommanderCaseHistoryResponse> histories,
             List<EvidenceMetadataResponse> evidences
     ) {
+        ReporterInfoResponse reporter = reporterIdentityService.findReporterInfo(caseReport.getId())
+                .orElse(null);
+
         return new CommanderCaseDetailResponse(
                 caseReport.getId(),
                 caseReport.getTrackingCode(),
@@ -149,6 +155,8 @@ public class CommanderCaseService {
                 caseReport.getAddressText(),
                 caseReport.getAssignedUnitId(),
                 caseReport.getAssignedOfficerId(),
+                reporter == null,
+                reporter,
                 caseReport.getSpamScore(),
                 caseReport.getSpamLevel(),
                 caseReport.getSpamReasons(),

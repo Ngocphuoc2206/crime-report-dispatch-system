@@ -19,6 +19,8 @@ public record CommanderCaseDetailResponse(
         String address,
         Long assignedUnitId,
         Long assignedOfficerId,
+        Boolean anonymous,
+        ReporterInfoResponse reporter,
         Integer spamScore,
         String spamLevel,
         String spamReasons,

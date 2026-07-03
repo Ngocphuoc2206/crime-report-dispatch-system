@@ -48,6 +48,9 @@ export type CommanderCase = {
     mode: "anonymous" | "identified";
     name: string;
     citizenId?: string;
+    phone?: string;
+    email?: string;
+    address?: string;
   };
   receivedAt: string;
   confidence: string;
