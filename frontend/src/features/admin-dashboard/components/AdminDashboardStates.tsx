@@ -2,7 +2,7 @@ export function AdminDashboardLoadingState() {
   return (
     <section>
       <div className="flex items-center gap-3">
-        <span className="text-(--primary)">↻</span>
+        <span className="text-[var(--primary)]">...</span>
         <p className="text-xl font-black text-slate-950">
           Đang tải dữ liệu báo cáo...
         </p>
@@ -40,12 +40,9 @@ export function AdminDashboardLoadingState() {
 
 export function AdminDashboardErrorState({ onRetry }: { onRetry: () => void }) {
   return (
-    <section className="rounded-xl border border-(--primary) bg-white p-12 text-center shadow-sm">
-      <div
-        className="mx-auto flex size-20 items-center justify-center rounded-full bg-red-50 text-4xl 
-      text-(--primary)"
-      >
-        ⚠
+    <section className="rounded-xl border border-[var(--primary)] bg-white p-12 text-center shadow-sm">
+      <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-red-50 text-4xl text-[var(--primary)]">
+        !
       </div>
 
       <h2 className="mt-6 text-2xl font-black text-slate-950">
@@ -53,14 +50,14 @@ export function AdminDashboardErrorState({ onRetry }: { onRetry: () => void }) {
       </h2>
 
       <p className="mx-auto mt-3 max-w-xl leading-7 text-slate-600">
-        Đã xảy ra sự cố trong quá trình truy xuất dữ liệu thống kê máy chủ. Vui
-        lòng kiểm tra lại kết nối mạng hoặc thử lại sau.
+        Đã xảy ra sự cố trong quá trình truy xuất dữ liệu thống kê. Vui lòng
+        kiểm tra lại kết nối hoặc thử lại sau.
       </p>
 
       <button
         type="button"
         onClick={onRetry}
-        className="mt-7 rounded-lg bg-(--primary) px-6 py-3 font-black text-white hover:bg-(--primary-hover)"
+        className="mt-7 rounded-lg bg-[var(--primary)] px-6 py-3 font-black text-white hover:bg-[var(--primary-hover)]"
       >
         Thử lại
       </button>

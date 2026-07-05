@@ -12,9 +12,9 @@ export function CommanderMapReportPopup({
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-            Tin bao
+            Tin báo
           </p>
-          <h2 className="mt-1 font-mono text-2xl font-black text-slate-950">
+          <h2 className="mt-1 font-mono text-xl font-bold text-slate-950">
             {report.code}
           </h2>
         </div>
@@ -32,7 +32,7 @@ export function CommanderMapReportPopup({
       <div className="mt-5 grid grid-cols-2 gap-4 border-t border-slate-200 pt-5">
         <div>
           <p className="text-xs font-bold uppercase text-slate-500">
-            Trang thai
+            Trạng thái
           </p>
           <p className="mt-1 text-sm font-semibold text-[var(--primary)]">
             {report.status}
@@ -41,7 +41,7 @@ export function CommanderMapReportPopup({
 
         <div>
           <p className="text-xs font-bold uppercase text-slate-500">
-            Thoi gian
+            Thời gian
           </p>
           <p className="mt-1 text-sm font-semibold text-slate-700">
             {report.reportedAt}
@@ -53,7 +53,7 @@ export function CommanderMapReportPopup({
         type="button"
         className="mt-5 inline-flex w-full justify-center rounded-md border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700 hover:border-[var(--primary)] hover:text-[var(--primary)]"
       >
-        Mo ho so
+        Mở hồ sơ
       </button>
     </article>
   );

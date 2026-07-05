@@ -1,5 +1,6 @@
 import { apiClient } from "@/services/apiClient";
 import { endpoints } from "@/services/endpoints";
+import { formatVietnamTime } from "@/utils/dateTime";
 import type {
   AssignedCase,
   AssignedCaseStatus,
@@ -38,20 +39,10 @@ type OfficerAvailabilityApiItem = {
   availabilityStatus: "AVAILABLE" | "BUSY" | "ON_SCENE" | "OFF_DUTY";
 };
 
-function formatTime(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-}
-
 function statusFromBackend(status: DispatchTaskStatus): AssignedCaseStatus {
   if (status === "COMPLETED") return "RESOLVED";
   if (status === "FAILED") return "NEED_SUPPORT";
-  if (status === "CANCELLED") return "DISPATCHED";
+  if (status === "CANCELLED") return "CANCELLED";
   return "DISPATCHED";
 }
 
@@ -64,7 +55,7 @@ function toAssignedCase(item: AssignedDispatchTaskApiItem): AssignedCase {
     location: item.address || "Chua cap nhat dia chi",
     assignedUnit: item.assignedUnitCode || item.assignedUnitName || "Chua co don vi",
     assignedOfficer: item.rankName || item.badgeNumber || "Chua phan cong",
-    assignedAt: formatTime(item.updatedAt || item.createdAt),
+    assignedAt: formatVietnamTime(item.updatedAt || item.createdAt),
     eta: "Dang cap nhat",
     slaRemaining: "--",
     status: statusFromBackend(item.dispatchStatus),
@@ -89,6 +80,10 @@ function toReassignOption(item: OfficerAvailabilityApiItem): ReassignUnitOption 
   };
 }
 
+function isActiveDispatchTask(item: AssignedDispatchTaskApiItem) {
+  return item.dispatchStatus !== "COMPLETED" && item.dispatchStatus !== "CANCELLED";
+}
+
 export const dispatcherAssignedService = {
   async getAssignedCases(): Promise<AssignedCase[]> {
     const response = await apiClient.get<AssignedDispatchTaskApiItem[]>(
@@ -96,13 +91,22 @@ export const dispatcherAssignedService = {
       { auth: true },
     );
 
-    return response.map(toAssignedCase);
+    return response.filter(isActiveDispatchTask).map(toAssignedCase);
   },
 
   async recallTask(taskId: string): Promise<AssignedCase> {
     const response = await apiClient.patch<AssignedDispatchTaskApiItem>(
       endpoints.dispatchTaskRecall(taskId),
       {},
+      { auth: true },
+    );
+
+    return toAssignedCase(response);
+  },
+
+  async getTask(taskId: string): Promise<AssignedCase> {
+    const response = await apiClient.get<AssignedDispatchTaskApiItem>(
+      endpoints.dispatchTaskDetail(taskId),
       { auth: true },
     );
 

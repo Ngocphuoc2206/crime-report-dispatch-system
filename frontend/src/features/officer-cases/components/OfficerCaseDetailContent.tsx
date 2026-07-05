@@ -12,8 +12,12 @@ import { OfficerCaseTimeline } from "@/features/officer-cases/components/Officer
 import { officerCaseService } from "@/features/officer-cases/services/officerCaseService";
 import type {
   OfficerCase,
+  OfficerCaseEvidenceVerificationStatus,
   OfficerCaseStatus,
 } from "@/features/officer-cases/types/officerCase.types";
+import { endpoints } from "@/services/endpoints";
+import { openEvidenceFile } from "@/utils/evidenceDownload";
+import { getBackendDateTimeMs } from "@/utils/dateTime";
 
 type OfficerCaseDetailContentProps = {
   caseCode: string;
@@ -21,12 +25,19 @@ type OfficerCaseDetailContentProps = {
   backLabel?: string;
 };
 
-function formatLockTime(expiresAt?: string | null) {
-  if (!expiresAt) return "";
+function getLockRemainingMs(expiresAt?: string | null, nowMs = Date.now()) {
+  if (!expiresAt) return 0;
 
-  const diff = new Date(expiresAt).getTime() - Date.now();
-  const minutes = Math.max(0, Math.floor(diff / 1000 / 60));
-  const seconds = Math.max(0, Math.floor((diff / 1000) % 60));
+  const expiresAtMs = getBackendDateTimeMs(expiresAt);
+  if (Number.isNaN(expiresAtMs)) return 0;
+
+  return Math.max(0, expiresAtMs - nowMs);
+}
+
+function formatLockTime(expiresAt?: string | null, nowMs = Date.now()) {
+  const diff = getLockRemainingMs(expiresAt, nowMs);
+  const minutes = Math.floor(diff / 1000 / 60);
+  const seconds = Math.floor((diff / 1000) % 60);
 
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
@@ -43,6 +54,28 @@ function getStatusNote(status: OfficerCaseStatus) {
   return notes[status];
 }
 
+const evidenceVerificationLabels: Record<
+  OfficerCaseEvidenceVerificationStatus,
+  { label: string; className: string }
+> = {
+  PENDING: {
+    label: "Chưa xem",
+    className: "border-slate-200 bg-slate-100 text-slate-700",
+  },
+  VERIFIED: {
+    label: "Hợp lệ",
+    className: "border-green-200 bg-green-50 text-green-700",
+  },
+  REJECTED: {
+    label: "Không hợp lệ",
+    className: "border-red-200 bg-red-50 text-red-700",
+  },
+  NEEDS_MORE_INFO: {
+    label: "Cần bổ sung",
+    className: "border-amber-200 bg-amber-50 text-amber-700",
+  },
+};
+
 export function OfficerCaseDetailContent({
   caseCode,
   backHref = "/officer/cases",
@@ -53,6 +86,7 @@ export function OfficerCaseDetailContent({
   const [isMutating, setIsMutating] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
   const loadCaseDetail = useCallback(async () => {
     setIsLoading(true);
@@ -75,6 +109,12 @@ export function OfficerCaseDetailContent({
     void loadCaseDetail();
   }, [loadCaseDetail]);
 
+  useEffect(() => {
+    const timerId = window.setInterval(() => setNowMs(Date.now()), 1000);
+
+    return () => window.clearInterval(timerId);
+  }, []);
+
   function showToast(message: string) {
     setToast(message);
     window.setTimeout(() => setToast(null), 2500);
@@ -95,6 +135,18 @@ export function OfficerCaseDetailContent({
     } finally {
       setIsMutating(false);
     }
+  }
+
+  function updateEvidenceVerification(
+    evidenceId: number,
+    status: OfficerCaseEvidenceVerificationStatus,
+  ) {
+    const note = window.prompt("Ghi chú xác minh minh chứng", "");
+
+    void runAction(
+      () => officerCaseService.updateEvidenceVerification(evidenceId, status, note),
+      "Đã cập nhật trạng thái minh chứng",
+    );
   }
 
   if (isLoading) {
@@ -128,11 +180,20 @@ export function OfficerCaseDetailContent({
     );
   }
 
-  const activeLock = caseDetail.lock?.active ? caseDetail.lock : null;
+  const lockRemainingMs = getLockRemainingMs(caseDetail.lock?.expiresAt, nowMs);
+  const activeLock =
+    caseDetail.status === "UNDER_VERIFICATION" &&
+    caseDetail.lock?.active &&
+    lockRemainingMs > 0
+      ? caseDetail.lock
+      : null;
   const isLockedByMe = Boolean(activeLock?.lockedByMe);
   const isLockedByOther = Boolean(activeLock && !activeLock.lockedByMe);
   const canOperate = isLockedByMe && caseDetail.status === "UNDER_VERIFICATION";
   const canAccept = !activeLock && caseDetail.status === "NEW_RECEIVED";
+  const canAcquireLock = !activeLock && caseDetail.status === "UNDER_VERIFICATION";
+  const canVerifyEvidence =
+    caseDetail.status !== "RESOLVED" && caseDetail.status !== "SPAM_OR_FAKE";
 
   return (
     <div className="px-6 py-8">
@@ -157,7 +218,7 @@ export function OfficerCaseDetailContent({
               </h2>
               <p className="mt-1 text-sm text-white/85">
                 Hệ thống sẽ tự động giải phóng khóa sau{" "}
-                {formatLockTime(activeLock?.expiresAt)}
+                {formatLockTime(activeLock?.expiresAt, nowMs)}
               </p>
             </div>
 
@@ -261,11 +322,50 @@ export function OfficerCaseDetailContent({
                   ? "ẨN DANH"
                   : "ĐÃ ĐỊNH DANH"}
               </p>
-              <p className="mt-3 text-sm leading-6 text-slate-600">
-                API chi tiết officer hiện chỉ trả trạng thái ẩn danh, chưa trả
-                dữ liệu định danh người trình báo.
-              </p>
-              {caseDetail.anonymousTemporaryId ? (
+              {caseDetail.reporterMode === "identified" && caseDetail.reporter ? (
+                <dl className="mt-5 grid gap-4 md:grid-cols-2">
+                  <div>
+                    <dt className="text-sm font-bold uppercase text-slate-500">
+                      Họ tên
+                    </dt>
+                    <dd className="mt-1 font-semibold text-slate-900">
+                      {caseDetail.reporter.fullName || "Chưa cập nhật"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-bold uppercase text-slate-500">
+                      CCCD / Định danh
+                    </dt>
+                    <dd className="mt-1 font-semibold text-slate-900">
+                      {caseDetail.reporter.citizenId || "Chưa cập nhật"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-bold uppercase text-slate-500">
+                      Số điện thoại
+                    </dt>
+                    <dd className="mt-1 font-semibold text-slate-900">
+                      {caseDetail.reporter.phone || "Chưa cập nhật"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-sm font-bold uppercase text-slate-500">
+                      Email
+                    </dt>
+                    <dd className="mt-1 font-semibold text-slate-900">
+                      {caseDetail.reporter.email || "Chưa cập nhật"}
+                    </dd>
+                  </div>
+                  <div className="md:col-span-2">
+                    <dt className="text-sm font-bold uppercase text-slate-500">
+                      Địa chỉ liên hệ
+                    </dt>
+                    <dd className="mt-1 font-semibold text-slate-900">
+                      {caseDetail.reporter.address || "Chưa cập nhật"}
+                    </dd>
+                  </div>
+                </dl>
+              ) : caseDetail.anonymousTemporaryId ? (
                 <p className="mt-4 text-sm font-bold text-slate-900">
                   Mã tham chiếu: {caseDetail.anonymousTemporaryId}
                 </p>
@@ -333,6 +433,69 @@ export function OfficerCaseDetailContent({
                     <p className="mt-2 text-sm text-slate-500">
                       {file.size} • {file.type.toUpperCase()}
                     </p>
+                    <span
+                      className={[
+                        "mt-3 inline-flex rounded-full border px-3 py-1 text-xs font-bold",
+                        evidenceVerificationLabels[file.verificationStatus].className,
+                      ].join(" ")}
+                    >
+                      {evidenceVerificationLabels[file.verificationStatus].label}
+                    </span>
+                    {file.verificationNote ? (
+                      <p className="mt-2 text-xs text-slate-500">
+                        Ghi chú: {file.verificationNote}
+                      </p>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void openEvidenceFile(
+                          endpoints.officerEvidenceDownload(file.id),
+                          file.name,
+                        )
+                      }
+                      className="mt-4 rounded-md border border-red-200 px-3 py-2 text-sm font-bold text-[var(--primary)] hover:bg-red-50"
+                    >
+                      Xem / tải
+                    </button>
+                    {canVerifyEvidence ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        disabled={isMutating}
+                        onClick={() =>
+                          updateEvidenceVerification(file.id, "VERIFIED")
+                        }
+                        className="rounded-md border border-green-200 px-3 py-2 text-xs font-bold text-green-700 hover:bg-green-50 disabled:opacity-60"
+                      >
+                        Hợp lệ
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isMutating}
+                        onClick={() =>
+                          updateEvidenceVerification(file.id, "REJECTED")
+                        }
+                        className="rounded-md border border-red-200 px-3 py-2 text-xs font-bold text-red-700 hover:bg-red-50 disabled:opacity-60"
+                      >
+                        Không hợp lệ
+                      </button>
+                      <button
+                        type="button"
+                        disabled={isMutating}
+                        onClick={() =>
+                          updateEvidenceVerification(file.id, "NEEDS_MORE_INFO")
+                        }
+                        className="rounded-md border border-amber-200 px-3 py-2 text-xs font-bold text-amber-700 hover:bg-amber-50 disabled:opacity-60"
+                      >
+                        Cần bổ sung
+                      </button>
+                    </div>
+                    ) : (
+                      <p className="mt-3 rounded-md bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-500">
+                        Hồ sơ đã kết thúc, minh chứng chỉ còn để xem lại.
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -347,6 +510,22 @@ export function OfficerCaseDetailContent({
             </h2>
 
             <div className="mt-5 space-y-3">
+              {canAcquireLock ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    void runAction(
+                      () => officerCaseService.acquireLock(caseDetail.id),
+                      "Đã nhận quyền xử lý hồ sơ",
+                    )
+                  }
+                  disabled={isMutating}
+                  className="w-full rounded-md bg-(--primary) px-5 py-3 font-bold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Nhận quyền xử lý
+                </button>
+              ) : null}
+
               <button
                 type="button"
                 onClick={() =>

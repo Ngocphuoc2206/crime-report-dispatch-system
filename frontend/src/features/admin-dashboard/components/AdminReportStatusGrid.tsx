@@ -1,29 +1,24 @@
 import type { AdminReportMetric } from "@/features/admin-dashboard/types/adminDashboard.types";
 
-const emptyReportMetrics: AdminReportMetric[] = [
-  { id: "total", label: "Tong tin bao", value: "0", tone: "primary" },
-  { id: "new", label: "Moi tiep nhan", value: "0", tone: "default" },
-  { id: "processing", label: "Dang xu ly", value: "0", tone: "default" },
-  { id: "resolved", label: "Da xu ly", value: "0", tone: "success" },
-  { id: "urgent", label: "Khan cap", value: "0", tone: "danger" },
-  { id: "spam", label: "Gia / Spam", value: "0", tone: "default" },
-];
+type AdminReportStatusGridProps = {
+  metrics: AdminReportMetric[];
+};
 
-const toneClassNames = {
+const toneClassNames: Record<AdminReportMetric["tone"], string> = {
   primary: "bg-[var(--primary)] text-white border-[var(--primary)]",
   default: "bg-white text-slate-950 border-slate-200",
   success: "bg-white text-green-600 border-slate-200",
   danger: "bg-white text-[var(--primary)] border-slate-200",
 };
 
-export function AdminReportStatusGrid() {
+export function AdminReportStatusGrid({ metrics }: AdminReportStatusGridProps) {
   return (
     <section>
       <h2 className="text-2xl font-black text-slate-950">Tình hình tin báo</h2>
       <div className="mt-3 h-px bg-slate-200" />
 
       <div className="mt-4 grid gap-4 md:grid-cols-3">
-        {emptyReportMetrics.map((metric) => (
+        {metrics.map((metric) => (
           <article
             key={metric.id}
             className={[

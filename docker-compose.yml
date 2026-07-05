@@ -12,11 +12,170 @@ services:
       - "3306:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
+      - ./backend/docker/mariadb/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "healthcheck.sh --connect --innodb_initialized"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  api-gateway:
+    build:
+      context: ./backend
+      dockerfile: api-gateway/Dockerfile
+    container_name: crime-api-gateway
+    restart: unless-stopped
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8081
+      REPORT_SERVICE_URL: http://report-service:8082
+      EVIDENCE_SERVICE_URL: http://evidence-service:8083
+      URGENCY_SERVICE_URL: http://urgency-service:8084
+      DISPATCH_SERVICE_URL: http://dispatch-service:8085
+      JWT_SECRET: crime-report-dispatch-secret-key-must-be-at-least-32-bytes
+      INTERNAL_SERVICE_TOKEN: crime-report-internal-token
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth-service
+      - report-service
+      - evidence-service
+      - urgency-service
+      - dispatch-service
+
+  auth-service:
+    build:
+      context: ./backend
+      dockerfile: auth-service/Dockerfile
+    container_name: crime-auth-service
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8081
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_NAME: crime_auth
+      DB_USERNAME: crime_user
+      DB_PASSWORD: crime_password
+      JWT_SECRET: crime-report-dispatch-secret-key-must-be-at-least-32-bytes
+    expose:
+      - "8081"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  report-service:
+    build:
+      context: ./backend
+      dockerfile: report-service/Dockerfile
+    container_name: crime-report-service
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8082
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_NAME: crime_report
+      DB_USERNAME: crime_user
+      DB_PASSWORD: crime_password
+      JWT_SECRET: crime-report-dispatch-secret-key-must-be-at-least-32-bytes
+      AI_SPAM_DETECTION_ENABLED: ${AI_SPAM_DETECTION_ENABLED:-false}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1}
+      AI_SPAM_TIMEOUT_SECONDS: ${AI_SPAM_TIMEOUT_SECONDS:-8}
+      INTERNAL_SERVICE_TOKEN: crime-report-internal-token
+      EVIDENCE_SERVICE_URL: http://evidence-service:8083
+      URGENCY_SERVICE_URL: http://urgency-service:8084
+      DISPATCH_SERVICE_URL: http://dispatch-service:8085
+    expose:
+      - "8082"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  evidence-service:
+    build:
+      context: ./backend
+      dockerfile: evidence-service/Dockerfile
+    container_name: crime-evidence-service
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8083
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_NAME: crime_evidence
+      DB_USERNAME: crime_user
+      DB_PASSWORD: crime_password
+      REPORT_SERVICE_URL: http://report-service:8082
+      EVIDENCE_STORAGE_DIR: /app/uploads/evidences
+      JWT_SECRET: crime-report-dispatch-secret-key-must-be-at-least-32-bytes
+      INTERNAL_SERVICE_TOKEN: crime-report-internal-token
+    expose:
+      - "8083"
+    volumes:
+      - evidence_uploads:/app/uploads/evidences
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  urgency-service:
+    build:
+      context: ./backend
+      dockerfile: urgency-service/Dockerfile
+    container_name: crime-urgency-service
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8084
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_NAME: crime_urgency
+      DB_USERNAME: crime_user
+      DB_PASSWORD: crime_password
+      JWT_SECRET: crime-report-dispatch-secret-key-must-be-at-least-32-bytes
+      INTERNAL_SERVICE_TOKEN: crime-report-internal-token
+    expose:
+      - "8084"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  dispatch-service:
+    build:
+      context: ./backend
+      dockerfile: dispatch-service/Dockerfile
+    container_name: crime-dispatch-service
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8085
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_NAME: crime_dispatch
+      DB_USERNAME: crime_user
+      DB_PASSWORD: crime_password
+      JWT_SECRET: crime-report-dispatch-secret-key-must-be-at-least-32-bytes
+      INTERNAL_SERVICE_TOKEN: crime-report-internal-token
+      REPORT_SERVICE_URL: http://report-service:8082
+    expose:
+      - "8085"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080}
+    container_name: crime-frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+
 volumes:
   mariadb_data:
+  evidence_uploads:

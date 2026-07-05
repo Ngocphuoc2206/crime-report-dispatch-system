@@ -1,10 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { apiClient } from "@/services/apiClient";
 import { endpoints } from "@/services/endpoints";
 
+type SmartDispatchResult = {
+  taskId: number;
+};
+
 export function DispatcherRecommendedUnits({ caseCode }: { caseCode: string }) {
+  const router = useRouter();
   const [toast, setToast] = useState<string | null>(null);
   const [dispatching, setDispatching] = useState(false);
 
@@ -12,7 +18,7 @@ export function DispatcherRecommendedUnits({ caseCode }: { caseCode: string }) {
     setDispatching(true);
 
     try {
-      await apiClient.post(
+      const response = await apiClient.post<SmartDispatchResult>(
         endpoints.dispatchCaseDispatch(caseCode),
         {
           smartDispatch: true,
@@ -21,12 +27,15 @@ export function DispatcherRecommendedUnits({ caseCode }: { caseCode: string }) {
         { auth: true },
       );
 
-      setToast(`Da gui lenh dieu phoi thong minh cho ho so ${caseCode}`);
+      setToast(`Đã điều phối thông minh hồ sơ ${caseCode}`);
+      router.push(
+        `/dispatcher/assigned/${encodeURIComponent(String(response.taskId))}`,
+      );
     } catch (error) {
       setToast(
         error instanceof Error
           ? error.message
-          : `Khong the dieu phoi ho so ${caseCode}`,
+          : `Không thể điều phối hồ sơ ${caseCode}`,
       );
     } finally {
       setDispatching(false);
@@ -49,8 +58,9 @@ export function DispatcherRecommendedUnits({ caseCode }: { caseCode: string }) {
 
       <div className="mt-5 rounded-xl border border-red-200 bg-white p-5 shadow-sm">
         <p className="text-sm leading-6 text-slate-600">
-          Chưa có API trả danh sách đơn vị đề xuất riêng. Thao tác bên dưới sẽ
-          gọi dispatch-service để backend tự tính đơn vị/cán bộ phù hợp.
+          Hồ sơ đang nằm trong hàng đợi điều phối. Thao tác bên dưới sẽ gọi
+          dispatch-service để backend tự chọn đơn vị và cán bộ phù hợp, sau đó
+          chuyển sang trang theo dõi nhiệm vụ mới.
         </p>
 
         <button

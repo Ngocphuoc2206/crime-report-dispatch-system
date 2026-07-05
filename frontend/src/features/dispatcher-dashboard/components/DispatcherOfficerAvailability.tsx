@@ -21,7 +21,7 @@ const statusConfig: Record<
     borderClassName: "border-l-green-500",
   },
   BUSY: {
-    label: "Đang xử lý",
+    label: "Đang bận",
     className: "bg-red-50 text-red-700",
     borderClassName: "border-l-red-400",
   },
@@ -32,8 +32,21 @@ const statusConfig: Record<
   },
 };
 
+type OfficerAvailabilityFilter = "ALL" | "AVAILABLE" | "BUSY";
+
+const filterOptions: Array<{
+  value: OfficerAvailabilityFilter;
+  label: string;
+}> = [
+  { value: "ALL", label: "Tất cả" },
+  { value: "AVAILABLE", label: "Sẵn sàng" },
+  { value: "BUSY", label: "Đang bận" },
+];
+
 export function DispatcherOfficerAvailability() {
   const [units, setUnits] = useState<DispatchOfficerUnit[]>([]);
+  const [activeFilter, setActiveFilter] =
+    useState<OfficerAvailabilityFilter>("ALL");
 
   useEffect(() => {
     let ignore = false;
@@ -42,9 +55,9 @@ export function DispatcherOfficerAvailability() {
       try {
         const data = await dispatcherOfficerService.getAvailability();
 
-        if (!ignore && data.length > 0) {
+        if (!ignore) {
           setUnits(
-            data.slice(0, 6).map((officer) => ({
+            data.map((officer) => ({
               id: officer.id,
               unitCode: officer.unitCode,
               name: officer.fullName,
@@ -75,33 +88,65 @@ export function DispatcherOfficerAvailability() {
     };
   }, []);
 
+  const filteredUnits = units.filter((unit) => {
+    if (activeFilter === "ALL") return true;
+    if (activeFilter === "AVAILABLE") return unit.status === "AVAILABLE";
+
+    return unit.status === "BUSY";
+  });
+
   return (
-    <aside className="rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
-      <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-        <h2 className="text-xl font-bold text-slate-900">Tình trạng cán bộ</h2>
+    <aside className="flex max-h-[42rem] flex-col rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
+      <header className="flex shrink-0 items-center justify-between border-b border-slate-200 px-6 py-5">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900">
+            Tình trạng cán bộ
+          </h2>
+          <p className="mt-1 text-xs font-semibold uppercase text-slate-500">
+            {filteredUnits.length} / {units.length} cán bộ
+          </p>
+        </div>
 
         <button className="text-sm font-bold text-slate-500">...</button>
       </header>
 
-      <div className="mx-6 mt-5 grid grid-cols-3 rounded-lg bg-slate-50 p-1 text-center text-sm font-bold text-slate-600 ring-1 ring-slate-200">
-        <button className="rounded-md bg-white py-2 shadow-sm">Tất cả</button>
-        <button className="py-2">Sẵn sàng</button>
-        <button className="py-2">Đang bận</button>
+      <div className="mx-6 mt-5 grid shrink-0 grid-cols-3 rounded-lg bg-slate-50 p-1 text-center text-sm font-bold text-slate-600 ring-1 ring-slate-200">
+        {filterOptions.map((option) => {
+          const isActive = option.value === activeFilter;
+
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setActiveFilter(option.value)}
+              className={[
+                "rounded-md py-2 transition",
+                isActive
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "hover:bg-white/70 hover:text-slate-900",
+              ].join(" ")}
+            >
+              {option.label}
+            </button>
+          );
+        })}
       </div>
 
-      <div className="space-y-4 p-6">
-        {units.length === 0 ? (
+      <div className="mt-5 min-h-0 flex-1 space-y-4 overflow-y-auto px-6 pb-6 pr-4 [scrollbar-color:#cbd5e1_transparent] [scrollbar-width:thin]">
+        {filteredUnits.length === 0 ? (
           <p className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-500">
-            Hiện chưa có cán bộ trực ban.
+            {units.length === 0
+              ? "Hiện chưa có cán bộ trực ban."
+              : "Không có cán bộ phù hợp với bộ lọc này."}
           </p>
         ) : null}
 
-        {units.map((unit) => {
+        {filteredUnits.map((unit) => {
           const status = statusConfig[unit.status];
 
           return (
             <article
-              key={unit.id}
+              key={`${unit.id}-${unit.currentCaseCode ?? "idle"}`}
               className={[
                 "rounded-lg border border-slate-200 border-l-4 bg-white p-4",
                 status.borderClassName,

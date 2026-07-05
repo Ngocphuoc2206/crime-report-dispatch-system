@@ -7,8 +7,21 @@ export type OfficerCaseStatus =
 
 export type OfficerCasePriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 export type OfficerCaseSpamLevel = "NONE" | "LOW" | "MEDIUM" | "HIGH";
+export type OfficerCaseEvidenceVerificationStatus =
+  | "PENDING"
+  | "VERIFIED"
+  | "REJECTED"
+  | "NEEDS_MORE_INFO";
 
 export type OfficerCaseReporterMode = "anonymous" | "identified";
+
+export type OfficerCaseReporterInfo = {
+  fullName?: string | null;
+  citizenId?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+};
 
 export type OfficerCaseLock = {
   caseId: number;
@@ -30,6 +43,10 @@ export type OfficerCaseEvidence = {
   type: string;
   size: string;
   uploadedAt: string;
+  verificationStatus: OfficerCaseEvidenceVerificationStatus;
+  verificationNote?: string | null;
+  verifiedByUserId?: number | null;
+  verifiedAt?: string | null;
 };
 
 export type OfficerCaseTimelineItem = {
@@ -38,6 +55,18 @@ export type OfficerCaseTimelineItem = {
   description: string;
   actor: string;
   occurredAt: string;
+};
+
+export type OfficerCaseHistoryApiItem = {
+  id: number;
+  action: string;
+  oldStatus?: OfficerCaseStatus | string | null;
+  newStatus?: OfficerCaseStatus | string | null;
+  note?: string | null;
+  actorUserId?: number | null;
+  actorOfficerId?: number | null;
+  actorUnitId?: number | null;
+  createdAt: string;
 };
 
 export type OfficerCase = {
@@ -58,6 +87,7 @@ export type OfficerCase = {
   spamLevel?: OfficerCaseSpamLevel | null;
   spamReasons?: string | null;
   reporterMode: OfficerCaseReporterMode;
+  reporter?: OfficerCaseReporterInfo | null;
   anonymousTemporaryId?: string;
   lock?: OfficerCaseLock | null;
   incident: {
@@ -106,9 +136,11 @@ export type OfficerCaseDetailApiItem = {
   spamLevel?: OfficerCaseSpamLevel | null;
   spamReasons?: string | null;
   anonymous: boolean;
+  reporter?: OfficerCaseReporterInfo | null;
   createdAt: string;
   updatedAt?: string | null;
   evidences: OfficerCaseEvidenceApiItem[];
+  histories?: OfficerCaseHistoryApiItem[];
 };
 
 export type OfficerCaseEvidenceApiItem = {
@@ -120,6 +152,10 @@ export type OfficerCaseEvidenceApiItem = {
   fileType?: string | null;
   checksumSha256?: string | null;
   uploadedAt: string;
+  verificationStatus?: OfficerCaseEvidenceVerificationStatus | null;
+  verificationNote?: string | null;
+  verifiedByUserId?: number | null;
+  verifiedAt?: string | null;
 };
 
 export type OfficerCasePage<T> = {

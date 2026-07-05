@@ -75,11 +75,66 @@ function validateIncidentForm(form: IncidentInformationDraft) {
   return errors;
 }
 
+function getValidCoordinates(form: IncidentInformationDraft) {
+  const latitude = Number(form.latitude);
+  const longitude = Number(form.longitude);
+
+  if (
+    !Number.isFinite(latitude) ||
+    latitude < -90 ||
+    latitude > 90 ||
+    !Number.isFinite(longitude) ||
+    longitude < -180 ||
+    longitude > 180
+  ) {
+    return null;
+  }
+
+  return { latitude, longitude };
+}
+
+function getOpenStreetMapEmbedUrl(latitude: number, longitude: number) {
+  const delta = 0.006;
+  const bbox = [
+    longitude - delta,
+    latitude - delta,
+    longitude + delta,
+    latitude + delta,
+  ].join(",");
+
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(
+    bbox,
+  )}&layer=mapnik&marker=${encodeURIComponent(`${latitude},${longitude}`)}`;
+}
+
+async function getAddressFromCoordinates(latitude: number, longitude: number) {
+  const params = new URLSearchParams({
+    format: "jsonv2",
+    lat: String(latitude),
+    lon: String(longitude),
+    zoom: "18",
+    addressdetails: "1",
+    "accept-language": "vi",
+  });
+
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/reverse?${params.toString()}`,
+  );
+
+  if (!response.ok) {
+    throw new Error("Không thể lấy địa chỉ từ toạ độ.");
+  }
+
+  const data = (await response.json()) as { display_name?: string };
+  return data.display_name?.trim() ?? "";
+}
+
 export function IncidentInformationStep() {
   const router = useRouter();
   const [form, setForm] = useState<IncidentInformationDraft>(initialForm);
   const [errors, setErrors] = useState<IncidentErrors>({});
   const [locationLoading, setLocationLoading] = useState(false);
+  const [addressLoading, setAddressLoading] = useState(false);
   const [missingPreviousStep, setMissingPreviousStep] = useState(false);
 
   useEffect(() => {
@@ -111,6 +166,43 @@ export function IncidentInformationStep() {
       Object.keys(validateIncidentForm(form)).length === 0
     );
   }, [form, missingPreviousStep]);
+
+  const coordinates = useMemo(() => getValidCoordinates(form), [form]);
+  const coordinateLatitude = coordinates?.latitude;
+  const coordinateLongitude = coordinates?.longitude;
+  const mapEmbedUrl = coordinates
+    ? getOpenStreetMapEmbedUrl(coordinates.latitude, coordinates.longitude)
+    : null;
+
+  useEffect(() => {
+    if (coordinateLatitude == null || coordinateLongitude == null) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setAddressLoading(true);
+      getAddressFromCoordinates(coordinateLatitude, coordinateLongitude)
+        .then((address) => {
+          if (!address) return;
+          setForm((current) => ({
+            ...current,
+            address,
+          }));
+          setErrors((current) => ({
+            ...current,
+            address: undefined,
+          }));
+        })
+        .catch(() => {
+          setErrors((current) => ({
+            ...current,
+            address:
+              "Không thể tự động lấy địa chỉ từ toạ độ. Vui lòng nhập địa chỉ thủ công.",
+          }));
+        })
+        .finally(() => setAddressLoading(false));
+    }, 700);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [coordinateLatitude, coordinateLongitude]);
 
   function updateField<K extends keyof IncidentInformationDraft>(
     key: K,
@@ -153,8 +245,21 @@ export function IncidentInformationStep() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        updateField("latitude", String(position.coords.latitude));
-        updateField("longitude", String(position.coords.longitude));
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        setForm((current) => ({
+          ...current,
+          latitude: String(latitude),
+          longitude: String(longitude),
+        }));
+
+        setErrors((current) => ({
+          ...current,
+          latitude: undefined,
+          longitude: undefined,
+        }));
+
         setLocationLoading(false);
       },
       () => {
@@ -394,21 +499,32 @@ export function IncidentInformationStep() {
                 </h2>
 
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Nhập địa chỉ hoặc sử dụng vị trí hiện tại. Nếu chưa tích hợp
-                  bản đồ, có thể nhập vĩ độ và kinh độ thủ công.
+                  Nhập địa chỉ hoặc sử dụng vị trí hiện tại. Hệ thống sẽ hiển
+                  thị vị trí trên bản đồ và tự điền địa chỉ từ toạ độ nếu có
+                  thể.
                 </p>
 
-                <div className="mt-5 h-64 overflow-hidden rounded-lg border border-(--border) bg-[linear-gradient(135deg,#eef6ff,#f8fafc)]">
-                  <div className="flex h-full flex-col items-center justify-center px-6 text-center">
-                    <span className="text-4xl">📍</span>
-                    <p className="mt-3 font-semibold text-slate-800">
-                      Khu vực bản đồ
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-500">
-                      Có thể tích hợp Leaflet/Google Maps ở issue riêng. Hiện
-                      tại dùng địa chỉ + tọa độ thủ công.
-                    </p>
-                  </div>
+                <div className="mt-5 h-64 overflow-hidden rounded-lg border border-(--border) bg-slate-100">
+                  {mapEmbedUrl ? (
+                    <iframe
+                      title="Bản đồ vị trí hiện trường"
+                      src={mapEmbedUrl}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      className="h-full w-full"
+                    />
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center px-6 text-center">
+                      <span className="text-4xl">📍</span>
+                      <p className="mt-3 font-semibold text-slate-800">
+                        Chưa có toạ độ để hiển thị bản đồ
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-slate-500">
+                        Bấm “Lấy vị trí hiện tại” hoặc nhập vĩ độ, kinh độ thủ
+                        công để xem vị trí trên bản đồ.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <label className="mt-5 block">
@@ -433,6 +549,12 @@ export function IncidentInformationStep() {
                   {errors.address ? (
                     <span className="mt-1 block text-sm text-(--primary)">
                       {errors.address}
+                    </span>
+                  ) : null}
+
+                  {addressLoading ? (
+                    <span className="mt-1 block text-sm text-slate-500">
+                      Đang tìm địa chỉ từ toạ độ...
                     </span>
                   ) : null}
                 </label>
@@ -489,7 +611,9 @@ export function IncidentInformationStep() {
                 >
                   {locationLoading
                     ? "Đang lấy vị trí..."
-                    : "Lấy vị trí hiện tại"}
+                    : addressLoading
+                      ? "Đang lấy địa chỉ..."
+                      : "Lấy vị trí hiện tại"}
                 </button>
               </article>
 

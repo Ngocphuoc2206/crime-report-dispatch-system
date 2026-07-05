@@ -197,6 +197,34 @@ public class DispatchTaskService {
         return toResponse(task);
     }
 
+    @Transactional
+    public AssignedDispatchTaskResponse completeByCaseId(Long caseId, String note, String actor) {
+        return dispatchTaskRepository
+                .findFirstByCaseIdAndDispatchStatusInOrderByCreatedAtDesc(
+                        caseId,
+                        List.of(DispatchStatus.PENDING, DispatchStatus.ASSIGNED)
+                )
+                .map(task -> {
+                    DispatchStatus previousStatus = task.getDispatchStatus();
+                    task.setDispatchStatus(DispatchStatus.COMPLETED);
+                    releaseAssignment(task.getDutyAssignment());
+                    dispatchTaskHistoryService.record(
+                            task,
+                            "CASE_COMPLETED",
+                            previousStatus,
+                            task.getDispatchStatus(),
+                            null,
+                            null,
+                            note == null || note.isBlank()
+                                    ? "Case completed by report workflow"
+                                    : note,
+                            actor == null || actor.isBlank() ? "REPORT_SERVICE" : actor
+                    );
+                    return toResponse(task);
+                })
+                .orElse(null);
+    }
+
     private DispatchTask createManualTask(
             DispatchCandidateResponse report,
             DispatchByTrackingCodeRequest request

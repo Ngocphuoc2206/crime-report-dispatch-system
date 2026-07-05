@@ -5,6 +5,7 @@ import com.ngocphuoc.crime_report.enums.AuditResourceType;
 import com.ngocphuoc.crime_report.identity.dto.EncryptionResult;
 import com.ngocphuoc.crime_report.report.dto.request.CreateReportRequest;
 import com.ngocphuoc.crime_report.report.dto.response.AuditLogCommand;
+import com.ngocphuoc.crime_report.report.dto.response.ReporterInfoResponse;
 import com.ngocphuoc.crime_report.report.entity.CaseReport;
 import com.ngocphuoc.crime_report.identity.entity.ReporterIdentity;
 import com.ngocphuoc.crime_report.identity.repository.ReporterIdentityRepository;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -70,6 +72,24 @@ public class ReporterIdentityService {
                 "caseId=" + caseReport.getId()
                         + ", fields=reporterName,reporterCitizenId,reporterPhone,reporterEmail,reporterAddress"
         ));
+    }
+
+    public Optional<ReporterInfoResponse> findReporterInfo(Long caseId) {
+        return reporterIdentityRepository.findByCaseReportId(caseId)
+                .map(this::decryptReporterInfo);
+    }
+
+    private ReporterInfoResponse decryptReporterInfo(ReporterIdentity reporterIdentity) {
+        String decryptedJson = encryptionService.decrypt(
+                reporterIdentity.getEncryptedFullName(),
+                reporterIdentity.getIv()
+        );
+
+        if (decryptedJson == null || decryptedJson.isBlank()) {
+            return null;
+        }
+
+        return objectMapper.readValue(decryptedJson, ReporterInfoResponse.class);
     }
 
     private String toReporterJson(CreateReportRequest request){

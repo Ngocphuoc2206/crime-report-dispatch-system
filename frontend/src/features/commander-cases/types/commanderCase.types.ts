@@ -1,5 +1,11 @@
 export type CommanderCaseSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 export type CommanderCaseSpamLevel = "NONE" | "LOW" | "MEDIUM" | "HIGH";
+export type CommanderCaseSpamSource = "RULE_BASED" | "HYBRID" | string;
+export type CommanderCaseEvidenceVerificationStatus =
+  | "PENDING"
+  | "VERIFIED"
+  | "REJECTED"
+  | "NEEDS_MORE_INFO";
 
 export type CommanderCaseStatus =
   | "NEW"
@@ -7,14 +13,18 @@ export type CommanderCaseStatus =
   | "VERIFYING"
   | "INVESTIGATING"
   | "RESOLVED"
-  | "SPAM_OR_FAKE"
-  | "CLOSED";
+  | "SPAM_OR_FAKE";
 
 export type CommanderCaseAttachment = {
   id: string;
   name: string;
   type: "image" | "audio" | "video" | "pdf";
   size: string;
+  uploadedAt?: string;
+  verificationStatus: CommanderCaseEvidenceVerificationStatus;
+  verificationNote?: string | null;
+  verifiedByUserId?: number | null;
+  verifiedAt?: string | null;
 };
 
 export type CommanderCaseHistory = {
@@ -38,14 +48,26 @@ export type CommanderCase = {
     mode: "anonymous" | "identified";
     name: string;
     citizenId?: string;
+    phone?: string;
+    email?: string;
+    address?: string;
   };
   receivedAt: string;
   confidence: string;
   spamScore?: number | null;
   spamLevel?: CommanderCaseSpamLevel | null;
   spamReasons?: string | null;
+  fakeScore?: number | null;
+  aiConfidence?: number | null;
+  aiDecision?: string | null;
+  spamDetectionSource?: CommanderCaseSpamSource | null;
+  aiModel?: string | null;
+  aiCheckedAt?: string | null;
+  aiError?: string | null;
   description: string;
   coordinate: string;
+  latitude?: number | null;
+  longitude?: number | null;
   locationWarning?: string;
   attachments: CommanderCaseAttachment[];
   histories: CommanderCaseHistory[];

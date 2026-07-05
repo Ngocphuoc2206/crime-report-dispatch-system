@@ -9,7 +9,7 @@ type ClearProps = {
 export function CommanderCaseLoadingState() {
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="text-2xl font-bold text-slate-950">Dang tai du lieu</h2>
+      <h2 className="text-2xl font-bold text-slate-950">Đang tải dữ liệu</h2>
       <div className="mt-6 space-y-4">
         <div className="h-12 w-1/2 animate-pulse rounded bg-slate-100" />
         <div className="h-px bg-slate-200" />
@@ -34,10 +34,10 @@ export function CommanderCaseEmptyState() {
           0
         </div>
         <h2 className="mt-6 text-2xl font-bold text-slate-950">
-          Chua co ho so
+          Chưa có hồ sơ
         </h2>
         <p className="mt-3 max-w-md text-slate-600">
-          Hien chua co tin bao nao phu hop voi bo loc dang chon.
+          Hiện chưa có tin báo nào phù hợp với bộ lọc đang chọn.
         </p>
       </div>
     </section>
@@ -52,17 +52,17 @@ export function CommanderCaseNoResultState({ onClear }: ClearProps) {
           ?
         </div>
         <h2 className="mt-6 text-2xl font-bold text-slate-950">
-          Khong tim thay ket qua
+          Không tìm thấy kết quả
         </h2>
         <p className="mt-3 max-w-md text-slate-600">
-          Thu xoa bo loc hoac tim bang tu khoa khac.
+          Thử xoá bộ lọc hoặc tìm bằng từ khoá khác.
         </p>
         <button
           type="button"
           onClick={onClear}
           className="mt-6 rounded-lg border border-slate-200 px-6 py-3 font-bold text-slate-700 hover:bg-slate-50"
         >
-          Xoa bo loc
+          Xoá bộ lọc
         </button>
       </div>
     </section>
@@ -73,21 +73,21 @@ export function CommanderCaseErrorState({ onRetry }: RetryProps) {
   return (
     <section className="flex min-h-88 items-center justify-center rounded-xl border border-red-200 bg-red-50 p-8 text-center">
       <div>
-        <div className="mx-auto flex size-24 items-center justify-center rounded-2xl border border-red-200 bg-white text-5xl font-black text-[var(--primary)]">
+        <div className="mx-auto flex size-24 items-center justify-center rounded-2xl border border-red-200 bg-white text-5xl font-bold text-[var(--primary)]">
           !
         </div>
         <h2 className="mt-6 text-2xl font-bold text-[var(--primary)]">
-          Loi tai danh sach ho so
+          Lỗi tải danh sách hồ sơ
         </h2>
         <p className="mt-3 max-w-md text-slate-600">
-          Khong the tai du lieu danh sach ho so. Vui long thu lai.
+          Không thể tải dữ liệu danh sách hồ sơ. Vui lòng thử lại.
         </p>
         <button
           type="button"
           onClick={onRetry}
           className="mt-6 rounded-lg bg-[var(--primary)] px-6 py-3 font-bold text-white hover:bg-[var(--primary-hover)]"
         >
-          Thu lai
+          Thử lại
         </button>
       </div>
     </section>

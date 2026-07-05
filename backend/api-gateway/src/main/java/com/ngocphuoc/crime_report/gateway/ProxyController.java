@@ -84,6 +84,7 @@ public class ProxyController {
     @RequestMapping({
             "/api/public/reports/*/evidences",
             "/api/officer/evidences/**",
+            "/api/commander/evidences/**",
     })
     public ResponseEntity<byte[]> evidences(HttpServletRequest request) throws Exception {
         return forward(request, evidenceServiceUrl);

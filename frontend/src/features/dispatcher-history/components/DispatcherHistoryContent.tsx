@@ -6,6 +6,8 @@ import type { DispatchHistoryItem } from "@/features/dispatcher-history/types/di
 
 type ActionFilter = "ALL" | string;
 
+const PAGE_SIZE = 10;
+
 const actionLabels: Record<string, string> = {
   SMART_DISPATCH: "Tu dong dieu phoi",
   MANUAL_DISPATCH: "Dieu phoi thu cong",
@@ -19,6 +21,7 @@ export function DispatcherHistoryContent() {
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");
   const [actionFilter, setActionFilter] = useState<ActionFilter>("ALL");
+  const [currentPage, setCurrentPage] = useState(0);
 
   useEffect(() => {
     let ignore = false;
@@ -72,6 +75,22 @@ export function DispatcherHistoryContent() {
     });
   }, [items, keyword, actionFilter]);
 
+  const totalPages = Math.ceil(filteredItems.length / PAGE_SIZE);
+  const pageIndex =
+    totalPages === 0 ? 0 : Math.min(currentPage, totalPages - 1);
+  const paginatedItems = filteredItems.slice(
+    pageIndex * PAGE_SIZE,
+    pageIndex * PAGE_SIZE + PAGE_SIZE,
+  );
+  const displayStart = filteredItems.length === 0 ? 0 : pageIndex * PAGE_SIZE + 1;
+  const displayEnd =
+    filteredItems.length === 0
+      ? 0
+      : Math.min(
+          pageIndex * PAGE_SIZE + paginatedItems.length,
+          filteredItems.length,
+        );
+
   return (
     <div className="px-8 py-8">
       <section className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
@@ -103,7 +122,10 @@ export function DispatcherHistoryContent() {
 
             <input
               value={keyword}
-              onChange={(event) => setKeyword(event.target.value)}
+              onChange={(event) => {
+                setKeyword(event.target.value);
+                setCurrentPage(0);
+              }}
               placeholder="VD: INC-2026, PU_Q1, CB001..."
               className="mt-2 w-full rounded-lg border border-red-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
             />
@@ -114,7 +136,10 @@ export function DispatcherHistoryContent() {
 
             <select
               value={actionFilter}
-              onChange={(event) => setActionFilter(event.target.value)}
+              onChange={(event) => {
+                setActionFilter(event.target.value);
+                setCurrentPage(0);
+              }}
               className="mt-2 w-full rounded-lg border border-red-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
             >
               <option value="ALL">Tat ca hanh dong</option>
@@ -131,6 +156,7 @@ export function DispatcherHistoryContent() {
             onClick={() => {
               setKeyword("");
               setActionFilter("ALL");
+              setCurrentPage(0);
             }}
             className="self-end rounded-lg border border-red-200 px-5 py-3 font-black text-slate-700 hover:bg-red-50"
           >
@@ -182,7 +208,7 @@ export function DispatcherHistoryContent() {
               ) : null}
 
               {!loading
-                ? filteredItems.map((item) => (
+                ? paginatedItems.map((item) => (
                     <tr key={item.id} className="hover:bg-red-50/40">
                       <td className="px-5 py-5 font-semibold text-slate-700">
                         {item.createdAt}
@@ -229,6 +255,53 @@ export function DispatcherHistoryContent() {
             </tbody>
           </table>
         </div>
+
+        <footer className="flex items-center justify-between border-t border-red-100 bg-red-50/60 px-5 py-4 text-sm text-slate-600">
+          <p>
+            Hiển thị {displayStart}-{displayEnd} trong tổng số {items.length} bản
+            ghi
+          </p>
+
+          {totalPages > 0 ? (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={pageIndex <= 0}
+                onClick={() => setCurrentPage((page) => Math.max(0, page - 1))}
+                className="rounded-md px-3 py-2 text-slate-600 disabled:text-slate-400"
+              >
+                ‹
+              </button>
+
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setCurrentPage(index)}
+                  className={[
+                    "rounded-md px-3 py-2 font-black",
+                    index === pageIndex
+                      ? "bg-(--primary) text-white"
+                      : "text-slate-600 hover:bg-white",
+                  ].join(" ")}
+                >
+                  {index + 1}
+                </button>
+              ))}
+
+              <button
+                type="button"
+                disabled={pageIndex >= totalPages - 1}
+                onClick={() =>
+                  setCurrentPage((page) => Math.min(totalPages - 1, page + 1))
+                }
+                className="rounded-md px-3 py-2 text-slate-600 disabled:text-slate-400"
+              >
+                ›
+              </button>
+            </div>
+          ) : null}
+        </footer>
       </section>
     </div>
   );

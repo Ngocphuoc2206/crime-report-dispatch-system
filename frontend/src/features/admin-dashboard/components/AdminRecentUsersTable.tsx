@@ -1,13 +1,31 @@
 import Link from "next/link";
+import {
+  AdminDataTable,
+  AdminTableBody,
+  AdminTableEmpty,
+  AdminTableHead,
+  AdminTableShell,
+  AdminTd,
+  AdminTh,
+} from "@/features/admin-dashboard/components/AdminDataTable";
 import type { AdminRecentUser } from "@/features/admin-dashboard/types/adminDashboard.types";
 
-const recentUsers: AdminRecentUser[] = [];
+type AdminRecentUsersTableProps = {
+  users: AdminRecentUser[];
+};
 
 const roleClassNames: Record<AdminRecentUser["role"], string> = {
-  Officer: "bg-slate-100 text-slate-700",
-  Dispatcher: "bg-slate-100 text-slate-700",
-  Commander: "bg-red-50 text-[var(--primary)]",
-  Admin: "bg-red-50 text-[var(--primary)]",
+  OFFICER: "bg-slate-100 text-slate-700",
+  DISPATCHER: "bg-slate-100 text-slate-700",
+  COMMANDER: "bg-red-50 text-[var(--primary)]",
+  ADMIN: "bg-red-50 text-[var(--primary)]",
+};
+
+const roleLabels: Record<AdminRecentUser["role"], string> = {
+  OFFICER: "Cán bộ",
+  DISPATCHER: "Điều phối",
+  COMMANDER: "Chỉ huy",
+  ADMIN: "Quản trị viên",
 };
 
 const statusClassNames: Record<AdminRecentUser["status"], string> = {
@@ -22,9 +40,9 @@ const statusLabels: Record<AdminRecentUser["status"], string> = {
   LOCKED: "Bị khóa",
 };
 
-export function AdminRecentUsersTable() {
+export function AdminRecentUsersTable({ users }: AdminRecentUsersTableProps) {
   return (
-    <article className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <AdminTableShell>
       <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
         <h2 className="text-2xl font-black text-slate-950">
           Tài khoản mới tạo
@@ -32,69 +50,65 @@ export function AdminRecentUsersTable() {
 
         <Link
           href="/admin/users"
-          className="text-sm font-black text-(--primary) hover:underline"
+          className="text-sm font-black text-[var(--primary)] hover:underline"
         >
-          Xem tất cả →
+          Xem tất cả -&gt;
         </Link>
       </header>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-200 text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+      <AdminDataTable minWidthClassName="min-w-[800px]">
+          <AdminTableHead>
             <tr>
-              <th className="px-6 py-4">Username</th>
-              <th className="px-6 py-4">Họ tên</th>
-              <th className="px-6 py-4">Role</th>
-              <th className="px-6 py-4">Trạng thái</th>
-              <th className="px-6 py-4">Ngày tạo</th>
+              <AdminTh>Tên đăng nhập</AdminTh>
+              <AdminTh>Họ tên</AdminTh>
+              <AdminTh>Vai trò</AdminTh>
+              <AdminTh>Trạng thái</AdminTh>
+              <AdminTh>Ngày tạo</AdminTh>
             </tr>
-          </thead>
+          </AdminTableHead>
 
-          <tbody className="divide-y divide-slate-200">
-            {recentUsers.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-10 text-center text-sm font-semibold text-slate-500">
+          <AdminTableBody>
+            {users.length === 0 ? (
+              <AdminTableEmpty colSpan={5}>
                   Hiện chưa có dữ liệu tài khoản mới tạo.
-                </td>
-              </tr>
+              </AdminTableEmpty>
             ) : null}
 
-            {recentUsers.map((user) => (
+            {users.map((user) => (
               <tr key={user.id}>
-                <td className="px-6 py-4 font-medium text-slate-900">
+                <AdminTd className="font-medium text-slate-900">
                   {user.username}
-                </td>
+                </AdminTd>
 
-                <td className="px-6 py-4 text-slate-700">{user.fullName}</td>
+                <AdminTd className="text-slate-700">{user.fullName}</AdminTd>
 
-                <td className="px-6 py-4">
+                <AdminTd>
                   <span
                     className={[
                       "rounded-md px-3 py-1 text-xs font-bold",
                       roleClassNames[user.role],
                     ].join(" ")}
                   >
-                    {user.role}
+                    {roleLabels[user.role]}
                   </span>
-                </td>
+                </AdminTd>
 
-                <td className="px-6 py-4">
+                <AdminTd>
                   <span
                     className={[
                       "rounded-md px-3 py-1 text-xs font-bold",
                       statusClassNames[user.status],
                     ].join(" ")}
                   >
-                    ● {statusLabels[user.status]}
+                    {statusLabels[user.status]}
                   </span>
-                </td>
+                </AdminTd>
 
-                <td className="px-6 py-4 text-slate-500">{user.createdAt}</td>
+                <AdminTd className="text-slate-500">{user.createdAt}</AdminTd>
               </tr>
             ))}
-          </tbody>
-        </table>
-      </div>
-    </article>
+          </AdminTableBody>
+      </AdminDataTable>
+    </AdminTableShell>
   );
 }

@@ -46,8 +46,12 @@ const statusConfig: Record<
     className: "bg-orange-50 text-orange-700 ring-orange-200",
   },
   RESOLVED: {
-    label: "Đã xử lý",
+    label: "Hoàn tất điều phối",
     className: "bg-slate-100 text-slate-600 ring-slate-200",
+  },
+  CANCELLED: {
+    label: "Đã thu hồi",
+    className: "bg-orange-50 text-orange-700 ring-orange-200",
   },
 };
 
@@ -61,7 +65,7 @@ export function DispatcherAssignedPriorityBadge({
   return (
     <span
       className={[
-        "inline-flex rounded-md px-3 py-1.5 text-xs font-black uppercase",
+        "inline-flex rounded-md px-3 py-1.5 text-xs font-bold uppercase",
         config.className,
       ].join(" ")}
     >
@@ -80,7 +84,7 @@ export function DispatcherAssignedStatusBadge({
   return (
     <span
       className={[
-        "inline-flex rounded-md px-3 py-1.5 text-xs font-black ring-1",
+        "inline-flex rounded-md px-3 py-1.5 text-xs font-bold ring-1",
         config.className,
       ].join(" ")}
     >

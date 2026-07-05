@@ -146,13 +146,13 @@ export function AdminCreateOfficerModal({
           <div className="grid gap-6 md:grid-cols-2">
             <label>
               <span className="text-sm font-black text-slate-700">
-                User ID <span className="text-(--primary)">*</span>
+                User ID <span className="text-[var(--primary)]">*</span>
               </span>
 
               <select
                 value={userId}
                 onChange={(event) => setUserId(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               >
                 <option value="">Chọn người dùng có vai trò OFFICER</option>
                 {userOptions.map((user) => (
@@ -178,20 +178,20 @@ export function AdminCreateOfficerModal({
 
             <label>
               <span className="text-sm font-black text-slate-700">
-                Số hiệu cán bộ <span className="text-(--primary)">*</span>
+                Số hiệu cán bộ <span className="text-[var(--primary)]">*</span>
               </span>
 
               <input
                 value={badgeNumber}
                 onChange={(event) => setBadgeNumber(event.target.value)}
                 placeholder="Nhập số hiệu cán bộ"
-                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               />
             </label>
 
             <label>
               <span className="text-sm font-black text-slate-700">
-                Cấp bậc <span className="text-(--primary)">*</span>
+                Cấp bậc <span className="text-[var(--primary)]">*</span>
               </span>
 
               <select
@@ -199,7 +199,7 @@ export function AdminCreateOfficerModal({
                 onChange={(event) =>
                   setRank(event.target.value as AdminOfficerRank)
                 }
-                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               >
                 <option value="">Chọn cấp bậc</option>
                 {rankOptions.map((item) => (
@@ -214,13 +214,13 @@ export function AdminCreateOfficerModal({
           <div className="mt-7 border-t border-slate-200 pt-6">
             <label>
               <span className="text-sm font-black text-slate-700">
-                Đơn vị công an <span className="text-(--primary)">*</span>
+                Đơn vị công an <span className="text-[var(--primary)]">*</span>
               </span>
 
               <select
                 value={unitId}
                 onChange={(event) => setUnitId(event.target.value)}
-                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               >
                 <option value="">Chọn đơn vị</option>
                 {units.map((unit) => (
@@ -232,7 +232,7 @@ export function AdminCreateOfficerModal({
             </label>
 
             {unitError ? (
-              <p className="mt-2 text-sm font-semibold text-(--primary)">
+              <p className="mt-2 text-sm font-semibold text-[var(--primary)]">
                 {unitError}
               </p>
             ) : (
@@ -257,7 +257,7 @@ export function AdminCreateOfficerModal({
             type="button"
             disabled={!selectedUser || !selectedUnit || !badgeNumber.trim() || !rank}
             onClick={handleSubmit}
-            className="rounded-lg bg-(--primary) px-5 py-3 font-black text-white hover:bg-(--primary-hover) disabled:cursor-not-allowed disabled:bg-slate-300"
+            className="rounded-lg bg-[var(--primary)] px-5 py-3 font-black text-white hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:bg-slate-300"
           >
             Tạo hồ sơ
           </button>

@@ -1,6 +1,7 @@
 import { apiClient } from "@/services/apiClient";
 import { endpoints } from "@/services/endpoints";
 import type { DispatchHistoryItem } from "@/features/dispatcher-history/types/dispatcherHistory.types";
+import { formatVietnamDateTime } from "@/utils/dateTime";
 
 type DispatchHistoryApiItem = {
   id: number;
@@ -19,16 +20,6 @@ type DispatchHistoryApiItem = {
   createdAt: string;
 };
 
-function formatDateTime(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat("vi-VN", {
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(date);
-}
-
 function toHistoryItem(item: DispatchHistoryApiItem): DispatchHistoryItem {
   return {
     id: String(item.id),
@@ -43,7 +34,7 @@ function toHistoryItem(item: DispatchHistoryApiItem): DispatchHistoryItem {
     assignedOfficer: item.assignedOfficerBadgeNumber || "--",
     reason: item.reason || "--",
     actor: item.actor || "DISPATCH_SERVICE",
-    createdAt: formatDateTime(item.createdAt),
+    createdAt: formatVietnamDateTime(item.createdAt),
   };
 }
 

@@ -94,34 +94,34 @@ export function AdminCreateUserModal({
           <div className="grid gap-5 md:grid-cols-2">
             <label className="block">
               <span className="text-sm font-bold text-slate-700">
-                Username <span className="text-(--primary)">*</span>
+                Username <span className="text-[var(--primary)]">*</span>
               </span>
 
               <input
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
                 placeholder="Nhập tên đăng nhập"
-                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               />
             </label>
 
             <label className="block">
               <span className="text-sm font-bold text-slate-700">
-                Họ và tên <span className="text-(--primary)">*</span>
+                Họ và tên <span className="text-[var(--primary)]">*</span>
               </span>
 
               <input
                 value={fullName}
                 onChange={(event) => setFullName(event.target.value)}
                 placeholder="Nhập họ và tên"
-                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               />
             </label>
           </div>
 
           <label className="mt-5 block">
             <span className="text-sm font-bold text-slate-700">
-              Mật khẩu <span className="text-(--primary)">*</span>
+              Mật khẩu <span className="text-[var(--primary)]">*</span>
             </span>
 
             <input
@@ -129,7 +129,7 @@ export function AdminCreateUserModal({
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Nhập mật khẩu"
-              className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+              className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
             />
           </label>
 
@@ -141,7 +141,7 @@ export function AdminCreateUserModal({
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="example@email.com"
-                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               />
             </label>
 
@@ -154,7 +154,7 @@ export function AdminCreateUserModal({
                 value={phone}
                 onChange={(event) => setPhone(event.target.value)}
                 placeholder="Nhập số điện thoại"
-                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+                className="mt-2 w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100"
               />
             </label>
           </div>
@@ -196,7 +196,7 @@ export function AdminCreateUserModal({
           <button
             type="button"
             onClick={handleSubmit}
-            className="rounded-lg bg-[var(--primary)] px-5 py-3 font-black text-white hover:bg-(--primary-hover)"
+            className="rounded-lg bg-[var(--primary)] px-5 py-3 font-black text-white hover:bg-[var(--primary-hover)]"
           >
             Tạo người dùng
           </button>

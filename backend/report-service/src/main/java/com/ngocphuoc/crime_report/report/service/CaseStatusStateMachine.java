@@ -31,7 +31,10 @@ public class CaseStatusStateMachine {
             Set.of(),
 
             CaseStatus.SPAM_OR_FAKE,
-            Set.of()
+            Set.of(
+                    CaseStatus.UNDER_VERIFICATION,
+                    CaseStatus.NEW_RECEIVED
+            )
     );
 
     public boolean canTransition(CaseStatus from, CaseStatus to){

@@ -67,6 +67,18 @@ export function DispatcherMapCasePanel({
           </p>
         </div>
 
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Tọa độ từ backend
+          </p>
+          <p className="mt-2 font-mono text-sm font-bold text-slate-900">
+            Lat {selectedCase.lat.toFixed(6)}
+          </p>
+          <p className="mt-1 font-mono text-sm font-bold text-slate-900">
+            Lng {selectedCase.lng.toFixed(6)}
+          </p>
+        </div>
+
         <div>
           <p className="text-sm font-bold text-slate-500">Mô tả nhanh</p>
           <p className="mt-1 leading-7 text-slate-700">

@@ -15,6 +15,8 @@ const unitTypes: AdminUnitType[] = [
   "EMERGENCY_CENTER",
 ];
 
+const pageSize = 10;
+
 const emptyUnit: AdminPoliceUnit = {
   id: "",
   code: "",
@@ -512,6 +514,7 @@ export function AdminUnitsContent() {
   const [units, setUnits] = useState<AdminPoliceUnit[]>([]);
   const [areas, setAreas] = useState<AdminArea[]>([]);
   const [keyword, setKeyword] = useState("");
+  const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -555,9 +558,20 @@ export function AdminUnitsContent() {
     );
   }, [units, keyword]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredUnits.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * pageSize;
+  const pagedUnits = filteredUnits.slice(pageStart, pageStart + pageSize);
+  const visibleStart = filteredUnits.length === 0 ? 0 : pageStart + 1;
+  const visibleEnd = Math.min(
+    pageStart + pagedUnits.length,
+    filteredUnits.length,
+  );
+
   async function handleCreate(unit: AdminPoliceUnit) {
     const created = await adminUnitService.create(unit);
     setUnits((current) => [created, ...current]);
+    setPage(1);
     setToast("Tạo đơn vị thành công");
     window.setTimeout(() => setToast(null), 2200);
   }
@@ -598,12 +612,12 @@ export function AdminUnitsContent() {
       </section>
 
       {error ? (
-        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-[var(--primary)]">
+        <section className="mt-6 rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm font-semibold text-[var(--primary)]">
           {error}
         </section>
       ) : null}
 
-      <section className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <section className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
         <header className="flex flex-col gap-4 border-b border-slate-200 px-6 py-5 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-2xl font-black text-slate-950">
@@ -615,7 +629,10 @@ export function AdminUnitsContent() {
           </div>
           <input
             value={keyword}
-            onChange={(event) => setKeyword(event.target.value)}
+            onChange={(event) => {
+              setKeyword(event.target.value);
+              setPage(1);
+            }}
             placeholder="Tìm đơn vị"
             className="w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-[var(--primary)] focus:ring-4 focus:ring-red-100 md:max-w-sm"
           />
@@ -628,35 +645,35 @@ export function AdminUnitsContent() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-250 text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+              <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-500">
                 <tr>
-                  <th className="px-5 py-4">ID</th>
-                  <th className="px-5 py-4">Mã / tên đơn vị</th>
-                  <th className="px-5 py-4">Khu vực</th>
-                  <th className="px-5 py-4">Loại</th>
-                  <th className="px-5 py-4">Tọa độ</th>
-                  <th className="px-5 py-4">Trạng thái</th>
+                  <th className="px-6 py-4">ID</th>
+                  <th className="px-6 py-4">Mã / tên đơn vị</th>
+                  <th className="px-6 py-4">Khu vực</th>
+                  <th className="px-6 py-4">Loại</th>
+                  <th className="px-6 py-4">Tọa độ</th>
+                  <th className="px-6 py-4">Trạng thái</th>
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-slate-200">
-                {filteredUnits.map((unit) => (
+                {pagedUnits.map((unit) => (
                   <tr key={unit.id} className="hover:bg-slate-50">
-                    <td className="px-5 py-5 text-slate-700">{unit.id}</td>
-                    <td className="px-5 py-5">
+                    <td className="px-6 py-4 text-slate-700">{unit.id}</td>
+                    <td className="px-6 py-4">
                       <p className="font-black text-slate-900">{unit.code}</p>
                       <p className="mt-1 text-sm text-slate-500">{unit.name}</p>
                     </td>
-                    <td className="px-5 py-5 text-slate-700">
+                    <td className="px-6 py-4 text-slate-700">
                       {unit.areaName}
                     </td>
-                    <td className="px-5 py-5 font-semibold text-slate-700">
+                    <td className="px-6 py-4 font-semibold text-slate-700">
                       {unit.unitType}
                     </td>
-                    <td className="px-5 py-5 text-slate-600">
+                    <td className="px-6 py-4 text-slate-600">
                       {unit.latitude || "--"}, {unit.longitude || "--"}
                     </td>
-                    <td className="px-5 py-5">
+                    <td className="px-6 py-4">
                       <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-black text-green-700">
                         {unit.active ? "Đang hoạt động" : "Tạm dừng"}
                       </span>
@@ -667,6 +684,39 @@ export function AdminUnitsContent() {
             </table>
           </div>
         )}
+
+        <footer className="flex flex-col gap-3 border-t border-slate-200 px-6 py-4 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
+          <p>
+            Hiển thị {visibleStart}-{visibleEnd} trong số{" "}
+            {filteredUnits.length} đơn vị
+          </p>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={currentPage <= 1}
+              onClick={() => setPage((value) => Math.max(1, value - 1))}
+              className="rounded-md px-3 py-2 font-black text-slate-600 disabled:cursor-not-allowed disabled:text-slate-300"
+            >
+              &lt;
+            </button>
+
+            <span className="rounded-md bg-[var(--primary)] px-3 py-2 font-black text-white">
+              {currentPage}
+            </span>
+
+            <span className="px-2 text-slate-500">/ {totalPages}</span>
+
+            <button
+              type="button"
+              disabled={currentPage >= totalPages}
+              onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
+              className="rounded-md px-3 py-2 font-black text-slate-600 disabled:cursor-not-allowed disabled:text-slate-300"
+            >
+              &gt;
+            </button>
+          </div>
+        </footer>
       </section>
     </div>
   );

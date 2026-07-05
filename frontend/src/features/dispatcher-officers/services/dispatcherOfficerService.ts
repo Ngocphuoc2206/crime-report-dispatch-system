@@ -5,6 +5,11 @@ import type {
   OfficerAvailabilityStatus,
   OfficerShiftType,
 } from "@/features/dispatcher-officers/types/dispatcherOfficers.types";
+import {
+  formatVietnamTime,
+  getBackendDateTimeMs,
+  parseBackendDateTime,
+} from "@/utils/dateTime";
 
 type ApiAvailabilityStatus = "AVAILABLE" | "BUSY" | "ON_SCENE" | "OFF_DUTY";
 
@@ -27,21 +32,13 @@ type OfficerAvailabilityApiItem = {
 
 function formatTime(value: string | null) {
   if (!value) return "--";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
+  return formatVietnamTime(value);
 }
 
 function formatAgo(value: string | null) {
   if (!value) return "Chua cap nhat";
 
-  const date = new Date(value);
-  const diffMs = Date.now() - date.getTime();
+  const diffMs = Date.now() - getBackendDateTimeMs(value);
 
   if (Number.isNaN(diffMs)) return value;
   if (diffMs < 60_000) return "Vua xong";
@@ -66,10 +63,47 @@ function getInitials(name: string) {
 function getShiftType(startAt: string | null): OfficerShiftType {
   if (!startAt) return "MORNING";
 
-  const hour = new Date(startAt).getHours();
+  const parsedStartAt = parseBackendDateTime(startAt);
+  if (!parsedStartAt) return "MORNING";
+
+  const hour = Number(
+    new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      hour12: false,
+      timeZone: "Asia/Bangkok",
+    }).format(parsedStartAt),
+  );
   if (hour >= 6 && hour < 12) return "MORNING";
   if (hour >= 12 && hour < 20) return "AFTERNOON";
   return "NIGHT";
+}
+
+function getTimestamp(value: string | null) {
+  if (!value) return 0;
+
+  const time = getBackendDateTimeMs(value);
+  return Number.isNaN(time) ? 0 : time;
+}
+
+function dedupeAvailability(items: OfficerAvailabilityApiItem[]) {
+  const byOfficerId = new Map<number, OfficerAvailabilityApiItem>();
+
+  items.forEach((item) => {
+    const current = byOfficerId.get(item.officerId);
+
+    if (!current) {
+      byOfficerId.set(item.officerId, item);
+      return;
+    }
+
+    if (getTimestamp(item.lastStatusAt) >= getTimestamp(current.lastStatusAt)) {
+      byOfficerId.set(item.officerId, item);
+    }
+  });
+
+  return Array.from(byOfficerId.values()).sort(
+    (left, right) => left.officerId - right.officerId,
+  );
 }
 
 function toOfficer(item: OfficerAvailabilityApiItem): DispatcherOfficer {
@@ -103,6 +137,6 @@ export const dispatcherOfficerService = {
       { auth: true },
     );
 
-    return response.map(toOfficer);
+    return dedupeAvailability(response).map(toOfficer);
   },
 };

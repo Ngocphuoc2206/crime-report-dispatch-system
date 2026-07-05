@@ -72,4 +72,16 @@ public class DispatchTaskController {
                 .data(dispatchTaskService.updateStatus(taskId, request))
                 .build();
     }
+
+    @PatchMapping("/by-case/{caseId}/complete")
+    public ApiResponse<AssignedDispatchTaskResponse> completeByCaseId(
+            @PathVariable Long caseId,
+            @RequestBody(required = false) UpdateDispatchTaskStatusRequest request
+    ) {
+        String note = request == null ? null : request.note();
+
+        return ApiResponse.<AssignedDispatchTaskResponse>builder()
+                .data(dispatchTaskService.completeByCaseId(caseId, note, "REPORT_SERVICE"))
+                .build();
+    }
 }

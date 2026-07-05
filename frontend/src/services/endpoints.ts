@@ -7,6 +7,8 @@ export const endpoints = {
   reports: "/api/public/reports",
   reportStatus: (trackingCode: string) =>
     `/api/public/reports/${encodeURIComponent(trackingCode)}/status`,
+  reportEvidences: (trackingCode: string) =>
+    `/api/public/reports/${encodeURIComponent(trackingCode)}/evidences`,
   officerAuditLogs: "/api/officer/audit-logs",
   officerCases: "/api/officer/cases",
   officerMyCases: "/api/officer/cases/mine",
@@ -20,6 +22,10 @@ export const endpoints = {
     `/api/officer/cases/${encodeURIComponent(String(caseId))}/lock`,
   officerCaseLockRenew: (caseId: string | number) =>
     `/api/officer/cases/${encodeURIComponent(String(caseId))}/lock/renew`,
+  officerEvidenceDownload: (evidenceId: string | number) =>
+    `/api/officer/evidences/${encodeURIComponent(String(evidenceId))}/download`,
+  officerEvidenceVerification: (evidenceId: string | number) =>
+    `/api/officer/evidences/${encodeURIComponent(String(evidenceId))}/verification`,
 
   commanderDashboardOverview: "/api/commander/dashboard/overview",
   commanderDashboardHeatmap: "/api/commander/dashboard/heatmap",
@@ -29,6 +35,10 @@ export const endpoints = {
     `/api/commander/cases/${encodeURIComponent(String(trackingCode))}`,
   commanderCaseStatus: (trackingCode: string | number) =>
     `/api/commander/cases/${encodeURIComponent(String(trackingCode))}/status`,
+  commanderEvidenceDownload: (evidenceId: string | number) =>
+    `/api/commander/evidences/${encodeURIComponent(String(evidenceId))}/download`,
+  commanderEvidenceVerification: (evidenceId: string | number) =>
+    `/api/commander/evidences/${encodeURIComponent(String(evidenceId))}/verification`,
   commanderActivity: "/api/commander/activity",
 
   dispatchOfficerAvailability: "/api/dispatch/officers/availability",

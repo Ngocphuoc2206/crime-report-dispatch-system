@@ -89,7 +89,7 @@ export function InternalShell({
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-slate-200 bg-white lg:flex">
         <div className="border-b border-slate-200 px-6 py-6">
           <Link href={homeHref} className="flex items-center gap-3">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-(--primary) text-sm font-black text-white">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-[var(--primary)] text-sm font-black text-white">
               {roleInitials[roleCode]}
             </span>
 
@@ -115,7 +115,7 @@ export function InternalShell({
                 className={[
                   "flex min-h-11 items-center rounded-lg border px-4 text-sm font-semibold transition",
                   active
-                    ? "border-(--primary-muted) bg-(--primary-soft) text-[var(--primary)]"
+                    ? "border-[var(--primary-muted)] bg-[var(--primary-soft)] text-[var(--primary)]"
                     : "border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-950",
                 ].join(" ")}
               >
@@ -147,7 +147,7 @@ export function InternalShell({
         <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
           <div className="flex min-h-20 items-center justify-between gap-4 px-5 py-4 lg:px-8">
             <div className="min-w-0">
-              <p className="text-xs font-bold uppercase tracking-wide text-(--primary)">
+              <p className="text-xs font-bold uppercase tracking-wide text-[var(--primary)]">
                 {subtitle}
               </p>
               <h1 className="truncate text-xl font-black text-slate-950">
@@ -158,7 +158,7 @@ export function InternalShell({
             <div className="group relative">
               <button
                 type="button"
-                className="flex size-11 items-center justify-center rounded-full bg-(--primary) text-sm font-black text-white shadow-sm ring-1 ring-[var(--primary-muted)] transition hover:bg-[var(--primary-hover)] focus:outline-none focus:ring-4 focus:ring-[var(--primary-muted)]"
+                className="flex size-11 items-center justify-center rounded-full bg-[var(--primary)] text-sm font-black text-white shadow-sm ring-1 ring-[var(--primary-muted)] transition hover:bg-[var(--primary-hover)] focus:outline-none focus:ring-4 focus:ring-[var(--primary-muted)]"
                 aria-label="Mở menu tài khoản"
               >
                 {userInitial}
@@ -181,7 +181,7 @@ export function InternalShell({
                   className="mt-2 flex min-h-11 w-full items-center justify-between rounded-lg px-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
                 >
                   <span>Thông báo</span>
-                  <span className="rounded-full bg-(--primary-soft) px-2 py-1 text-xs font-black text-[var(--primary)]">
+                  <span className="rounded-full bg-[var(--primary-soft)] px-2 py-1 text-xs font-black text-[var(--primary)]">
                     Mới
                   </span>
                 </button>
@@ -196,8 +196,7 @@ export function InternalShell({
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="mt-2 flex min-h-11 w-full items-center justify-center rounded-lg bg-(--primary) px-3 text-sm 
-                  font-black text-white cursor-pointer transition hover:bg-(--primary-hover)"
+                  className="mt-2 flex min-h-11 w-full cursor-pointer items-center justify-center rounded-lg bg-[var(--primary)] px-3 text-sm font-black text-white transition hover:bg-[var(--primary-hover)]"
                 >
                   Đăng xuất
                 </button>
@@ -216,7 +215,7 @@ export function InternalShell({
                   className={[
                     "shrink-0 rounded-lg px-3 py-2 text-sm font-bold",
                     active
-                      ? "bg-(--primary-soft) text-(--primary)"
+                      ? "bg-[var(--primary-soft)] text-[var(--primary)]"
                       : "text-slate-600 hover:bg-slate-100",
                   ].join(" ")}
                 >

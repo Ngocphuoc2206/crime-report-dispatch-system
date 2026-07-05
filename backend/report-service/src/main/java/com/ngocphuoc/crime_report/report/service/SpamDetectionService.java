@@ -13,7 +13,17 @@ import java.util.regex.Pattern;
 @Service
 public class SpamDetectionService {
     private static final Pattern URL_PATTERN = Pattern.compile(
-            "(https?://|www\\.|\\.com\\b|\\.vn\\b|bit\\.ly|zalo|telegram|facebook)",
+            "(https?://|www\\.|\\.(com|net|org|vn|io|me)\\b|bit\\.ly|zalo|telegram|facebook)",
+            Pattern.CASE_INSENSITIVE
+    );
+
+    private static final Pattern BETTING_PATTERN = Pattern.compile(
+            "\\b([a-z0-9-]*bet[a-z0-9-]*|casino|nha cai|ca cuoc|ca do|keo nha cai|tai xiu|xoc dia|slot|jackpot)\\b",
+            Pattern.CASE_INSENSITIVE
+    );
+
+    private static final Pattern PROMOTION_PATTERN = Pattern.compile(
+            "\\b(khuyen mai|promo|bonus|nap tien|rut tien|nhan tien|vay tien)\\b",
             Pattern.CASE_INSENSITIVE
     );
 
@@ -24,25 +34,33 @@ public class SpamDetectionService {
         List<String> reasons = new ArrayList<>();
 
         String normalizedText = normalize(request.description()) + " " + normalize(request.addressText());
+        boolean hasBettingSignal = BETTING_PATTERN.matcher(normalizedText).find();
+        boolean hasPromotionSignal = PROMOTION_PATTERN.matcher(normalizedText).find();
+        boolean hasExternalLink = URL_PATTERN.matcher(normalizedText).find();
 
-        if (normalizedText.contains("vay tien")) {
-            score += 40;
-            reasons.add("Contains loan advertising keyword");
+        if (hasBettingSignal) {
+            score += 60;
+            reasons.add("Contains betting/casino keyword or domain");
         }
 
-        if (normalizedText.contains("khuyen mai")) {
+        if (hasPromotionSignal) {
             score += 30;
-            reasons.add("Contains promotional keyword");
+            reasons.add("Contains promotional or money keyword");
         }
 
-        if (normalizedText.contains("casino") || normalizedText.contains("ca cuoc")) {
-            score += 50;
-            reasons.add("Contains betting/casino keyword");
-        }
-
-        if (URL_PATTERN.matcher(normalizedText).find()) {
+        if (hasExternalLink) {
             score += 40;
             reasons.add("Contains external link or contact channel");
+        }
+
+        if (hasBettingSignal && hasExternalLink) {
+            score += 20;
+            reasons.add("Betting content includes external link");
+        }
+
+        if (hasPromotionSignal && hasExternalLink) {
+            score += 20;
+            reasons.add("Promotional content includes external link");
         }
 
         if (REPEATED_CHARACTER_PATTERN.matcher(normalizedText).find()) {
@@ -112,7 +130,7 @@ public class SpamDetectionService {
                 .replace('đ', 'd')
                 .replace('Đ', 'D')
                 .toLowerCase(Locale.ROOT)
-                .replaceAll("[^a-z0-9.\\s:/]", " ")
+                .replaceAll("[^a-z0-9.\\s:/-]", " ")
                 .replaceAll("\\s+", " ")
                 .trim();
     }

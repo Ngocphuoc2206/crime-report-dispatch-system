@@ -67,7 +67,7 @@ export function AdminLockUserConfirmModal({
           <button
             type="button"
             onClick={() => onConfirm(user.id)}
-            className="rounded-lg bg-(--primary) px-5 py-3 font-black text-white hover:bg-[var(--primary-hover)]"
+            className="rounded-lg bg-[var(--primary)] px-5 py-3 font-black text-white hover:bg-[var(--primary-hover)]"
           >
             🔒 Khóa tài khoản
           </button>

@@ -1,6 +1,7 @@
 import { apiClient } from "@/services/apiClient";
 import { endpoints } from "@/services/endpoints";
 import type { AdminOfficerProfile } from "@/features/admin-officers/types/adminOfficer.types";
+import { formatVietnamDateTime } from "@/utils/dateTime";
 
 type AdminOfficerApiItem = {
   id: number;
@@ -41,7 +42,7 @@ function toOfficer(item: AdminOfficerApiItem | CreateOfficerResponse): AdminOffi
     rank: item.rankName as AdminOfficerProfile["rank"],
     unitId: String(item.unitId),
     unitName: item.unitName,
-    joinedAt: createdAt ?? "Chưa cập nhật",
+    joinedAt: createdAt ? formatVietnamDateTime(createdAt) : "Chưa cập nhật",
     status: status === "ACTIVE" ? "ACTIVE" : "SUSPENDED",
     performance: {
       processedCases: 0,

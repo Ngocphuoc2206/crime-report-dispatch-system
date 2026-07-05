@@ -1,4 +1,5 @@
 import type { TrackingTimelineItem } from "@/features/tracking/types/tracking.types";
+import { formatVietnamDateTime } from "@/utils/dateTime";
 
 type TrackingTimelineProps = {
   items: TrackingTimelineItem[];
@@ -7,14 +8,7 @@ type TrackingTimelineProps = {
 function formatDateTime(value?: string) {
   if (!value) return "Chưa cập nhật thời gian";
 
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return value;
-
-  return new Intl.DateTimeFormat("vi-VN", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
+  return formatVietnamDateTime(value);
 }
 
 export function TrackingTimeline({ items }: TrackingTimelineProps) {

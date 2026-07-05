@@ -22,7 +22,7 @@ export function CommanderStatusOverview({
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-950">Trang thai xu ly</h2>
+        <h2 className="text-xl font-bold text-slate-950">Trạng thái xử lý</h2>
         <button className="text-slate-400">...</button>
       </div>
 
@@ -36,7 +36,7 @@ export function CommanderStatusOverview({
           >
             <p className="text-sm font-bold text-slate-500">{item.label}</p>
 
-            <p className="mt-6 text-5xl font-black tracking-tight text-slate-950">
+            <p className="mt-6 text-4xl font-bold text-slate-950">
               {item.value}
             </p>
           </article>
@@ -50,7 +50,7 @@ export function CommanderStatusOverview({
             className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-5 py-4"
           >
             <p className="font-semibold text-slate-500">{item.label}</p>
-            <p className="text-2xl font-black text-slate-800">{item.value}</p>
+            <p className="text-2xl font-bold text-slate-800">{item.value}</p>
           </article>
         ))}
       </div>

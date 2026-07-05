@@ -23,14 +23,23 @@ public record OfficerCaseDetailResponse(
         Long assignedOfficerId,
 
         Boolean anonymous,
+        ReporterInfoResponse reporter,
 
         Integer spamScore,
         String spamLevel,
         String spamReasons,
+        Integer fakeScore,
+        Integer aiConfidence,
+        String aiDecision,
+        String spamDetectionSource,
+        String aiModel,
+        LocalDateTime aiCheckedAt,
+        String aiError,
 
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
 
-        List<EvidenceMetadataResponse> evidences
+        List<EvidenceMetadataResponse> evidences,
+        List<OfficerCaseHistoryResponse> histories
 )  {
 }
