@@ -1,6 +1,7 @@
 package com.ngocphuoc.crime_report.report.controller;
 
 import com.ngocphuoc.crime_report.report.dto.request.UpdateReportAssignmentRequest;
+import com.ngocphuoc.crime_report.report.dto.response.DispatchCandidateResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,6 +10,8 @@ import com.ngocphuoc.crime_report.report.service.CaseReportService;
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +26,22 @@ public class InternalReportController {
         return ApiResponse.<InternalReportLookupResponse>builder()
                 .message("Report retrieved successfully")
                 .data(caseReportService.getInternalReportByTrackingCode(trackingCode))
+                .build();
+    }
+
+    @GetMapping("/dispatch-candidates")
+    public ApiResponse<List<DispatchCandidateResponse>> getDispatchCandidates() {
+        return ApiResponse.<List<DispatchCandidateResponse>>builder()
+                .data(caseReportService.getDispatchCandidates())
+                .build();
+    }
+
+    @GetMapping("/{caseId}/dispatch-summary")
+    public ApiResponse<DispatchCandidateResponse> getDispatchSummary(
+            @PathVariable Long caseId
+    ) {
+        return ApiResponse.<DispatchCandidateResponse>builder()
+                .data(caseReportService.getDispatchSummary(caseId))
                 .build();
     }
 

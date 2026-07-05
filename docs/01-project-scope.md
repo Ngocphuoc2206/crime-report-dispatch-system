@@ -111,12 +111,12 @@ Sau khi hoàn thành luồng chính, hệ thống có thể mở rộng thêm:
 
 - AI summary: tự động tóm tắt nội dung trình báo cho cán bộ.
 - AI spam detection: gợi ý tin báo có dấu hiệu giả mạo hoặc spam.
-- Crime analytics: thống kê số lượng tin báo theo tháng, quý, địa bàn, loại tội phạm.
-- Heatmap: hiển thị mật độ tin báo theo khu vực.
+- Crime analytics: thống kê số lượng tin báo theo tháng, quý, địa bàn, loại tội phạm. MVP hiện đã có dashboard overview/timeline/heatmap cơ bản; phần forecasting nâng cao để phát triển sau.
+- Heatmap: hiển thị mật độ tin báo theo khu vực. MVP hiện đã có dữ liệu heatmap phục vụ dashboard chỉ huy.
 - Chat bổ sung bằng chứng: cho phép người dân gửi thêm hình ảnh/video sau khi đã tạo tin báo.
 - Notification: gửi thông báo khi trạng thái tin báo thay đổi.
 
-Trong phạm vi đề tài, ưu tiên triển khai AI summary và dashboard analytics nếu còn thời gian.
+Trong phạm vi đề tài hiện tại, dashboard analytics được ưu tiên đưa vào demo. AI summary và AI spam detection chỉ nên trình bày là hướng phát triển nếu chưa có luồng backend/frontend hoàn chỉnh.
 
 ---
 

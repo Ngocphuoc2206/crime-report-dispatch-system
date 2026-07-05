@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -15,8 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-import static com.ngocphuoc.crime_report.shared.security.InternalTokenAuthenticationFilter.INTERNAL_TOKEN_HEADER;
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -24,8 +24,7 @@ public class EvidenceClient {
     private static final String INTERNAL_TOKEN = "X-Internal-Token";
     // Evidence-service
     private static final String METADATA_CASE_PATH = "/api/internal/evidences/cases/{caseId}/metadata";
-    // Report-service
-    private static final String TRACKING_EVIDENCE_CODE_PATH = "/api/internal/reports/{trackingCode}/evidences";
+    private static final String INTERNAL_EVIDENCE_PATH = "/api/internal/evidences";
 
     private final RestClient.Builder restClientBuilder;
 
@@ -35,12 +34,14 @@ public class EvidenceClient {
     @Value("${app.internal-token}")
     private String internalToken;
 
-    public void uploadEvidence(String trackingCode, List<MultipartFile> files) {
+    public void uploadEvidence(Long caseId, String trackingCode, List<MultipartFile> files) {
         if (files == null || files.isEmpty()) {
             return;
         }
 
         LinkedMultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("caseId", caseId);
+        body.add("trackingCode", trackingCode);
 
         for (MultipartFile file : files) {
             if (file == null || file.isEmpty()) {
@@ -55,7 +56,9 @@ public class EvidenceClient {
                     }
                 };
 
-                body.add("files", resource);
+                HttpHeaders partHeaders = new HttpHeaders();
+                partHeaders.setContentType(resolveContentType(file.getContentType()));
+                body.add("files", new HttpEntity<>(resource, partHeaders));
             } catch (Exception exception) {
                 throw new IllegalStateException("Failed to read evidence file", exception);
             }
@@ -69,12 +72,24 @@ public class EvidenceClient {
                 .baseUrl(evidenceBaseUrl)
                 .build()
                 .post()
-                .uri(TRACKING_EVIDENCE_CODE_PATH, trackingCode)
+                .uri(INTERNAL_EVIDENCE_PATH)
                 .header(INTERNAL_TOKEN, internalToken)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(body)
                 .retrieve()
                 .toBodilessEntity();
+    }
+
+    private MediaType resolveContentType(String contentType) {
+        if (contentType == null || contentType.isBlank()) {
+            return MediaType.APPLICATION_OCTET_STREAM;
+        }
+
+        try {
+            return MediaType.parseMediaType(contentType);
+        } catch (Exception exception) {
+            return MediaType.APPLICATION_OCTET_STREAM;
+        }
     }
 
     public List<EvidenceMetadataResponse> getEvidenceMetadataByCaseId(Long caseId){

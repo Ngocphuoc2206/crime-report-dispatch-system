@@ -59,6 +59,32 @@ public class OfficerCaseController {
                 .build();
     }
 
+    @GetMapping("/mine")
+    public ApiResponse<Page<OfficerCaseResponse>> getMyCases(
+            @RequestParam(required = false) CaseStatus status,
+            @RequestParam(required = false) UrgencyLevel urgencyLevel,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            Authentication authentication
+    ) {
+        Long currentUserId = Long.valueOf(authentication.getName());
+
+        Pageable pageable = PageRequest.of(
+                page,
+                Math.min(size, 50),
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        return ApiResponse.<Page<OfficerCaseResponse>>builder()
+                .data(officerCaseQueryService.getMyCases(
+                        currentUserId,
+                        status,
+                        urgencyLevel,
+                        pageable
+                ))
+                .build();
+    }
+
     @GetMapping("/{caseId}")
     public ApiResponse<OfficerCaseDetailResponse> getCaseDetail(
             @PathVariable Long caseId,
@@ -75,7 +101,7 @@ public class OfficerCaseController {
                 .build();
     }
 
-    @PatchMapping("/{caseId}/status")
+    @PatchMapping("/{caseId:[0-9]+}/status")
     public ApiResponse<UpdateCaseStatusResponse> updateCaseStatus(
             @PathVariable Long caseId,
             @Valid @RequestBody UpdateCaseStatusRequest request,
@@ -95,7 +121,7 @@ public class OfficerCaseController {
                 .build();
     }
 
-    @PostMapping("/{caseId}/accept")
+    @PostMapping("/{caseId:[0-9]+}/accept")
     public ApiResponse<AcceptCaseResponse> acceptCase(
             @PathVariable Long caseId,
             Authentication authentication,

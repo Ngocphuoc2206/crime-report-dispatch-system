@@ -32,6 +32,14 @@ app:
     ttl-minutes: ${CASE_LOCK_TTL_MINUTES:15}
   internal-token: ${INTERNAL_SERVICE_TOKEN:crime-report-internal-token}
 
+ai:
+  spam-detection:
+    enabled: ${AI_SPAM_DETECTION_ENABLED:true}
+    base-url: ${OPENAI_BASE_URL:}
+    api-key: ${OPENAI_API_KEY:}
+    model: ${OPENAI_MODEL:gpt-4.1}
+    timeout-seconds: ${AI_SPAM_TIMEOUT_SECONDS:8}
+
 services:
   evidence:
     base-url: ${EVIDENCE_SERVICE_URL:http://localhost:8083}

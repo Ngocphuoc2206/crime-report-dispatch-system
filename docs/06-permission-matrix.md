@@ -24,6 +24,7 @@
 | Cập nhật trạng thái case | ❌ | ✅ | ✅ | ✅ | ❌ |
 | Gán case cho đơn vị/cán bộ | ❌ | ❌ | ✅ | ✅ | ❌ |
 | Điều phối lại case | ❌ | ❌ | ✅ | ✅ | ❌ |
+| Xem bản đồ/hàng đợi điều phối | ❌ | ❌ | ✅ | ✅ | ✅ |
 | Xem dashboard tổng quan | ❌ | ❌ | ❌ | ✅ | ✅ |
 | Xem timeline | ❌ | ❌ | ❌ | ✅ | ✅ |
 | Xem heatmap | ❌ | ❌ | ❌ | ✅ | ✅ |
@@ -31,6 +32,8 @@
 | Quản lý role/RBAC | ❌ | ❌ | ❌ | ❌ | ✅ |
 | Quản lý danh mục tội phạm | ❌ | ❌ | ❌ | ❌ | ✅ |
 | Quản lý rule tính điểm nguy cấp | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Quản lý đơn vị công an | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Quản lý hồ sơ cán bộ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | Xem audit log | ❌ | ❌ | ❌ | ✅ | ✅ |
 | Giải mã danh tính người tố giác | ❌ | ❌ | ❌ | ✅ | ✅ |
 
@@ -51,7 +54,16 @@
 | POST /api/officer/cases/{caseId}/lock/renew | ❌ | ✅ | ✅ | ✅ | ✅ |
 | GET /api/officer/cases/{caseId}/lock | ❌ | ✅ | ✅ | ✅ | ✅ |
 | DELETE /api/officer/cases/{caseId}/lock | ❌ | ✅ | ✅ | ✅ | ✅ |
-| POST /api/dispatcher/cases/{caseId}/assign *(chưa triển khai)* | ❌ | ❌ | ✅ | ✅ | ❌ |
+| GET /api/dispatch/cases/pending | ❌ | ❌ | ✅ | ✅ | ✅ |
+| GET /api/dispatch/cases/{trackingCode} | ❌ | ❌ | ✅ | ✅ | ✅ |
+| POST /api/dispatch/cases/{trackingCode}/dispatch | ❌ | ❌ | ✅ | ✅ | ❌ |
+| GET /api/dispatch/tasks | ❌ | ❌ | ✅ | ✅ | ✅ |
+| PATCH /api/dispatch/tasks/{taskId}/reassign | ❌ | ❌ | ✅ | ✅ | ❌ |
+| PATCH /api/dispatch/tasks/{taskId}/recall | ❌ | ❌ | ✅ | ✅ | ❌ |
+| PATCH /api/dispatch/tasks/{taskId}/status | ❌ | ❌ | ✅ | ✅ | ❌ |
+| GET /api/dispatch/officers/available | ❌ | ❌ | ✅ | ✅ | ✅ |
+| GET /api/dispatch/map/cases | ❌ | ❌ | ✅ | ✅ | ✅ |
+| GET /api/dispatch/map/units | ❌ | ❌ | ✅ | ✅ | ✅ |
 | GET /api/commander/dashboard/overview | ❌ | ❌ | ❌ | ✅ | ✅ |
 | GET /api/commander/dashboard/timeline | ❌ | ❌ | ❌ | ✅ | ✅ |
 | GET /api/commander/dashboard/heatmap | ❌ | ❌ | ❌ | ✅ | ✅ |
@@ -65,6 +77,10 @@
 | POST /api/admin/users | ❌ | ❌ | ❌ | ❌ | ✅ |
 | PATCH /api/admin/users/{id}/roles | ❌ | ❌ | ❌ | ❌ | ✅ |
 | PATCH /api/admin/users/{id}/status | ❌ | ❌ | ❌ | ❌ | ✅ |
+| GET /api/admin/units | ❌ | ❌ | ❌ | ❌ | ✅ |
+| POST /api/admin/units | ❌ | ❌ | ❌ | ❌ | ✅ |
+| PATCH /api/admin/units/{unitId} | ❌ | ❌ | ❌ | ❌ | ✅ |
+| GET /api/admin/units/areas | ❌ | ❌ | ❌ | ❌ | ✅ |
 | POST /api/admin/officers | ❌ | ❌ | ❌ | ❌ | ✅ |
 
 ---
@@ -87,6 +103,7 @@
 
 - Được xem case chờ điều phối.
 - Được gán hoặc điều phối lại case.
+- Được xem cán bộ AVAILABLE/BUSY, bản đồ case/unit và dashboard điều phối.
 - Không mặc định được giải mã danh tính người tố giác.
 
 ### Commander
@@ -98,4 +115,5 @@
 ### Admin
 
 - Quản lý hệ thống, user, role, danh mục, rule.
+- Quản lý danh mục đơn vị công an và hồ sơ cán bộ để chuẩn bị dữ liệu dispatch.
 - Không nên trực tiếp xử lý nghiệp vụ case trong MVP.

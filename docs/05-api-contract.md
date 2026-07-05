@@ -44,6 +44,7 @@ Base URL trên là URL của api-gateway. Gateway route request đến các serv
 | /api/admin/urgency-rules/** | urgency-service |
 | /api/dispatch/** | dispatch-service |
 | /api/admin/officers/** | dispatch-service |
+| /api/admin/units/** | dispatch-service |
 
 Ví dụ:
 
@@ -197,10 +198,13 @@ PUBLIC
 | longitude | Decimal | Có | Kinh độ |
 | addressText | String | Có | Địa chỉ mô tả |
 | reporterFullName | String | Không | Họ tên người tố giác |
+| reporterCitizenId | String | Không | Số CCCD/định danh cá nhân |
 | reporterPhone | String | Không | Số điện thoại |
 | reporterEmail | String | Không | Email |
 | reporterAddress | String | Không | Địa chỉ liên hệ |
 | files | File[] | Không | File bằng chứng |
+
+Chỉ chấp nhận bằng chứng dạng ảnh, video hoặc âm thanh. File PDF và các loại tài liệu khác bị từ chối.
 
 ### Ví dụ request dạng multipart
 
@@ -223,6 +227,7 @@ Backend nhận hai multipart part:
   "longitude": 106.7009,
   "addressText": "Phường Bến Nghé, Quận 1, TP.HCM",
   "reporterFullName": "Nguyễn Văn A",
+  "reporterCitizenId": "079123456789",
   "reporterPhone": "0900000000",
   "reporterEmail": "a@example.com",
   "reporterAddress": "Quận 1, TP.HCM"
@@ -259,8 +264,9 @@ Khi nhận request qua api-gateway, các service phối hợp theo luồng:
 4. report-service mã hóa thông tin người tố giác và lưu reporter_identity.
 5. report-service gọi urgency-service hoặc sử dụng kết quả tính điểm để lưu urgency_score, urgency_level.
 6. evidence-service lưu metadata/file bằng chứng theo case_id.
-7. Các bước điều phối, audit và dashboard có thể được tách thêm thành service riêng ở các giai đoạn sau.
-8. report-service trả tracking code cho người dân.
+7. report-service gọi dispatch-service để smart dispatch theo tọa độ vụ việc. Nếu có ca trực và cán bộ AVAILABLE, hệ thống gán đơn vị/cán bộ phù hợp và tạo dispatch_task; nếu không đủ dữ liệu trực ban, tin báo vẫn được giữ ở hàng chờ điều phối.
+8. report-service ghi audit/case history cần thiết.
+9. report-service trả tracking code cho người dân.
 ```
 
 ---
@@ -636,12 +642,12 @@ ADMIN
 
 ---
 
-> **Trạng thái triển khai:** Hai endpoint `/api/dispatcher/cases/pending` và `/api/dispatcher/cases/{caseId}/assign` trong chương này chưa có controller/gateway route ở backend hiện tại. Frontend không gọi các endpoint này cho đến khi backend hoàn thiện.
+> **Trạng thái triển khai:** Dispatch-service hiện dùng route `/api/dispatch/**`. Không dùng prefix cũ `/api/dispatcher/**`.
 
 ## 6.1. Xem danh sách tin báo chờ điều phối
 
 ```http
-GET /api/dispatcher/cases/pending
+GET /api/dispatch/cases/pending
 ```
 
 ### Role được gọi
@@ -676,7 +682,7 @@ COMMANDER
 ## 6.2. Gán tin báo cho đơn vị hoặc cán bộ
 
 ```http
-POST /api/dispatcher/cases/{caseId}/assign
+POST /api/dispatch/cases/{trackingCode}/dispatch
 ```
 
 ### Role được gọi
@@ -690,9 +696,9 @@ COMMANDER
 
 ```json
 {
-  "assignedUnitId": 1,
-  "assignedOfficerId": 2,
-  "reason": "Gán cho đơn vị gần nhất có cán bộ trực rảnh"
+  "unitId": 1,
+  "officerId": 2,
+  "note": "Gán cho đơn vị gần nhất có cán bộ trực rảnh"
 }
 ```
 
@@ -704,6 +710,7 @@ COMMANDER
   "message": "Case assigned successfully",
   "data": {
     "caseId": 1,
+    "trackingCode": "TB-2026-000001",
     "assignedUnitId": 1,
     "assignedOfficerId": 2,
     "dispatchStatus": "ASSIGNED"
@@ -723,6 +730,58 @@ COMMANDER
 7. Ghi audit_log.
 8. Sử dụng optimistic locking để tránh race condition.
 ```
+
+---
+
+## 6.3. Danh sách task điều phối
+
+```http
+GET /api/dispatch/tasks
+GET /api/dispatch/tasks/{taskId}
+GET /api/dispatch/tasks/history
+```
+
+### Role được gọi
+
+```text
+DISPATCHER
+COMMANDER
+ADMIN
+```
+
+---
+
+## 6.4. Điều phối lại, thu hồi hoặc cập nhật trạng thái task
+
+```http
+PATCH /api/dispatch/tasks/{taskId}/reassign
+PATCH /api/dispatch/tasks/{taskId}/recall
+PATCH /api/dispatch/tasks/{taskId}/status
+```
+
+### Role được gọi
+
+```text
+DISPATCHER
+COMMANDER
+```
+
+---
+
+## 6.5. Tra cứu cán bộ khả dụng và dữ liệu bản đồ điều phối
+
+```http
+GET /api/dispatch/officers/available
+GET /api/dispatch/officers/busy
+GET /api/dispatch/officers/availability
+GET /api/dispatch/map/cases
+GET /api/dispatch/map/units
+GET /api/dispatch/dashboard/overview
+GET /api/dispatch/dashboard/priority-queue
+GET /api/dispatch/dashboard/activity
+```
+
+Các API này phục vụ màn hình điều phối/trực ban: xem tin báo trên bản đồ, đơn vị công an, cán bộ đang rảnh/bận và hàng đợi ưu tiên.
 
 ---
 
@@ -1180,7 +1239,41 @@ User bị tắt không thể đăng nhập và JWT cũ không còn hợp lệ.
 
 ---
 
-## 8.12. Tạo hồ sơ officer
+## 8.12. Quản lý đơn vị công an
+
+```http
+GET /api/admin/units
+POST /api/admin/units
+PATCH /api/admin/units/{unitId}
+GET /api/admin/units/areas
+```
+
+### Role được gọi
+
+```text
+ADMIN
+```
+
+### Request tạo/cập nhật đơn vị
+
+```json
+{
+  "code": "CA_Q1",
+  "name": "Công an Quận 1",
+  "areaId": 1,
+  "address": "Quận 1, TP.HCM",
+  "latitude": 10.7769,
+  "longitude": 106.7009,
+  "unitType": "DISTRICT_POLICE",
+  "active": true
+}
+```
+
+`GET /api/admin/units/areas` trả danh sách địa bàn để admin chọn `areaId` trên form tạo đơn vị.
+
+---
+
+## 8.13. Tạo hồ sơ officer
 
 ```http
 POST /api/admin/officers
@@ -1210,7 +1303,7 @@ POST /api/admin/officers
 }
 ```
 
-Luồng tạo cán bộ gồm hai bước: tạo user có role `OFFICER`, sau đó dùng `userId` để tạo hồ sơ officer. Backend hiện chưa có API lấy toàn bộ police unit; frontend chỉ có thể dùng `unitId` đã biết cho đến khi API danh sách đơn vị được bổ sung.
+Luồng tạo cán bộ gồm hai bước: tạo user có role `OFFICER`, sau đó dùng `userId` để tạo hồ sơ officer. Trước khi tạo officer cần có dữ liệu police unit qua API `/api/admin/units` hoặc seed demo.
 
 ---
 
@@ -1277,6 +1370,7 @@ Trong MVP, nên hạn chế quyền API này. `OFFICER` không mặc định đ�
   "data": {
     "caseId": 1,
     "fullName": "Nguyễn Văn A",
+    "citizenId": "079123456789",
     "phone": "0900000000",
     "email": "a@example.com",
     "address": "Quận 1, TP.HCM"
@@ -1356,11 +1450,17 @@ DELETE /api/officer/cases/{caseId}/lock
 
 ## Phase 4 - Dispatcher
 
-Chưa sẵn sàng cho frontend ở phiên bản backend hiện tại.
-
 ```http
-GET /api/dispatcher/cases/pending
-POST /api/dispatcher/cases/{caseId}/assign
+GET /api/dispatch/cases/pending
+GET /api/dispatch/cases/{trackingCode}
+POST /api/dispatch/cases/{trackingCode}/dispatch
+GET /api/dispatch/tasks
+PATCH /api/dispatch/tasks/{taskId}/reassign
+PATCH /api/dispatch/tasks/{taskId}/recall
+PATCH /api/dispatch/tasks/{taskId}/status
+GET /api/dispatch/officers/available
+GET /api/dispatch/map/cases
+GET /api/dispatch/map/units
 ```
 
 ## Phase 5 - Dashboard
@@ -1384,6 +1484,10 @@ GET /api/admin/users
 POST /api/admin/users
 PATCH /api/admin/users/{id}/roles
 PATCH /api/admin/users/{id}/status
+GET /api/admin/units
+POST /api/admin/units
+PATCH /api/admin/units/{unitId}
+GET /api/admin/units/areas
 POST /api/admin/officers
 ```
 

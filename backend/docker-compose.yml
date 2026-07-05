@@ -76,6 +76,11 @@ services:
       DB_USERNAME: crime_user
       DB_PASSWORD: crime_password
       JWT_SECRET: crime-report-dispatch-secret-key-must-be-at-least-32-bytes
+      AI_SPAM_DETECTION_ENABLED: ${AI_SPAM_DETECTION_ENABLED:-false}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1}
+      AI_SPAM_TIMEOUT_SECONDS: ${AI_SPAM_TIMEOUT_SECONDS:-8}
       INTERNAL_SERVICE_TOKEN: crime-report-internal-token
       EVIDENCE_SERVICE_URL: http://evidence-service:8083
       URGENCY_SERVICE_URL: http://urgency-service:8084

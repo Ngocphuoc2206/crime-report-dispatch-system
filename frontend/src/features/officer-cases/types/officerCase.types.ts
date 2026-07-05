@@ -1,0 +1,187 @@
+export type OfficerCaseStatus =
+  | "NEW_RECEIVED"
+  | "UNDER_VERIFICATION"
+  | "TRANSFERRED_TO_INVESTIGATION"
+  | "RESOLVED"
+  | "SPAM_OR_FAKE";
+
+export type OfficerCasePriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+export type OfficerCaseSpamLevel = "NONE" | "LOW" | "MEDIUM" | "HIGH";
+export type OfficerCaseEvidenceVerificationStatus =
+  | "PENDING"
+  | "VERIFIED"
+  | "REJECTED"
+  | "NEEDS_MORE_INFO";
+
+export type OfficerCaseReporterMode = "anonymous" | "identified";
+
+export type OfficerCaseReporterInfo = {
+  fullName?: string | null;
+  citizenId?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+};
+
+export type OfficerCaseLock = {
+  caseId: number;
+  lockedByUserId?: number | null;
+  lockedByOfficerId?: number | null;
+  lockedByUnitId?: number | null;
+  caseLockStatus?: string | null;
+  lockedAt?: string | null;
+  expiresAt?: string | null;
+  lockedByMe: boolean;
+  active: boolean;
+};
+
+export type OfficerCaseEvidence = {
+  id: number;
+  caseId: number;
+  name: string;
+  contentType?: string | null;
+  type: string;
+  size: string;
+  uploadedAt: string;
+  verificationStatus: OfficerCaseEvidenceVerificationStatus;
+  verificationNote?: string | null;
+  verifiedByUserId?: number | null;
+  verifiedAt?: string | null;
+};
+
+export type OfficerCaseTimelineItem = {
+  id: string;
+  title: string;
+  description: string;
+  actor: string;
+  occurredAt: string;
+};
+
+export type OfficerCaseHistoryApiItem = {
+  id: number;
+  action: string;
+  oldStatus?: OfficerCaseStatus | string | null;
+  newStatus?: OfficerCaseStatus | string | null;
+  note?: string | null;
+  actorUserId?: number | null;
+  actorOfficerId?: number | null;
+  actorUnitId?: number | null;
+  createdAt: string;
+};
+
+export type OfficerCase = {
+  id: number;
+  code: string;
+  title: string;
+  summary: string;
+  category: string;
+  location: string;
+  priority: OfficerCasePriority;
+  status: OfficerCaseStatus;
+  submittedAt: string;
+  updatedAt?: string;
+  assignedUnitId?: number | null;
+  assignedOfficerId?: number | null;
+  assignedOfficerName?: string;
+  spamScore?: number | null;
+  spamLevel?: OfficerCaseSpamLevel | null;
+  spamReasons?: string | null;
+  reporterMode: OfficerCaseReporterMode;
+  reporter?: OfficerCaseReporterInfo | null;
+  anonymousTemporaryId?: string;
+  lock?: OfficerCaseLock | null;
+  incident: {
+    description: string;
+    timeText: string;
+    address: string;
+    latitude?: string;
+    longitude?: string;
+  };
+  evidence: OfficerCaseEvidence[];
+  timeline: OfficerCaseTimelineItem[];
+};
+
+export type OfficerCaseApiItem = {
+  id: number;
+  trackingCode: string;
+  title: string;
+  description: string;
+  status: OfficerCaseStatus;
+  urgencyLevel: OfficerCasePriority;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
+  address?: string | null;
+  assignedUnitId?: number | null;
+  assignedOfficerId?: number | null;
+  spamScore?: number | null;
+  spamLevel?: OfficerCaseSpamLevel | null;
+  spamReasons?: string | null;
+  createdAt: string;
+  updatedAt?: string | null;
+};
+
+export type OfficerCaseDetailApiItem = {
+  id: number;
+  trackingCode: string;
+  description: string;
+  crimeType: string;
+  status: OfficerCaseStatus;
+  urgencyLevel: OfficerCasePriority;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
+  address?: string | null;
+  assignedUnitId?: number | null;
+  assignedOfficerId?: number | null;
+  spamScore?: number | null;
+  spamLevel?: OfficerCaseSpamLevel | null;
+  spamReasons?: string | null;
+  anonymous: boolean;
+  reporter?: OfficerCaseReporterInfo | null;
+  createdAt: string;
+  updatedAt?: string | null;
+  evidences: OfficerCaseEvidenceApiItem[];
+  histories?: OfficerCaseHistoryApiItem[];
+};
+
+export type OfficerCaseEvidenceApiItem = {
+  id: number;
+  caseId: number;
+  originalFilename: string;
+  contentType?: string | null;
+  sizeBytes?: number | null;
+  fileType?: string | null;
+  checksumSha256?: string | null;
+  uploadedAt: string;
+  verificationStatus?: OfficerCaseEvidenceVerificationStatus | null;
+  verificationNote?: string | null;
+  verifiedByUserId?: number | null;
+  verifiedAt?: string | null;
+};
+
+export type OfficerCasePage<T> = {
+  content: T[];
+  number: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+};
+
+export type AcceptCaseResponse = {
+  caseId: number;
+  trackingCode: string;
+  caseStatus: OfficerCaseStatus;
+  assignedUnitId?: number | null;
+  assignedOfficerId?: number | null;
+  lockResponse: OfficerCaseLock;
+};
+
+export type UpdateCaseStatusResponse = {
+  caseId: number;
+  trackingCode: string;
+  oldStatus: OfficerCaseStatus;
+  newStatus: OfficerCaseStatus;
+  note?: string | null;
+  updatedAt: string;
+};

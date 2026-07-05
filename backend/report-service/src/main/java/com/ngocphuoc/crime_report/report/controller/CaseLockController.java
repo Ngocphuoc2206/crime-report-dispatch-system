@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/officer/cases/{caseId}/lock")
+@RequestMapping("/api/officer/cases/{caseId:[0-9]+}/lock")
 public class CaseLockController {
     private final CaseLockService caseLockService;
 

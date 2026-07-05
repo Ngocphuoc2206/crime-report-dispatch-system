@@ -67,4 +67,25 @@ public interface DutyAssignmentRepository extends JpaRepository<DutyAssignment, 
             @Param("shiftStatus") DutyShiftStatus shiftStatus,
             @Param("now") LocalDateTime now
     );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        SELECT da
+        FROM DutyAssignment da
+        JOIN FETCH da.shift s
+        JOIN FETCH da.officer o
+        JOIN FETCH o.unit u
+        WHERE o.id = :officerId
+            AND da.availabilityStatus = :availabilityStatus
+            AND s.shiftStatus = :shiftStatus
+            AND s.startAt <= :now
+            AND s.endAt >= :now
+        ORDER BY da.id ASC
+        """)
+    List<DutyAssignment> findAvailableAssignmentsByOfficerForUpdate(
+            @Param("officerId") Long officerId,
+            @Param("availabilityStatus") AvailabilityStatus availabilityStatus,
+            @Param("shiftStatus") DutyShiftStatus shiftStatus,
+            @Param("now") LocalDateTime now
+    );
 }

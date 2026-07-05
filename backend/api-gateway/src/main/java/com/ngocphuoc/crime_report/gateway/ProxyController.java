@@ -62,6 +62,7 @@ public class ProxyController {
             "/api/public/crime-types",
 
             "/api/officer/reports/**",
+            "/api/officer/audit-logs",
             "/api/officer/cases",
             "/api/officer/cases/**",
 
@@ -70,6 +71,9 @@ public class ProxyController {
 
             "/api/commander/dashboard",
             "/api/commander/dashboard/**",
+            "/api/commander/cases",
+            "/api/commander/cases/**",
+            "/api/commander/activity",
 
             "/api/internal/reports/**"
     })
@@ -80,6 +84,7 @@ public class ProxyController {
     @RequestMapping({
             "/api/public/reports/*/evidences",
             "/api/officer/evidences/**",
+            "/api/commander/evidences/**",
     })
     public ResponseEntity<byte[]> evidences(HttpServletRequest request) throws Exception {
         return forward(request, evidenceServiceUrl);
@@ -97,7 +102,9 @@ public class ProxyController {
     @RequestMapping({
             "/api/dispatch/**",
             "/api/admin/officers",
-            "/api/admin/officers/**"
+            "/api/admin/officers/**",
+            "/api/admin/units",
+            "/api/admin/units/**"
     })
     public ResponseEntity<byte[]> dispatch(HttpServletRequest request) throws Exception{
         return forward(request, dispatchServiceUrl);

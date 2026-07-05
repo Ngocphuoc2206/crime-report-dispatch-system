@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -41,6 +42,7 @@ public class CaseReportService {
     private final DispatchClient dispatchClient;
     private final AuditLogService auditLogService;
     private final AuditRequestMetadataResolver auditRequestMetadataResolver;
+    private final SpamDetectionOrchestrator spamDetectionOrchestrator;
 
     @Transactional
     public CreateReportResponse createReport(
@@ -48,8 +50,10 @@ public class CaseReportService {
             List<MultipartFile> files,
             HttpServletRequest httpServletRequest
     ){
+        List<MultipartFile> evidenceFiles = files == null ? List.of() : files;
+
         log.info("[INFO] Process creating report.....");
-        log.info("[INFO] Size evidence files {}", files.size());
+        log.info("[INFO] Size evidence files {}", evidenceFiles.size());
         CrimeType crimeType = crimeTypeRepository.findById(request.crimeTypeId())
                 .orElseThrow(() -> new AppException(ErrorCode.CRIME_NOT_FOUND));
 
@@ -79,15 +83,39 @@ public class CaseReportService {
                         request.hasWeapon(),
                         request.isHappeningNow(),
                         request.hasInjuredPerson(),
-                        evidenceFileInspector.hasVideoEvidence(files)
+                        evidenceFileInspector.hasVideoEvidence(evidenceFiles)
                 )
         );
 
         caseReport.setUrgencyScore(urgencyScoreResponse.score());
         caseReport.setUrgencyLevel(UrgencyLevel.valueOf(urgencyScoreResponse.level()));
 
+        // Check report spam/fake
+        SpamDetectionOrchestrator.FinalSpamDetectionResult spamResult =
+                spamDetectionOrchestrator.analyze(request, crimeType);
+
+        caseReport.setSpamScore(spamResult.spamScore());
+        caseReport.setFakeScore(spamResult.fakeScore());
+        caseReport.setAiConfidence(spamResult.aiConfidence());
+        caseReport.setSpamLevel(spamResult.level());
+        caseReport.setSpamReasons(String.join("; ", spamResult.reasons()));
+        caseReport.setAiDecision(spamResult.decision());
+        caseReport.setSpamDetectionSource(spamResult.aiModel() == null ? "RULE_BASED" : "HYBRID");
+        caseReport.setAiModel(spamResult.aiModel());
+        caseReport.setAiError(spamResult.aiError());
+        caseReport.setAiCheckedAt(LocalDateTime.now());
+
+        if ("BLOCK".equals(spamResult.recommendedAction())) {
+            caseReport.setStatus(CaseStatus.SPAM_OR_FAKE);
+        } else if ("MANUAL_REVIEW".equals(spamResult.recommendedAction())) {
+            caseReport.setStatus(CaseStatus.UNDER_VERIFICATION);
+        } else {
+            caseReport.setStatus(CaseStatus.NEW_RECEIVED);
+        }
+
         CaseReport saved = caseReportRepository.save(caseReport);
 
+        // Write log calculate urgency
         auditLogService.writeLog(new AuditLogCommand(
                 null,
                 "PUBLIC",
@@ -102,18 +130,33 @@ public class CaseReportService {
                 "urgencyLevel=" + saved.getUrgencyLevel().name()
         ));
 
+        // Write audit log AI detect
+        auditLogService.writeLog(new AuditLogCommand(
+                null,
+                "SYSTEM",
+                AuditAction.AI_SPAM_ANALYZED,
+                AuditResourceType.CASE_REPORT,
+                saved.getId(),
+                null,
+                saved.getSpamLevel(),
+                "AI spam/fake analysis completed",
+                auditRequestMetadataResolver.getIpAddress(httpServletRequest),
+                auditRequestMetadataResolver.getUserAgent(httpServletRequest),
+                "spamScore=" + saved.getSpamScore()
+                        + ", spamLevel=" + saved.getSpamLevel()
+                        + ", reasons=" + saved.getSpamReasons()
+        ));
+
+        // Save identity reporter
         reporterIdentityService.saveEncryptedReporterIdentity(saved, request, httpServletRequest);
 
         try{
-            // After created case report then create dispatch smart
-            SmartDispatchResponse dispatchResponse =
-                    dispatchClient.smartDispatch(saved.getId(), saved.getLatitude(), saved.getLongitude());
-            saved.setAssignedUnitId(dispatchResponse.assignedUnitId());
-            saved.setAssignedOfficerId(dispatchResponse.assignedOfficerId());
+            if (!evidenceFiles.isEmpty()) {
+                evidenceClient.uploadEvidence(saved.getId(), saved.getTrackingCode(), evidenceFiles);
+            }
 
-            // Upload files evidence
-            if (!files.isEmpty()) {
-                evidenceClient.uploadEvidence(saved.getTrackingCode(), files);
+            if ("AUTO_DISPATCH".equals(spamResult.recommendedAction())) {
+                autoDispatchReport(saved, httpServletRequest);
             }
 
             auditLogService.writeLog(new AuditLogCommand(
@@ -146,6 +189,81 @@ public class CaseReportService {
         );
     }
 
+    private void autoDispatchReport(CaseReport saved, HttpServletRequest httpServletRequest) {
+        try {
+            SmartDispatchResponse dispatchResponse =
+                    dispatchClient.smartDispatch(saved.getId(), saved.getLatitude(), saved.getLongitude());
+
+            saved.setAssignedUnitId(dispatchResponse.assignedUnitId());
+            saved.setAssignedOfficerId(dispatchResponse.assignedOfficerId());
+
+            auditLogService.writeLog(new AuditLogCommand(
+                    null,
+                    "SYSTEM",
+                    AuditAction.CASE_ASSIGNED,
+                    AuditResourceType.CASE_REPORT,
+                    saved.getId(),
+                    null,
+                    "unit=" + dispatchResponse.assignedUnitId() + ", officer=" + dispatchResponse.assignedOfficerId(),
+                    "Case automatically assigned by smart dispatch",
+                    auditRequestMetadataResolver.getIpAddress(httpServletRequest),
+                    auditRequestMetadataResolver.getUserAgent(httpServletRequest),
+                    "dispatchTaskId=" + dispatchResponse.dispatchTaskId()
+            ));
+        } catch (Exception e) {
+            log.warn(
+                    "[WARN] Auto dispatch failed for case {}, keeping it pending for manual handling",
+                    saved.getId(),
+                    e
+            );
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<DispatchCandidateResponse> getDispatchCandidates() {
+        return caseReportRepository.findDispatchCandidates()
+                .stream()
+                .map(this::toDispatchCandidate)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public DispatchCandidateResponse getDispatchSummary(Long caseId) {
+        CaseReport c = caseReportRepository.findById(caseId)
+                .orElseThrow(() -> new AppException(ErrorCode.CASE_NOT_FOUND));
+
+        return toDispatchCandidate(c);
+    }
+
+    private DispatchCandidateResponse toDispatchCandidate(CaseReport c) {
+        return new DispatchCandidateResponse(
+                c.getId(),
+                c.getTrackingCode(),
+                c.getCrimeType().getName(),
+                c.getDescription(),
+                c.getCrimeType().getName(),
+                c.getStatus().name(),
+                c.getUrgencyLevel().name(),
+                c.getLatitude(),
+                c.getLongitude(),
+                c.getAddressText(),
+                c.getAssignedUnitId(),
+                c.getAssignedOfficerId(),
+                c.getSpamScore(),
+                c.getSpamLevel(),
+                c.getSpamReasons(),
+                c.getFakeScore(),
+                c.getAiConfidence(),
+                c.getAiDecision(),
+                c.getSpamDetectionSource(),
+                c.getAiModel(),
+                c.getAiCheckedAt(),
+                c.getAiError(),
+                c.getCreatedAt(),
+                c.getUpdatedAt()
+        );
+    }
+
     // Get internal report
     @Transactional(readOnly = true)
     public InternalReportLookupResponse getInternalReportByTrackingCode(String trackingCode){
@@ -164,11 +282,19 @@ public class CaseReportService {
         CaseReport caseReport = caseReportRepository.findByTrackingCode(trackingCode)
                 .orElseThrow(() -> new AppException(ErrorCode.TRACKING_CODE_NOT_FOUND));
 
+        List<EvidenceMetadataResponse> evidenceRequests = evidenceClient
+                .getEvidenceMetadataByCaseId(caseReport.getId())
+                .stream()
+                .filter(evidence -> "NEEDS_MORE_INFO".equals(evidence.verificationStatus()))
+                .toList();
+
         return new ReportStatusResponse(
                 caseReport.getTrackingCode(),
                 caseReport.getStatus().name(),
                 toPublicDisplayStatus(caseReport.getStatus()),
-                caseReport.getCreatedAt()
+                caseReport.getCreatedAt(),
+                !evidenceRequests.isEmpty(),
+                evidenceRequests
         );
     }
 

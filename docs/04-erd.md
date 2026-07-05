@@ -287,7 +287,7 @@ reporter_identity
 
 Ghi chú bảo mật:
 
-- Không lưu họ tên, số điện thoại, email dạng plaintext.
+- Không lưu họ tên, CCCD, số điện thoại, email dạng plaintext.
 - Mỗi bản ghi có IV riêng.
 - Dữ liệu định danh được tách khỏi bảng case_report.
 - Chỉ API nội bộ có quyền đặc biệt mới được giải mã.
@@ -321,7 +321,7 @@ Giải thích các field
 ```
 file_name          tên file sau khi hệ thống lưu
 original_file_name tên gốc người dân upload
-file_type          IMAGE / VIDEO / AUDIO / DOCUMENT / OTHER
+file_type          IMAGE / VIDEO / AUDIO / OTHER
 mime_type          image/png, video/mp4...
 file_url           đường dẫn file local/MinIO/S3
 file_size          dung lượng file

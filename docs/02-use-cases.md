@@ -55,6 +55,7 @@ System
 | longitude | Có | Kinh độ vị trí xảy ra vụ việc |
 | addressText | Có | Địa chỉ mô tả |
 | reporterFullName | Không | Họ tên người tố giác |
+| reporterCitizenId | Không | Số CCCD/định danh cá nhân |
 | reporterPhone | Không | Số điện thoại người tố giác |
 | reporterEmail | Không | Email người tố giác |
 | evidenceFiles | Không | File hình ảnh, video hoặc ghi âm |
@@ -199,13 +200,14 @@ System
 ## 3. Tiền điều kiện
 
 - Người dân gửi tin báo thành công.
-- Dữ liệu định danh có thể bao gồm họ tên, số điện thoại, email hoặc địa chỉ.
+- Dữ liệu định danh có thể bao gồm họ tên, số CCCD/định danh cá nhân, số điện thoại, email hoặc địa chỉ.
 
 ## 4. Dữ liệu đầu vào
 
 | Trường dữ liệu | Mô tả |
 |---|---|
 | fullName | Họ tên người tố giác |
+| citizenId | Số CCCD/định danh cá nhân |
 | phone | Số điện thoại |
 | email  | email |
 | address  | Địa chỉ liên hệ |
@@ -214,15 +216,15 @@ System
 
 1. Hệ thống nhận dữ liệu định danh từ request gửi tin báo.
 2. Hệ thống tạo IV riêng cho bản ghi.
-3. Hệ thống mã hóa từng trường dữ liệu nhạy cảm bằng thuật toán AES-GCM.
-4. Hệ thống lưu dữ liệu đã mã hóa vào bảng reporter_identity.
+3. Hệ thống gom các trường định danh thành payload JSON nội bộ.
+4. Hệ thống mã hóa payload bằng thuật toán AES-GCM và lưu ciphertext vào bảng reporter_identity.
 5. Hệ thống liên kết reporter_identity với case_report.
 6. Hệ thống không trả dữ liệu định danh trong response public.
 
 ## 6. Kết quả đầu ra
 - Dữ liệu định danh được lưu ở dạng mã hóa.
 - Bảng case_report không chứa trực tiếp thông tin định danh.
-- Bảng reporter_identity chứa dữ liệu đã mã hóa.
+- Bảng reporter_identity chứa ciphertext, IV và version khóa mã hóa.
 
 ## 7. Quy tắc bảo mật
 - Không log thông tin định danh ra console.
