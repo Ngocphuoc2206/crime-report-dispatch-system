@@ -1,4 +1,4 @@
-export type AuditActionType =
+export type KnownAuditActionType =
   | "CASE_CREATED"
   | "CASE_ASSIGNED"
   | "CASE_ACCEPTED"
@@ -7,7 +7,12 @@ export type AuditActionType =
   | "CASE_STATUS_CHANGED"
   | "REPORTER_IDENTITY_ENCRYPTED"
   | "REPORTER_IDENTITY_DECRYPTED"
-  | "URGENCY_SCORE_CALCULATED";
+  | "URGENCY_SCORE_CALCULATED"
+  | "AI_SPAM_ANALYZED"
+  | "CASE_MARKED_SPAM_OR_FAKE"
+  | "CASE_MARKED_NEEDS_REVIEW";
+
+export type AuditActionType = KnownAuditActionType | (string & {});
 
 export type AuditActionFilter = "ALL" | AuditActionType;
 

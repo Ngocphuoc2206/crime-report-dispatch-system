@@ -1,11 +1,14 @@
-import type { AuditActionType } from "@/features/officer-audit/types/officerAudit.types";
+import type {
+  AuditActionType,
+  KnownAuditActionType,
+} from "@/features/officer-audit/types/officerAudit.types";
 
 type OfficerAuditActionBadgeProps = {
   actionType: AuditActionType;
 };
 
 const actionConfig: Record<
-  AuditActionType,
+  KnownAuditActionType,
   {
     label: string;
     className: string;
@@ -47,12 +50,36 @@ const actionConfig: Record<
     label: "Chấm điểm",
     className: "bg-purple-50 text-purple-700",
   },
+  AI_SPAM_ANALYZED: {
+    label: "Phân tích AI",
+    className: "bg-cyan-50 text-cyan-700",
+  },
+  CASE_MARKED_SPAM_OR_FAKE: {
+    label: "Đánh dấu spam",
+    className: "bg-red-50 text-[var(--primary)]",
+  },
+  CASE_MARKED_NEEDS_REVIEW: {
+    label: "Cần rà soát",
+    className: "bg-orange-50 text-orange-700",
+  },
 };
+
+function formatUnknownAction(actionType: AuditActionType) {
+  return actionType
+    .toLowerCase()
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
 
 export function OfficerAuditActionBadge({
   actionType,
 }: OfficerAuditActionBadgeProps) {
-  const config = actionConfig[actionType];
+  const config = actionConfig[actionType as KnownAuditActionType] ?? {
+    label: formatUnknownAction(actionType),
+    className: "bg-slate-100 text-slate-700",
+  };
 
   return (
     <span

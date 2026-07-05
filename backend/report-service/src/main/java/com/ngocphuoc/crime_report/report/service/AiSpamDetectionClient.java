@@ -27,7 +27,7 @@ public class AiSpamDetectionClient {
     @Value("${ai.spam-detection.enabled:false}")
     private boolean enabled;
 
-    @Value("${ai.spam-detection.base-url:https://api.openai.com}")
+    @Value("${ai.spam-detection.base-url:}")
     private String baseUrl;
 
     @Value("${ai.spam-detection.api-key:}")

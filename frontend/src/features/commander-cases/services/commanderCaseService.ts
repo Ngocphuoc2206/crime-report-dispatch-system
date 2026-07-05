@@ -47,6 +47,14 @@ type CommanderCaseApiItem = {
   aiModel?: string | null;
   aiCheckedAt?: string | null;
   aiError?: string | null;
+  anonymous?: boolean;
+  reporter?: {
+    fullName?: string | null;
+    citizenId?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    address?: string | null;
+  } | null;
   createdAt: string;
   updatedAt: string | null;
 };
@@ -76,14 +84,6 @@ type CommanderCaseHistoryApiItem = {
 };
 
 type CommanderCaseDetailApiItem = CommanderCaseApiItem & {
-  anonymous?: boolean;
-  reporter?: {
-    fullName?: string | null;
-    citizenId?: string | null;
-    phone?: string | null;
-    email?: string | null;
-    address?: string | null;
-  } | null;
   evidences?: CommanderCaseEvidenceApiItem[];
   histories: CommanderCaseHistoryApiItem[];
 };

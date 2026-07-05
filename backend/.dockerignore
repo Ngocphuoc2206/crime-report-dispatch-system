@@ -1,0 +1,8 @@
+.idea
+target
+*/target
+uploads
+.env
+.mvn/wrapper/maven-wrapper.jar
+Dockerfile
+.dockerignore
