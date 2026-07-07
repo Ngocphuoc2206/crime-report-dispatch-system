@@ -3,6 +3,8 @@ package com.ngocphuoc.crime_report.report.controller;
 import com.ngocphuoc.crime_report.report.dto.response.OfficerAuditLogResponse;
 import com.ngocphuoc.crime_report.report.service.OfficerAuditLogQueryService;
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,11 +21,13 @@ import java.time.LocalDateTime;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/officer/audit-logs")
+@Tag(name = "Officer Audit Logs", description = "Audit log query APIs for officer actions")
 public class OfficerAuditLogController {
 
     private final OfficerAuditLogQueryService officerAuditLogQueryService;
 
     @GetMapping
+    @Operation(summary = "Search audit logs", description = "Return paginated audit logs filtered by date, action, actor, and keyword.")
     public ApiResponse<Page<OfficerAuditLogResponse>> getAuditLogs(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

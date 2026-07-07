@@ -10,12 +10,14 @@ import com.ngocphuoc.crime.report.dispatch.enums.AvailabilityStatus;
 import com.ngocphuoc.crime.report.dispatch.enums.DispatchStatus;
 import com.ngocphuoc.crime.report.dispatch.repository.DispatchTaskRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DispatchDashboardService {
     private final DispatchCaseService dispatchCaseService;
     private final DispatchTaskRepository dispatchTaskRepository;
@@ -23,7 +25,7 @@ public class DispatchDashboardService {
     private final ReportAssignmentClient reportAssignmentClient;
 
     public DispatchDashboardOverviewResponse getOverview() {
-        List<PendingDispatchCaseResponse> waitingCases = dispatchCaseService.getPendingCases();
+        List<PendingDispatchCaseResponse> waitingCases = getPendingCasesOrEmpty();
         long assignedTasks = dispatchTaskRepository
                 .findByDispatchStatusInOrderByCreatedAtDesc(List.of(DispatchStatus.ASSIGNED, DispatchStatus.PENDING))
                 .size();
@@ -51,7 +53,7 @@ public class DispatchDashboardService {
     }
 
     public List<PendingDispatchCaseResponse> getPriorityQueue() {
-        return dispatchCaseService.getPendingCases();
+        return getPendingCasesOrEmpty();
     }
 
     public List<DispatchActivityResponse> getActivity(int limit) {
@@ -74,5 +76,14 @@ public class DispatchDashboardService {
                 report == null ? null : report.urgencyLevel(),
                 task.getCreatedAt()
         );
+    }
+
+    private List<PendingDispatchCaseResponse> getPendingCasesOrEmpty() {
+        try {
+            return dispatchCaseService.getPendingCases();
+        } catch (Exception e) {
+            log.warn("Cannot load pending dispatch cases from report-service", e);
+            return List.of();
+        }
     }
 }

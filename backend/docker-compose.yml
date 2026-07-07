@@ -58,6 +58,8 @@ services:
       JWT_SECRET: crime-report-dispatch-secret-key-must-be-at-least-32-bytes
     expose:
       - "8081"
+    ports:
+      - "8081:8081"
     depends_on:
       mariadb:
         condition: service_healthy
@@ -87,6 +89,8 @@ services:
       DISPATCH_SERVICE_URL: http://dispatch-service:8085
     expose:
       - "8082"
+    ports:
+      - "8082:8082"
     depends_on:
       mariadb:
         condition: service_healthy
@@ -110,6 +114,8 @@ services:
       INTERNAL_SERVICE_TOKEN: crime-report-internal-token
     expose:
       - "8083"
+    ports:
+      - "8083:8083"
     volumes:
       - evidence_uploads:/app/uploads/evidences
     depends_on:
@@ -133,6 +139,8 @@ services:
       INTERNAL_SERVICE_TOKEN: crime-report-internal-token
     expose:
       - "8084"
+    ports:
+      - "8084:8084"
     depends_on:
       mariadb:
         condition: service_healthy
@@ -155,6 +163,8 @@ services:
       REPORT_SERVICE_URL: http://report-service:8082
     expose:
       - "8085"
+    ports:
+      - "8085:8085"
     depends_on:
       mariadb:
         condition: service_healthy

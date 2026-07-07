@@ -4,6 +4,7 @@ import com.ngocphuoc.crime_report.evidence.dto.EvidenceMetadataResponse;
 import com.ngocphuoc.crime_report.evidence.service.EvidenceFileService;
 import com.ngocphuoc.crime_report.evidence.service.EvidenceMetadataService;
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/internal")
 @RequiredArgsConstructor
+@Hidden
 public class InternalEvidenceController {
     private final EvidenceFileService evidenceFileService;
     private final EvidenceMetadataService evidenceMetadataService;

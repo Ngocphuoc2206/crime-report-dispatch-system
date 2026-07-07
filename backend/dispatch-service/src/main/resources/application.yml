@@ -20,6 +20,14 @@ spring:
 server:
   port: ${SERVER_PORT:8085}
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
 services:
   report-url:
     base-url: ${REPORT_SERVICE_URL:http://localhost:8082}
