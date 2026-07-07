@@ -12,6 +12,9 @@ import com.ngocphuoc.crime_report.report.service.OfficerCaseDetailService;
 import com.ngocphuoc.crime_report.report.service.OfficerCaseQueryService;
 import com.ngocphuoc.crime_report.report.service.OfficerCaseStatusService;
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/officer/cases")
+@Tag(name = "Officer Cases", description = "Officer case queue, detail, acceptance, and status update APIs")
 public class OfficerCaseController {
 
     private final OfficerCaseQueryService officerCaseQueryService;
@@ -33,6 +37,7 @@ public class OfficerCaseController {
     private final OfficerCaseStatusService officerCaseStatusService;
 
     @GetMapping
+    @Operation(summary = "List accessible cases", description = "Return paginated cases that the authenticated officer can view.")
     public ApiResponse<Page<OfficerCaseResponse>> getOfficerCases(
             @RequestParam(required = false) CaseStatus status,
             @RequestParam(required = false) UrgencyLevel urgencyLevel,
@@ -60,6 +65,7 @@ public class OfficerCaseController {
     }
 
     @GetMapping("/mine")
+    @Operation(summary = "List my cases", description = "Return paginated cases assigned to the authenticated officer.")
     public ApiResponse<Page<OfficerCaseResponse>> getMyCases(
             @RequestParam(required = false) CaseStatus status,
             @RequestParam(required = false) UrgencyLevel urgencyLevel,
@@ -86,8 +92,9 @@ public class OfficerCaseController {
     }
 
     @GetMapping("/{caseId}")
+    @Operation(summary = "Get case detail", description = "Return full case detail for an officer.")
     public ApiResponse<OfficerCaseDetailResponse> getCaseDetail(
-            @PathVariable Long caseId,
+            @Parameter(description = "Case id", example = "1") @PathVariable Long caseId,
             Authentication authentication
     ) {
         Long currentUserId = Long.valueOf(authentication.getName());
@@ -102,8 +109,9 @@ public class OfficerCaseController {
     }
 
     @PatchMapping("/{caseId:[0-9]+}/status")
+    @Operation(summary = "Update case status", description = "Update processing status and record audit information.")
     public ApiResponse<UpdateCaseStatusResponse> updateCaseStatus(
-            @PathVariable Long caseId,
+            @Parameter(description = "Case id", example = "1") @PathVariable Long caseId,
             @Valid @RequestBody UpdateCaseStatusRequest request,
             Authentication authentication,
             HttpServletRequest httpServletRequest
@@ -122,8 +130,9 @@ public class OfficerCaseController {
     }
 
     @PostMapping("/{caseId:[0-9]+}/accept")
+    @Operation(summary = "Accept case", description = "Officer accepts the case for processing.")
     public ApiResponse<AcceptCaseResponse> acceptCase(
-            @PathVariable Long caseId,
+            @Parameter(description = "Case id", example = "1") @PathVariable Long caseId,
             Authentication authentication,
             HttpServletRequest httpServletRequest
     ) {

@@ -18,16 +18,20 @@ import com.ngocphuoc.crime_report.urgency.dto.request.UrgencyRuleUpdateRequest;
 import com.ngocphuoc.crime_report.urgency.dto.response.UrgencyRuleResponse;
 import com.ngocphuoc.crime_report.urgency.service.UrgencyAdminService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/admin/urgency-rules")
+@Tag(name = "Admin Urgency Rules", description = "Urgency scoring rule administration APIs")
 public class UrgencyAdminController {
 
     private final UrgencyAdminService urgencyAdminService;
 
     @GetMapping
+    @Operation(summary = "List urgency rules", description = "Return urgency scoring rules.")
     public ApiResponse<List<UrgencyRuleResponse>> getAll() {
         return ApiResponse.<List<UrgencyRuleResponse>>builder()
                 .data(urgencyAdminService.getAll())
@@ -35,6 +39,7 @@ public class UrgencyAdminController {
     }
 
     @PostMapping
+    @Operation(summary = "Create urgency rule", description = "Create a new urgency scoring rule.")
     public ApiResponse<UrgencyRuleResponse> create(
             @RequestBody UrgencyRuleRequest request
     ) {
@@ -45,6 +50,7 @@ public class UrgencyAdminController {
     }
 
     @PatchMapping("/{id}")
+    @Operation(summary = "Update urgency rule", description = "Update an urgency scoring rule by id.")
     public ApiResponse<UrgencyRuleResponse> update(
             @PathVariable Long id,
             @RequestBody UrgencyRuleUpdateRequest request

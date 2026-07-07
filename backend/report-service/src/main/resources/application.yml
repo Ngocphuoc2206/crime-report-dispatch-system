@@ -21,6 +21,14 @@ spring:
 server:
   port: ${SERVER_PORT:8082}
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
 app:
   encryption:
     secret-base64: ${APP_ENCRYPTION_SECRET_BASE64:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}

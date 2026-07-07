@@ -8,6 +8,9 @@ import com.ngocphuoc.crime.report.dispatch.dto.response.DispatchTaskHistoryRespo
 import com.ngocphuoc.crime.report.dispatch.service.DispatchTaskHistoryService;
 import com.ngocphuoc.crime.report.dispatch.service.DispatchTaskService;
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,11 +19,13 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/dispatch/tasks")
+@Tag(name = "Dispatch Tasks", description = "Dispatch task lifecycle APIs")
 public class DispatchTaskController {
     private final DispatchTaskService dispatchTaskService;
     private final DispatchTaskHistoryService dispatchTaskHistoryService;
 
     @GetMapping("/history")
+    @Operation(summary = "List dispatch task history", description = "Return latest dispatch task history records.")
     public ApiResponse<List<DispatchTaskHistoryResponse>> getHistory(
             @RequestParam(defaultValue = "100") int limit
     ) {
@@ -30,6 +35,7 @@ public class DispatchTaskController {
     }
 
     @GetMapping
+    @Operation(summary = "List dispatch tasks", description = "Return assigned dispatch tasks.")
     public ApiResponse<List<AssignedDispatchTaskResponse>> getTasks() {
         return ApiResponse.<List<AssignedDispatchTaskResponse>>builder()
                 .data(dispatchTaskService.getTasks())
@@ -37,15 +43,19 @@ public class DispatchTaskController {
     }
 
     @GetMapping("/{taskId}")
-    public ApiResponse<AssignedDispatchTaskResponse> getTask(@PathVariable Long taskId) {
+    @Operation(summary = "Get dispatch task", description = "Return dispatch task detail by id.")
+    public ApiResponse<AssignedDispatchTaskResponse> getTask(
+            @Parameter(description = "Dispatch task id", example = "1") @PathVariable Long taskId
+    ) {
         return ApiResponse.<AssignedDispatchTaskResponse>builder()
                 .data(dispatchTaskService.getTask(taskId))
                 .build();
     }
 
     @PatchMapping("/{taskId}/reassign")
+    @Operation(summary = "Reassign dispatch task", description = "Assign a dispatch task to another officer or unit.")
     public ApiResponse<AssignedDispatchTaskResponse> reassign(
-            @PathVariable Long taskId,
+            @Parameter(description = "Dispatch task id", example = "1") @PathVariable Long taskId,
             @RequestBody ReassignDispatchTaskRequest request
     ) {
         return ApiResponse.<AssignedDispatchTaskResponse>builder()
@@ -54,8 +64,9 @@ public class DispatchTaskController {
     }
 
     @PatchMapping("/{taskId}/recall")
+    @Operation(summary = "Recall dispatch task", description = "Recall an assigned dispatch task.")
     public ApiResponse<AssignedDispatchTaskResponse> recall(
-            @PathVariable Long taskId,
+            @Parameter(description = "Dispatch task id", example = "1") @PathVariable Long taskId,
             @RequestBody(required = false) RecallDispatchTaskRequest request
     ) {
         return ApiResponse.<AssignedDispatchTaskResponse>builder()
@@ -64,8 +75,9 @@ public class DispatchTaskController {
     }
 
     @PatchMapping("/{taskId}/status")
+    @Operation(summary = "Update dispatch task status", description = "Update the lifecycle status of a dispatch task.")
     public ApiResponse<AssignedDispatchTaskResponse> updateStatus(
-            @PathVariable Long taskId,
+            @Parameter(description = "Dispatch task id", example = "1") @PathVariable Long taskId,
             @RequestBody UpdateDispatchTaskStatusRequest request
     ) {
         return ApiResponse.<AssignedDispatchTaskResponse>builder()
@@ -74,8 +86,9 @@ public class DispatchTaskController {
     }
 
     @PatchMapping("/by-case/{caseId}/complete")
+    @Operation(summary = "Complete task by case id", description = "Complete the dispatch task linked to a case.")
     public ApiResponse<AssignedDispatchTaskResponse> completeByCaseId(
-            @PathVariable Long caseId,
+            @Parameter(description = "Case id", example = "1") @PathVariable Long caseId,
             @RequestBody(required = false) UpdateDispatchTaskStatusRequest request
     ) {
         String note = request == null ? null : request.note();
