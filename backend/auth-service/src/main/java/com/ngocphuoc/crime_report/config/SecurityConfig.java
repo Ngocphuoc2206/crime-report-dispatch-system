@@ -39,6 +39,13 @@ public class SecurityConfig {
             "/api/health/db"
     };
 
+    private static final String[] SWAGGER_ENDPOINTS = {
+            "/v3/api-docs",
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
+            "/swagger-ui/**"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -46,6 +53,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                 .requestMatchers( PUBLIC_ENDPOINTS).permitAll()
                 .requestMatchers(HEALTH_ENDPOINTS).permitAll()
+                .requestMatchers(SWAGGER_ENDPOINTS).permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/commander/**").hasAnyRole("COMMANDER", "ADMIN")
                 .requestMatchers("/api/dispatcher/**").hasAnyRole("DISPATCHER", "COMMANDER", "ADMIN")

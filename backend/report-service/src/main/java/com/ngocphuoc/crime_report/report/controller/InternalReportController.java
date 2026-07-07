@@ -9,6 +9,7 @@ import com.ngocphuoc.crime_report.report.dto.response.InternalReportLookupRespon
 import com.ngocphuoc.crime_report.report.service.CaseReportService;
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/internal/reports")
+@Hidden
 public class InternalReportController {
     private final CaseReportService caseReportService;
 

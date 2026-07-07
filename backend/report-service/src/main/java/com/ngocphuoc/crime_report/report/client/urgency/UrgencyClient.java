@@ -22,7 +22,7 @@ public class UrgencyClient {
     @Value("${app.internal-token}")
     private String internalToken;
 
-    public UrgencyScoreResponse calculateScore(UrgencyScoreRequest request){
+    public UrgencyScoreResponse calculateScore(UrgencyScoreRequest request) {
         RestClient restClient = restClientBuilder.baseUrl(urgencyBaseUrl).build();
 
         UrgencyApiResponse<UrgencyScoreResponse> response =

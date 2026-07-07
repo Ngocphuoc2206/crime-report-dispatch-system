@@ -3,6 +3,7 @@ package com.ngocphuoc.crime.report.dispatch.controller;
 import com.ngocphuoc.crime.report.dispatch.dto.response.OfficerProfileResponse;
 import com.ngocphuoc.crime.report.dispatch.service.OfficerProfileService;
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/internal/officers")
+@Hidden
 public class InternalOfficerController {
     private final OfficerProfileService officerProfileService;
 

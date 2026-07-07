@@ -8,6 +8,9 @@ import com.ngocphuoc.crime_report.report.dto.response.CommanderCaseDetailRespons
 import com.ngocphuoc.crime_report.report.dto.response.CommanderCaseResponse;
 import com.ngocphuoc.crime_report.report.service.CommanderCaseService;
 import com.ngocphuoc.crime_report.shared.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,11 +31,13 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/commander")
+@Tag(name = "Commander Cases", description = "Commander case supervision and status update APIs")
 public class CommanderCaseController {
 
     private final CommanderCaseService commanderCaseService;
 
     @GetMapping("/cases")
+    @Operation(summary = "Search cases", description = "Return paginated cases for commander supervision.")
     public ApiResponse<Page<CommanderCaseResponse>> getCases(
             @RequestParam(required = false) CaseStatus status,
             @RequestParam(required = false) UrgencyLevel urgencyLevel,
@@ -52,7 +57,9 @@ public class CommanderCaseController {
     }
 
     @GetMapping("/cases/{trackingCode}")
+    @Operation(summary = "Get commander case detail", description = "Return case detail by tracking code.")
     public ApiResponse<CommanderCaseDetailResponse> getDetail(
+            @Parameter(description = "Public tracking code", example = "CR202607070001")
             @PathVariable String trackingCode
     ) {
         return ApiResponse.<CommanderCaseDetailResponse>builder()
@@ -61,7 +68,9 @@ public class CommanderCaseController {
     }
 
     @PatchMapping("/cases/{trackingCode}/status")
+    @Operation(summary = "Commander updates case status", description = "Commander updates case status and notes.")
     public ApiResponse<CommanderCaseDetailResponse> updateStatus(
+            @Parameter(description = "Public tracking code", example = "CR202607070001")
             @PathVariable String trackingCode,
             @Valid @RequestBody UpdateCaseStatusRequest request,
             Authentication authentication
@@ -75,6 +84,7 @@ public class CommanderCaseController {
     }
 
     @GetMapping("/activity")
+    @Operation(summary = "List commander activity", description = "Return latest commander-visible case activities.")
     public ApiResponse<List<CommanderActivityResponse>> getActivity(
             @RequestParam(defaultValue = "20") int limit
     ) {
