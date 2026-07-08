@@ -99,7 +99,7 @@ export function DispatcherOfficerAvailability() {
     <aside className="flex max-h-[42rem] flex-col rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
       <header className="flex shrink-0 items-center justify-between border-b border-slate-200 px-6 py-5">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">
+          <h2 className="section-title">
             Tình trạng cán bộ
           </h2>
           <p className="mt-1 text-xs font-semibold uppercase text-slate-500">

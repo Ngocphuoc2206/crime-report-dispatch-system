@@ -122,7 +122,7 @@ export function AdminOfficersContent() {
       />
 
       <section>
-        <h1 className="text-4xl font-black text-slate-950">
+        <h1 className="page-title">
           Quản lý hồ sơ cán bộ
         </h1>
 
@@ -221,7 +221,7 @@ export function AdminOfficersContent() {
 
       <section className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
         <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-          <h2 className="text-2xl font-black text-slate-950">
+          <h2 className="section-title">
             Danh sách cán bộ
           </h2>
 

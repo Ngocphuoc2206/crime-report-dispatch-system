@@ -20,7 +20,7 @@ export function OfficerActivityTable({ logs }: OfficerActivityTableProps) {
   return (
     <article className="rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
       <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-        <h2 className="text-xl font-bold text-slate-900">Nhật ký hoạt động</h2>
+        <h2 className="section-title">Nhật ký hoạt động</h2>
 
         <button className="text-sm font-bold text-(--primary) hover:text-(--primary-hover)">
           Xem tất cả

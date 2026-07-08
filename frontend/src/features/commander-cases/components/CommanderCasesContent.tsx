@@ -120,7 +120,7 @@ export function CommanderCasesContent() {
     <div className="px-8 py-8">
       <section className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-950">
+          <h1 className="page-title">
             Danh sách hồ sơ
           </h1>
 

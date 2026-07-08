@@ -177,7 +177,7 @@ export function DispatcherAssignedContent() {
 
       <section className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-950">
+          <h1 className="page-title">
             Hồ sơ đã phân công
           </h1>
 

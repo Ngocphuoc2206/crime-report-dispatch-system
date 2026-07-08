@@ -41,7 +41,7 @@ export function Button(props: ButtonAsButton | ButtonAsLink) {
       ...anchorProps
     } = props;
     const classes = [
-      "inline-flex items-center justify-center rounded-md px-5 py-3 text-sm font-bold transition",
+      "app-button",
       variantClassNames[variant],
       className,
     ].join(" ");
@@ -60,7 +60,7 @@ export function Button(props: ButtonAsButton | ButtonAsLink) {
     ...buttonProps
   } = props;
   const classes = [
-    "inline-flex items-center justify-center rounded-md px-5 py-3 text-sm font-bold transition disabled:pointer-events-none disabled:opacity-60",
+    "app-button disabled:pointer-events-none disabled:opacity-60",
     variantClassNames[variant],
     className,
   ].join(" ");

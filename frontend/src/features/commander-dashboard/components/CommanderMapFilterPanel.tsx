@@ -29,7 +29,7 @@ export function CommanderMapFilterPanel({
 }: CommanderMapFilterPanelProps) {
   return (
     <section className="rounded-xl border border-slate-200 bg-white/95 p-5 shadow-xl shadow-slate-200/60 backdrop-blur">
-      <h2 className="text-xl font-bold text-slate-950">Bộ lọc tin báo</h2>
+      <h2 className="section-title">Bộ lọc tin báo</h2>
 
       <div className="mt-5 space-y-4">
         <div>

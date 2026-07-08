@@ -312,7 +312,7 @@ export function OfficerCaseDetailContent({
       <section className="mt-8 grid gap-6 xl:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
           <article className="rounded-xl border border-(--border) bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="section-title">
               Thông tin người trình báo
             </h2>
 
@@ -374,7 +374,7 @@ export function OfficerCaseDetailContent({
           </article>
 
           <article className="rounded-xl border border-(--border) bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="section-title">
               Nội dung trình báo
             </h2>
 
@@ -414,7 +414,7 @@ export function OfficerCaseDetailContent({
           </article>
 
           <article className="rounded-xl border border-(--border) bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="section-title">
               Tài liệu & Chứng cứ đính kèm
             </h2>
 
@@ -505,7 +505,7 @@ export function OfficerCaseDetailContent({
 
         <aside className="space-y-6">
           <article className="rounded-xl border border-(--border) bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="section-title">
               Thao tác nghiệp vụ
             </h2>
 

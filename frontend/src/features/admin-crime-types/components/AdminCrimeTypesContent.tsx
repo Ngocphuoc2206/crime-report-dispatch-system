@@ -108,7 +108,7 @@ export function AdminCrimeTypesContent() {
       />
 
       <section>
-        <h1 className="text-4xl font-black text-slate-950">
+        <h1 className="page-title">
           Quản lý loại tội phạm
         </h1>
 

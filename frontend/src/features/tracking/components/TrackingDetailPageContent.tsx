@@ -276,7 +276,7 @@ export function TrackingDetailPageContent({
       <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
         <section className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">
+            <h1 className="page-title">
               Tiến độ xử lý tin báo
             </h1>
             <p className="mt-3 text-base leading-7 text-slate-600">

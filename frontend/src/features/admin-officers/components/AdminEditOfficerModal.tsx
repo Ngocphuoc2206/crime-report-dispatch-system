@@ -64,7 +64,7 @@ export function AdminEditOfficerModal({
       <section className="w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-2xl">
         <header className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-7 py-5">
           <div>
-            <h2 className="text-2xl font-black text-slate-950">
+            <h2 className="section-title">
               Chỉnh sửa hồ sơ cán bộ
             </h2>
             <p className="mt-1 text-sm text-slate-500">

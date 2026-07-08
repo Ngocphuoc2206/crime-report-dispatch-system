@@ -79,7 +79,7 @@ export function DispatcherMapContent() {
     <div className="px-8 py-8">
       <section className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
         <div>
-          <h1 className="text-4xl font-black text-slate-950">
+          <h1 className="page-title">
             Bản đồ điều phối
           </h1>
 

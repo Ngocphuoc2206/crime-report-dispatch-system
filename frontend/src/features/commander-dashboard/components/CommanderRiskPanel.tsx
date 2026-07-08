@@ -15,7 +15,7 @@ export function CommanderRiskPanel({ levels }: CommanderRiskPanelProps) {
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-slate-950">Mức độ nguy cấp</h2>
+        <h2 className="section-title">Mức độ nguy cấp</h2>
         <span className="text-xl font-bold text-[var(--primary)]">!</span>
       </div>
 

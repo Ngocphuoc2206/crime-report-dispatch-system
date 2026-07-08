@@ -53,7 +53,7 @@ export function CommanderStatusUpdateModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-6 backdrop-blur-sm">
       <section className="w-full max-w-xl overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl">
         <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-          <h2 className="text-2xl font-bold text-slate-950">
+          <h2 className="section-title">
             Cập nhật trạng thái
           </h2>
 

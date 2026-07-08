@@ -8,7 +8,7 @@ type OfficerCaseTimelineProps = {
 export function OfficerCaseTimeline({ items }: OfficerCaseTimelineProps) {
   return (
     <article className="rounded-xl border border-(--border) bg-white p-6 shadow-sm">
-      <h2 className="text-xl font-bold text-slate-900">Nhật ký xử lý</h2>
+      <h2 className="section-title">Nhật ký xử lý</h2>
 
       <ol className="mt-6 space-y-6">
         {items.map((item, index) => (

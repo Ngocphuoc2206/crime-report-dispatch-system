@@ -230,7 +230,7 @@ export function DispatcherOfficersContent() {
 
       <section className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
         <div>
-          <h1 className="text-4xl font-black text-slate-950">
+          <h1 className="page-title">
             Tình trạng cán bộ
           </h1>
           <p className="mt-3 text-lg text-slate-600">

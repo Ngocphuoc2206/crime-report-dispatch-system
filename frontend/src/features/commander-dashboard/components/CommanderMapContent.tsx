@@ -201,7 +201,7 @@ export function CommanderMapContent() {
       <div className="absolute right-[23rem] top-8 z-30 rounded-xl border border-slate-200 bg-white px-5 py-3 shadow-sm">
         <p className="text-sm font-medium text-slate-600">
           <span className="mr-3 inline-flex size-2 rounded-full bg-[var(--primary)]" />
-          <span className="text-xl font-bold text-slate-950">
+          <span className="section-title">
             {filteredReports.length}
           </span>{" "}
           kết quả đang hiển thị

@@ -243,7 +243,7 @@ export function CommanderDashboardContent() {
   );
 
   return (
-    <div className="relative px-8 py-8">
+    <div className="page-shell relative">
       {showToast ? (
         <div className="fixed bottom-8 right-8 z-50 rounded-xl bg-white px-6 py-4 font-bold text-slate-900 shadow-2xl ring-1 ring-slate-200">
           Đã cập nhật dữ liệu thành công
@@ -252,25 +252,25 @@ export function CommanderDashboardContent() {
 
       <section className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-950">
+          <h1 className="page-title">
             Tổng quan tình hình tin báo
           </h1>
 
-          <p className="mt-3 text-slate-600">
+          <p className="page-description">
             Theo dõi trạng thái xử lý và mức độ nguy cấp của tin báo trên toàn
             hệ thống.
           </p>
         </div>
 
         <div className="flex gap-3">
-          <button className="rounded-lg border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50">
+          <button className="app-button border border-slate-200 bg-white text-slate-600 hover:bg-slate-50">
             Hôm nay
           </button>
 
           <button
             type="button"
             onClick={() => void loadDashboard(true)}
-            className="rounded-lg bg-[var(--primary)] px-5 py-3 text-sm font-bold text-white hover:bg-[var(--primary-hover)]"
+            className="app-button bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)]"
           >
             Làm mới dữ liệu
           </button>
