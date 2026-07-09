@@ -132,9 +132,13 @@ export function TrackingDetailPageContent({
     }
 
     void loadStatus();
+    const refreshInterval = window.setInterval(() => {
+      void loadStatus();
+    }, 30_000);
 
     return () => {
       isActive = false;
+      window.clearInterval(refreshInterval);
     };
   }, [trackingCode]);
 

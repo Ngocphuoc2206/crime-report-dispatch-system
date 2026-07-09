@@ -43,6 +43,7 @@ public class CaseReportService {
     private final AuditLogService auditLogService;
     private final AuditRequestMetadataResolver auditRequestMetadataResolver;
     private final SpamDetectionOrchestrator spamDetectionOrchestrator;
+    private final CaseNotificationService caseNotificationService;
 
     @Transactional
     public CreateReportResponse createReport(
@@ -196,6 +197,13 @@ public class CaseReportService {
 
             saved.setAssignedUnitId(dispatchResponse.assignedUnitId());
             saved.setAssignedOfficerId(dispatchResponse.assignedOfficerId());
+            caseNotificationService.recordAssignmentChange(
+                    saved.getId(),
+                    null,
+                    null,
+                    dispatchResponse.assignedUnitId(),
+                    dispatchResponse.assignedOfficerId()
+            );
 
             auditLogService.writeLog(new AuditLogCommand(
                     null,
@@ -307,6 +315,8 @@ public class CaseReportService {
     ) {
         CaseReport caseReport = caseReportRepository.findById(caseId)
                 .orElseThrow(() -> new AppException(ErrorCode.CASE_NOT_FOUND));
+        Long previousUnitId = caseReport.getAssignedUnitId();
+        Long previousOfficerId = caseReport.getAssignedOfficerId();
 
         auditLogService.writeLog(new AuditLogCommand(
                 null,
@@ -324,6 +334,13 @@ public class CaseReportService {
 
         caseReport.setAssignedUnitId(assignedUnitId);
         caseReport.setAssignedOfficerId(assignedOfficerId);
+        caseNotificationService.recordAssignmentChange(
+                caseReport.getId(),
+                previousUnitId,
+                previousOfficerId,
+                assignedUnitId,
+                assignedOfficerId
+        );
     }
 
     private String toPublicDisplayStatus(CaseStatus status) {

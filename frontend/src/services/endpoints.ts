@@ -4,6 +4,7 @@ export const endpoints = {
 
   // Crime-Types
   crimeTypes: "/api/public/crime-types",
+  publicProcessingNotifications: "/api/public/notifications/processing",
   reports: "/api/public/reports",
   reportStatus: (trackingCode: string) =>
     `/api/public/reports/${encodeURIComponent(trackingCode)}/status`,
