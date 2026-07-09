@@ -28,6 +28,7 @@ export const endpoints = {
     `/api/officer/evidences/${encodeURIComponent(String(evidenceId))}/verification`,
 
   commanderDashboardOverview: "/api/commander/dashboard/overview",
+  commanderDashboardAnalytics: "/api/commander/dashboard/analytics",
   commanderDashboardHeatmap: "/api/commander/dashboard/heatmap",
   commanderDashboardTimeline: "/api/commander/dashboard/timeline",
   commanderCases: "/api/commander/cases",

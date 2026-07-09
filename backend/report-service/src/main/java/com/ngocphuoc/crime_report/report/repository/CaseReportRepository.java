@@ -118,6 +118,11 @@ public interface CaseReportRepository extends JpaRepository<CaseReport, Long> {
 
     long countByUrgencyLevel(UrgencyLevel urgencyLevel);
 
+    long countByCreatedAtGreaterThanEqualAndCreatedAtLessThan(
+            LocalDateTime from,
+            LocalDateTime to
+    );
+
     @Query("""
         SELECT new com.ngocphuoc.crime_report.report.dto.response.HeatmapPointResponse(
                     c.id,

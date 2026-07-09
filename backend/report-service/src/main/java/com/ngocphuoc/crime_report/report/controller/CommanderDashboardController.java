@@ -2,6 +2,7 @@ package com.ngocphuoc.crime_report.report.controller;
 
 import com.ngocphuoc.crime_report.enums.UrgencyLevel;
 import com.ngocphuoc.crime_report.report.dto.response.DashboardOverviewResponse;
+import com.ngocphuoc.crime_report.report.dto.response.CrimeAnalyticsResponse;
 import com.ngocphuoc.crime_report.report.dto.response.HeatmapPointResponse;
 import com.ngocphuoc.crime_report.report.dto.response.TimelineEventResponse;
 import com.ngocphuoc.crime_report.report.service.DashboardService;
@@ -32,6 +33,20 @@ public class CommanderDashboardController {
         return ApiResponse.<DashboardOverviewResponse>builder()
                 .message("Dashboard overview retrieved successfully")
                 .data(dashboardService.getOverview())
+                .build();
+    }
+
+    @GetMapping("/analytics")
+    @Operation(
+            summary = "Get crime analytics and forecast",
+            description = "Return completed-month report trend and a linear-regression forecast."
+    )
+    public ApiResponse<CrimeAnalyticsResponse> getAnalytics(
+            @RequestParam(required = false, defaultValue = "6") Integer months
+    ) {
+        return ApiResponse.<CrimeAnalyticsResponse>builder()
+                .message("Crime analytics retrieved successfully")
+                .data(dashboardService.getAnalytics(months))
                 .build();
     }
 

@@ -63,3 +63,19 @@ export type CommanderDashboardTimelineEvent = {
   urgencyLevel: CommanderMapSeverity;
   createdAt: string;
 };
+
+export type CommanderMonthlyReportTrend = {
+  year: number;
+  month: number;
+  label: string;
+  reportCount: number;
+  forecast: boolean;
+};
+
+export type CommanderCrimeAnalytics = {
+  monthlyTrend: CommanderMonthlyReportTrend[];
+  changePercent: number | null;
+  trendDirection: "UP" | "DOWN" | "STABLE";
+  forecastReportCount: number;
+  forecastMethod: "LINEAR_REGRESSION";
+};

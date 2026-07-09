@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CommanderErrorState } from "@/features/commander-dashboard/components/CommanderErrorState";
+import { CommanderCrimeAnalytics } from "@/features/commander-dashboard/components/CommanderCrimeAnalytics";
 import { CommanderRecentActivity } from "@/features/commander-dashboard/components/CommanderRecentActivity";
 import { CommanderRiskPanel } from "@/features/commander-dashboard/components/CommanderRiskPanel";
 import { CommanderStatusOverview } from "@/features/commander-dashboard/components/CommanderStatusOverview";
@@ -11,6 +12,7 @@ import { commanderDashboardService } from "@/features/commander-dashboard/servic
 import type { CommanderCase } from "@/features/commander-cases/types/commanderCase.types";
 import type {
   CommanderActivity,
+  CommanderCrimeAnalytics as CommanderCrimeAnalyticsData,
   CommanderDashboardOverview,
   CommanderDashboardTimelineEvent,
   CommanderReportStatus,
@@ -181,6 +183,8 @@ export function CommanderDashboardContent() {
   const [timeline, setTimeline] = useState<CommanderDashboardTimelineEvent[]>(
     [],
   );
+  const [analytics, setAnalytics] =
+    useState<CommanderCrimeAnalyticsData | null>(null);
   const [urgentCaseItems, setUrgentCaseItems] = useState<CommanderUrgentCase[]>(
     [],
   );
@@ -193,14 +197,16 @@ export function CommanderDashboardContent() {
     setHasError(false);
 
     try {
-      const [overviewData, timelineData, criticalCases, highCases] = await Promise.all([
+      const [overviewData, analyticsData, timelineData, criticalCases, highCases] = await Promise.all([
         commanderDashboardService.getOverview(),
+        commanderDashboardService.getAnalytics(6),
         commanderDashboardService.getTimeline(20),
         commanderCaseService.getCases({ severity: "CRITICAL", size: 50 }),
         commanderCaseService.getCases({ severity: "HIGH", size: 50 }),
       ]);
 
       setOverview(overviewData);
+      setAnalytics(analyticsData);
       setTimeline(timelineData);
       setUrgentCaseItems(
         mapCasesToUrgentCases([...criticalCases.content, ...highCases.content]),
@@ -291,6 +297,7 @@ export function CommanderDashboardContent() {
         <section className="mt-8 grid gap-6 xl:grid-cols-[1fr_22rem]">
           <div className="space-y-6">
             <CommanderStatusOverview statuses={statuses} />
+            {analytics ? <CommanderCrimeAnalytics analytics={analytics} /> : null}
             <CommanderUrgentTable cases={urgentCases} />
           </div>
 
