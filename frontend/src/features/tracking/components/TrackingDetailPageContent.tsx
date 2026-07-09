@@ -296,7 +296,9 @@ export function TrackingDetailPageContent({
         <section className="mt-10 grid gap-8 lg:grid-cols-[25rem_1fr]">
           <div className="space-y-5">
             <TrackingDetailSummary detail={detail} />
-            {detail.needsAdditionalEvidence ? (
+            {detail.needsAdditionalEvidence &&
+            detail.status !== "RESOLVED" &&
+            detail.status !== "SPAM_OR_FAKE" ? (
               <section className="rounded-xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
                 <h2 className="text-lg font-bold text-amber-950">
                   Cần bổ sung minh chứng
@@ -313,7 +315,7 @@ export function TrackingDetailPageContent({
                       className="rounded-lg border border-amber-200 bg-white p-4 text-sm text-slate-700"
                     >
                       <p className="font-bold text-slate-900">
-                        {request.originalFilename}
+                        {request.title}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
                         Yêu cầu lúc: {request.verifiedAt ?? request.uploadedAt}

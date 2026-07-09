@@ -23,6 +23,18 @@ public class CaseNotificationService {
     private final CaseNotificationRepository caseNotificationRepository;
 
     @Transactional
+    public void requestAdditionalEvidence(Long caseId, String note) {
+        CaseNotification notification = new CaseNotification();
+        notification.setCaseId(caseId);
+        notification.setNotificationType("EVIDENCE_REQUESTED");
+        notification.setTitle("Cần bổ sung minh chứng");
+        notification.setPublicMessage(normalizeEvidenceRequestNote(note));
+        notification.setIsPublic(true);
+
+        caseNotificationRepository.save(notification);
+    }
+
+    @Transactional
     public void recordAssignmentChange(
             Long caseId,
             Long previousUnitId,
@@ -65,6 +77,18 @@ public class CaseNotificationService {
     public List<PublicCaseNotificationResponse> getPublicNotifications(Long caseId) {
         return caseNotificationRepository
                 .findByCaseIdAndIsPublicTrueOrderByCreatedAtAsc(caseId)
+                .stream()
+                .map(this::toPublicResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PublicCaseNotificationResponse> getAdditionalEvidenceRequests(Long caseId) {
+        return caseNotificationRepository
+                .findByCaseIdAndNotificationTypeAndIsPublicTrueOrderByCreatedAtDesc(
+                        caseId,
+                        "EVIDENCE_REQUESTED"
+                )
                 .stream()
                 .map(this::toPublicResponse)
                 .toList();
@@ -115,6 +139,14 @@ public class CaseNotificationService {
         }
 
         return "Các tin báo được hiển thị dưới dạng đã ẩn danh để người dân nắm được nhịp xử lý chung, không công khai mã hồ sơ, vị trí chi tiết, danh tính người báo tin hoặc cán bộ phụ trách.";
+    }
+
+    private String normalizeEvidenceRequestNote(String note) {
+        if (note == null || note.isBlank()) {
+            return "Cơ quan xử lý cần người gửi bổ sung ảnh, video hoặc âm thanh liên quan để tiếp tục xác minh tin báo.";
+        }
+
+        return note.trim();
     }
 
     private boolean same(Long left, Long right) {

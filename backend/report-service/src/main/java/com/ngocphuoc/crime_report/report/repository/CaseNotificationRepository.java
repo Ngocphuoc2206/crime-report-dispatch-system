@@ -9,6 +9,11 @@ import java.time.LocalDateTime;
 public interface CaseNotificationRepository extends JpaRepository<CaseNotification, Long> {
     List<CaseNotification> findByCaseIdAndIsPublicTrueOrderByCreatedAtAsc(Long caseId);
 
+    List<CaseNotification> findByCaseIdAndNotificationTypeAndIsPublicTrueOrderByCreatedAtDesc(
+            Long caseId,
+            String notificationType
+    );
+
     long countByIsPublicTrueAndCreatedAtGreaterThanEqual(LocalDateTime from);
 
     List<CaseNotification> findTop6ByIsPublicTrueOrderByCreatedAtDesc();

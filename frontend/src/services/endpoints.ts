@@ -19,6 +19,8 @@ export const endpoints = {
     `/api/officer/cases/${encodeURIComponent(String(caseId))}/accept`,
   officerCaseStatus: (caseId: string | number) =>
     `/api/officer/cases/${encodeURIComponent(String(caseId))}/status`,
+  officerCaseEvidenceRequest: (caseId: string | number) =>
+    `/api/officer/cases/${encodeURIComponent(String(caseId))}/evidence-request`,
   officerCaseLock: (caseId: string | number) =>
     `/api/officer/cases/${encodeURIComponent(String(caseId))}/lock`,
   officerCaseLockRenew: (caseId: string | number) =>

@@ -5,6 +5,7 @@ import com.ngocphuoc.crime_report.enums.AuditAction;
 import com.ngocphuoc.crime_report.enums.AuditResourceType;
 import com.ngocphuoc.crime_report.enums.CaseStatus;
 import com.ngocphuoc.crime_report.report.client.dispatch.DispatchClient;
+import com.ngocphuoc.crime_report.report.dto.request.RequestAdditionalEvidenceRequest;
 import com.ngocphuoc.crime_report.report.dto.request.UpdateCaseStatusRequest;
 import com.ngocphuoc.crime_report.report.dto.response.AuditLogCommand;
 import com.ngocphuoc.crime_report.report.dto.response.OfficerProfileResponse;
@@ -38,6 +39,7 @@ public class OfficerCaseStatusService {
     private final CaseHistoryRepository caseHistoryRepository;
     private final AuditLogService auditLogService;
     private final AuditRequestMetadataResolver auditRequestMetadataResolver;
+    private final CaseNotificationService caseNotificationService;
 
     @Transactional
     public UpdateCaseStatusResponse updateStatus(
@@ -156,8 +158,68 @@ public class OfficerCaseStatusService {
         throw new AppException(ErrorCode.ACCESS_DENIED);
     }
 
+    @Transactional
+    public void requestAdditionalEvidence(
+            Long currentUserId,
+            Authentication authentication,
+            Long caseId,
+            RequestAdditionalEvidenceRequest request,
+            HttpServletRequest httpServletRequest
+    ) {
+        CaseReport caseReport = caseReportRepository.findById(caseId)
+                .orElseThrow(() -> new AppException(ErrorCode.CASE_NOT_FOUND));
+
+        officerPermissionService.validateCanViewCase(currentUserId, authentication, caseReport);
+        caseLockService.validateActiveLockOwnedByUser(currentUserId, caseId);
+
+        if (caseReport.getStatus() == CaseStatus.RESOLVED
+                || caseReport.getStatus() == CaseStatus.SPAM_OR_FAKE) {
+            throw new AppException(ErrorCode.CASE_STATUS_NOT_ACCEPTABLE);
+        }
+
+        String note = normalizeEvidenceRequestNote(request == null ? null : request.note());
+        OfficerProfileResponse officerProfileResponse = dispatchClient.getOfficerByUserId(currentUserId);
+
+        CaseHistory history = new CaseHistory();
+        history.setCaseId(caseReport.getId());
+        history.setActorUserId(currentUserId);
+        history.setActorOfficerId(officerProfileResponse.officerId());
+        history.setActorUnitId(officerProfileResponse.unitId());
+        history.setAction("ADDITIONAL_EVIDENCE_REQUESTED");
+        history.setOldStatus(caseReport.getStatus().name());
+        history.setNewStatus(caseReport.getStatus().name());
+        history.setNote(note);
+        caseHistoryRepository.save(history);
+
+        caseNotificationService.requestAdditionalEvidence(caseReport.getId(), note);
+
+        auditLogService.writeLog(
+                new AuditLogCommand(
+                        currentUserId,
+                        getFirstRole(authentication),
+                        AuditAction.CASE_STATUS_CHANGED,
+                        AuditResourceType.CASE_REPORT,
+                        caseId,
+                        caseReport.getStatus().name(),
+                        caseReport.getStatus().name(),
+                        "Requested additional evidence: " + note,
+                        auditRequestMetadataResolver.getIpAddress(httpServletRequest),
+                        auditRequestMetadataResolver.getUserAgent(httpServletRequest),
+                        "trackingCode=" + caseReport.getTrackingCode()
+                )
+        );
+    }
+
     private boolean isTerminalStatus(CaseStatus status) {
         return status == CaseStatus.RESOLVED || status == CaseStatus.SPAM_OR_FAKE;
+    }
+
+    private String normalizeEvidenceRequestNote(String note) {
+        if (note == null || note.isBlank()) {
+            return "Vui lòng bổ sung ảnh, video hoặc âm thanh liên quan để cơ quan xử lý có thêm căn cứ xác minh.";
+        }
+
+        return note.trim();
     }
 
     private boolean hasRole(Authentication authentication, String roleOfficer) {
