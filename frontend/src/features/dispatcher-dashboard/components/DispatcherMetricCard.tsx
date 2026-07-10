@@ -14,11 +14,11 @@ const toneClassName: Record<DispatchMetric["tone"], string> = {
 export function DispatcherMetricCard({ metric }: DispatcherMetricCardProps) {
   return (
     <article className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">
-      <p className="text-sm font-bold uppercase text-slate-500">
+      <p className="metric-label">
         {metric.label}
       </p>
 
-      <p className={`mt-4 text-4xl font-bold ${toneClassName[metric.tone]}`}>
+      <p className={`mt-4 metric-value ${toneClassName[metric.tone]}`}>
         {metric.value}
       </p>
 

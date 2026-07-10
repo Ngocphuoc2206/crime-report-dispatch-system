@@ -9,6 +9,6 @@ public record ReportStatusResponse(
         String displayStatus,
         LocalDateTime createdAt,
         Boolean needsAdditionalEvidence,
-        List<EvidenceMetadataResponse> evidenceRequests
+        List<PublicCaseNotificationResponse> evidenceRequests
 ) {
 }

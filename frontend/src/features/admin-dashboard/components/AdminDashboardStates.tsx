@@ -3,7 +3,7 @@ export function AdminDashboardLoadingState() {
     <section>
       <div className="flex items-center gap-3">
         <span className="text-[var(--primary)]">...</span>
-        <p className="text-xl font-black text-slate-950">
+        <p className="section-title">
           Đang tải dữ liệu báo cáo...
         </p>
       </div>

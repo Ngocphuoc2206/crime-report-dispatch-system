@@ -304,7 +304,7 @@ export function IncidentInformationStep() {
 
         <section className="mt-12">
           <div className="text-center">
-            <h1 className="text-2xl font-bold uppercase tracking-tight text-slate-900 md:text-3xl">
+            <h1 className="page-title uppercase">
               Bước 3: Thông tin sự việc
             </h1>
 
@@ -320,7 +320,7 @@ export function IncidentInformationStep() {
               <article className="rounded-xl border border-(--border) bg-white p-6 shadow-sm">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h2 className="text-xl font-bold text-slate-900">
+                    <h2 className="section-title">
                       Mô tả sự việc
                     </h2>
 
@@ -386,7 +386,7 @@ export function IncidentInformationStep() {
               </article>
 
               <article className="rounded-xl border border-(--border) bg-white p-6 shadow-sm">
-                <h2 className="text-xl font-bold text-slate-900">
+                <h2 className="section-title">
                   Thời gian và loại vụ việc
                 </h2>
 
@@ -456,7 +456,7 @@ export function IncidentInformationStep() {
               </article>
 
               <article className="rounded-xl border border-(--border) bg-white p-6 shadow-sm">
-                <h2 className="text-xl font-bold text-slate-900">
+                <h2 className="section-title">
                   Tình trạng khẩn cấp
                 </h2>
 
@@ -494,7 +494,7 @@ export function IncidentInformationStep() {
 
             <aside className="space-y-6">
               <article className="rounded-xl border border-(--border) bg-white p-6 shadow-sm">
-                <h2 className="text-xl font-bold text-slate-900">
+                <h2 className="section-title">
                   Vị trí hiện trường
                 </h2>
 

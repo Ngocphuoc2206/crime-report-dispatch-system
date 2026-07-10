@@ -88,4 +88,6 @@ public interface DutyAssignmentRepository extends JpaRepository<DutyAssignment, 
             @Param("shiftStatus") DutyShiftStatus shiftStatus,
             @Param("now") LocalDateTime now
     );
+
+    List<DutyAssignment> findByCurrentCaseId(Long currentCaseId);
 }

@@ -136,7 +136,7 @@ export function AdminUrgencyRulesContent() {
       />
 
       <section>
-        <h1 className="text-4xl font-black text-slate-950">
+        <h1 className="page-title">
           Quy tắc tính điểm nguy cấp
         </h1>
 

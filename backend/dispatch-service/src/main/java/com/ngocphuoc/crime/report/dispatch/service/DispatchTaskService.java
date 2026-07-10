@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -199,30 +200,41 @@ public class DispatchTaskService {
 
     @Transactional
     public AssignedDispatchTaskResponse completeByCaseId(Long caseId, String note, String actor) {
-        return dispatchTaskRepository
+        DispatchTask task = dispatchTaskRepository
                 .findFirstByCaseIdAndDispatchStatusInOrderByCreatedAtDesc(
                         caseId,
                         List.of(DispatchStatus.PENDING, DispatchStatus.ASSIGNED)
                 )
-                .map(task -> {
-                    DispatchStatus previousStatus = task.getDispatchStatus();
-                    task.setDispatchStatus(DispatchStatus.COMPLETED);
-                    releaseAssignment(task.getDutyAssignment());
-                    dispatchTaskHistoryService.record(
-                            task,
-                            "CASE_COMPLETED",
-                            previousStatus,
-                            task.getDispatchStatus(),
-                            null,
-                            null,
-                            note == null || note.isBlank()
-                                    ? "Case completed by report workflow"
-                                    : note,
-                            actor == null || actor.isBlank() ? "REPORT_SERVICE" : actor
-                    );
-                    return toResponse(task);
-                })
+                .or(() -> dispatchTaskRepository.findFirstByCaseIdOrderByCreatedAtDesc(caseId))
                 .orElse(null);
+
+        if (task == null) {
+            releaseAssignmentsStillPointingToCase(caseId);
+            return null;
+        }
+
+        DispatchStatus previousStatus = task.getDispatchStatus();
+        if (task.getDispatchStatus() != DispatchStatus.COMPLETED) {
+            task.setDispatchStatus(DispatchStatus.COMPLETED);
+        }
+
+        releaseAssignmentForCase(task.getDutyAssignment(), caseId);
+        releaseAssignmentsStillPointingToCase(caseId);
+
+        dispatchTaskHistoryService.record(
+                task,
+                "CASE_COMPLETED",
+                previousStatus,
+                task.getDispatchStatus(),
+                null,
+                null,
+                note == null || note.isBlank()
+                        ? "Case completed by report workflow"
+                        : note,
+                actor == null || actor.isBlank() ? "REPORT_SERVICE" : actor
+        );
+
+        return toResponse(task);
     }
 
     private DispatchTask createManualTask(
@@ -295,6 +307,19 @@ public class DispatchTaskService {
         assignment.setAvailabilityStatus(AvailabilityStatus.AVAILABLE);
         assignment.setCurrentCaseId(null);
         assignment.setLastStatusAt(LocalDateTime.now());
+    }
+
+    private void releaseAssignmentForCase(DutyAssignment assignment, Long caseId) {
+        if (assignment == null) return;
+
+        if (Objects.equals(assignment.getCurrentCaseId(), caseId)) {
+            releaseAssignment(assignment);
+        }
+    }
+
+    private void releaseAssignmentsStillPointingToCase(Long caseId) {
+        dutyAssignmentRepository.findByCurrentCaseId(caseId)
+                .forEach(assignment -> releaseAssignmentForCase(assignment, caseId));
     }
 
     private DispatchTask findTask(Long taskId) {

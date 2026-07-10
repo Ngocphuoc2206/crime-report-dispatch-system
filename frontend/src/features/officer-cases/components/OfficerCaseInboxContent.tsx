@@ -98,7 +98,7 @@ export function OfficerCaseInboxContent() {
     <div className="px-6 py-8">
       <section className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-950">
+          <h1 className="page-title">
             Danh sách tin báo được giao
           </h1>
 

@@ -209,7 +209,7 @@ export function AdminUsersContent() {
       />
 
       <section>
-        <h1 className="text-4xl font-black text-slate-950">
+        <h1 className="page-title">
           Quản lý người dùng
         </h1>
         <p className="mt-3 text-slate-600">

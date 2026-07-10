@@ -43,6 +43,7 @@ public class CaseReportService {
     private final AuditLogService auditLogService;
     private final AuditRequestMetadataResolver auditRequestMetadataResolver;
     private final SpamDetectionOrchestrator spamDetectionOrchestrator;
+    private final CaseNotificationService caseNotificationService;
 
     @Transactional
     public CreateReportResponse createReport(
@@ -196,6 +197,13 @@ public class CaseReportService {
 
             saved.setAssignedUnitId(dispatchResponse.assignedUnitId());
             saved.setAssignedOfficerId(dispatchResponse.assignedOfficerId());
+            caseNotificationService.recordAssignmentChange(
+                    saved.getId(),
+                    null,
+                    null,
+                    dispatchResponse.assignedUnitId(),
+                    dispatchResponse.assignedOfficerId()
+            );
 
             auditLogService.writeLog(new AuditLogCommand(
                     null,
@@ -282,11 +290,38 @@ public class CaseReportService {
         CaseReport caseReport = caseReportRepository.findByTrackingCode(trackingCode)
                 .orElseThrow(() -> new AppException(ErrorCode.TRACKING_CODE_NOT_FOUND));
 
-        List<EvidenceMetadataResponse> evidenceRequests = evidenceClient
+        if (isTerminalStatus(caseReport.getStatus())) {
+            return new ReportStatusResponse(
+                    caseReport.getTrackingCode(),
+                    caseReport.getStatus().name(),
+                    toPublicDisplayStatus(caseReport.getStatus()),
+                    caseReport.getCreatedAt(),
+                    false,
+                    List.of()
+            );
+        }
+
+        List<PublicCaseNotificationResponse> evidenceRequestsFromFiles = evidenceClient
                 .getEvidenceMetadataByCaseId(caseReport.getId())
                 .stream()
                 .filter(evidence -> "NEEDS_MORE_INFO".equals(evidence.verificationStatus()))
+                .map(evidence -> new PublicCaseNotificationResponse(
+                        evidence.id(),
+                        "EVIDENCE_FILE_NEEDS_MORE_INFO",
+                        "Cần bổ sung cho tệp: " + evidence.originalFilename(),
+                        evidence.verificationNote() == null || evidence.verificationNote().isBlank()
+                                ? "Cơ quan xử lý cần minh chứng rõ ràng hơn cho nội dung đã gửi."
+                                : evidence.verificationNote(),
+                        evidence.verifiedAt() == null ? evidence.uploadedAt() : evidence.verifiedAt()
+                ))
                 .toList();
+        List<PublicCaseNotificationResponse> caseLevelEvidenceRequests =
+                caseNotificationService.getAdditionalEvidenceRequests(caseReport.getId());
+        List<PublicCaseNotificationResponse> evidenceRequests =
+                java.util.stream.Stream.concat(
+                        caseLevelEvidenceRequests.stream(),
+                        evidenceRequestsFromFiles.stream()
+                ).toList();
 
         return new ReportStatusResponse(
                 caseReport.getTrackingCode(),
@@ -298,6 +333,10 @@ public class CaseReportService {
         );
     }
 
+    private boolean isTerminalStatus(CaseStatus status) {
+        return status == CaseStatus.RESOLVED || status == CaseStatus.SPAM_OR_FAKE;
+    }
+
     @Transactional
     public void updateAssignment(
             Long caseId,
@@ -307,6 +346,8 @@ public class CaseReportService {
     ) {
         CaseReport caseReport = caseReportRepository.findById(caseId)
                 .orElseThrow(() -> new AppException(ErrorCode.CASE_NOT_FOUND));
+        Long previousUnitId = caseReport.getAssignedUnitId();
+        Long previousOfficerId = caseReport.getAssignedOfficerId();
 
         auditLogService.writeLog(new AuditLogCommand(
                 null,
@@ -324,6 +365,13 @@ public class CaseReportService {
 
         caseReport.setAssignedUnitId(assignedUnitId);
         caseReport.setAssignedOfficerId(assignedOfficerId);
+        caseNotificationService.recordAssignmentChange(
+                caseReport.getId(),
+                previousUnitId,
+                previousOfficerId,
+                assignedUnitId,
+                assignedOfficerId
+        );
     }
 
     private String toPublicDisplayStatus(CaseStatus status) {

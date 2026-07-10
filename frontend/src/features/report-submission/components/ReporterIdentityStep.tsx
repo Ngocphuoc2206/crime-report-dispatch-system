@@ -252,7 +252,7 @@ export function ReporterIdentityStep() {
 
         <section className="mt-12 rounded-xl border border-(--border) bg-white p-6 shadow-sm md:p-8">
           <div className="border-l-4 border-(--primary) pl-6">
-            <h1 className="text-2xl font-bold uppercase tracking-tight text-slate-900 md:text-3xl">
+            <h1 className="page-title uppercase">
               Bước 2: Thông tin người tố giác
             </h1>
 

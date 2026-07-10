@@ -15,7 +15,7 @@ export function DispatcherMapCasePanel({
   if (!selectedCase) {
     return (
       <aside className="rounded-xl border border-red-200 bg-white p-6 shadow-sm">
-        <h2 className="text-2xl font-black text-slate-950">Chi tiết tin báo</h2>
+        <h2 className="section-title">Chi tiết tin báo</h2>
 
         <div className="mt-8 rounded-xl border border-dashed border-red-200 bg-red-50/60 p-8 text-center">
           <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-white text-3xl">

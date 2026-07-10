@@ -7,6 +7,7 @@
 -- - Police units matching the Admin Units form
 -- - Officer profiles matching the Admin Officers form
 -- - One active duty shift and AVAILABLE assignments
+-- - A realistic six-completed-month report trend plus seven recent reports
 
 USE crime_auth;
 
@@ -240,3 +241,101 @@ ON DUPLICATE KEY UPDATE
   current_case_id = VALUES(current_case_id),
   note = VALUES(note),
   last_status_at = CURRENT_TIMESTAMP(6);
+
+-- Dashboard analytics data. Counts for the six completed months are
+-- 9, 11, 10, 13, 15, 18. The small dip avoids an artificial perfectly
+-- straight line while still producing a believable upward forecast.
+-- Seven additional reports are placed in the current week; monthly analytics
+-- intentionally ignores them until the current month has completed.
+USE crime_report;
+
+DROP TEMPORARY TABLE IF EXISTS demo_month_plan;
+CREATE TEMPORARY TABLE demo_month_plan (
+  months_ago INT NOT NULL PRIMARY KEY,
+  report_count INT NOT NULL
+);
+
+INSERT INTO demo_month_plan (months_ago, report_count)
+VALUES (6, 9), (5, 11), (4, 10), (3, 13), (2, 15), (1, 18), (0, 7);
+
+DROP TEMPORARY TABLE IF EXISTS demo_sequence;
+CREATE TEMPORARY TABLE demo_sequence (sequence_no INT NOT NULL PRIMARY KEY);
+
+INSERT INTO demo_sequence (sequence_no)
+VALUES (1), (2), (3), (4), (5), (6), (7), (8), (9),
+       (10), (11), (12), (13), (14), (15), (16), (17), (18);
+
+INSERT INTO case_report (
+  tracking_code, crime_type_id, description, incident_time, is_happening_now,
+  has_weapon, has_injured_person, latitude, longitude, address_text,
+  urgency_score, urgency_level, status, spam_score, spam_level, spam_reasons,
+  fake_score, ai_confidence, ai_decision, spam_detection_source, version,
+  created_at, updated_at
+)
+SELECT
+  CONCAT('DEMO-TREND-M', LPAD(p.months_ago, 2, '0'), '-', LPAD(s.sequence_no, 2, '0')),
+  ct.id,
+  CASE MOD(s.sequence_no, 6)
+    WHEN 0 THEN 'Phat hien dau hieu lua dao chuyen khoan qua mang xa hoi.'
+    WHEN 1 THEN 'Trinh bao vu trom cap tai san tai khu dan cu.'
+    WHEN 2 THEN 'Phan anh doi tuong cuop giat tai san tren duong.'
+    WHEN 3 THEN 'Phat hien nhom nguoi gay roi trat tu cong cong.'
+    WHEN 4 THEN 'Trinh bao hanh vi lua dao chiem doat tai san.'
+    ELSE 'Phat hien dau hieu tang tru trai phep chat ma tuy.'
+  END,
+  TIMESTAMPADD(HOUR, -1, CASE
+    WHEN p.months_ago = 0 THEN TIMESTAMPADD(DAY, 1 - s.sequence_no, CURRENT_TIMESTAMP)
+    ELSE TIMESTAMPADD(HOUR, 8 + MOD(s.sequence_no * 3, 12), TIMESTAMPADD(DAY, s.sequence_no, TIMESTAMPADD(MONTH, -p.months_ago, CAST(DATE_FORMAT(CURRENT_DATE, '%Y-%m-01') AS DATE))))
+  END),
+  IF(p.months_ago = 0 AND s.sequence_no <= 2, TRUE, FALSE),
+  IF(MOD(s.sequence_no, 9) = 0, TRUE, FALSE),
+  IF(MOD(s.sequence_no, 7) = 0, TRUE, FALSE),
+  10.7244000 + MOD(s.sequence_no * 17 + p.months_ago * 3, 145) / 1000,
+  106.6038000 + MOD(s.sequence_no * 23 + p.months_ago * 5, 165) / 1000,
+  CASE MOD(s.sequence_no, 6)
+    WHEN 0 THEN 'Quan 1, TP. Ho Chi Minh'
+    WHEN 1 THEN 'Quan Binh Thanh, TP. Ho Chi Minh'
+    WHEN 2 THEN 'Quan Tan Binh, TP. Ho Chi Minh'
+    WHEN 3 THEN 'Quan Go Vap, TP. Ho Chi Minh'
+    WHEN 4 THEN 'Thanh pho Thu Duc, TP. Ho Chi Minh'
+    ELSE 'Quan 7, TP. Ho Chi Minh'
+  END,
+  CASE WHEN MOD(s.sequence_no, 9) = 0 THEN 82 WHEN MOD(s.sequence_no, 4) = 0 THEN 64 WHEN MOD(s.sequence_no, 2) = 0 THEN 43 ELSE 24 END,
+  CASE WHEN MOD(s.sequence_no, 9) = 0 THEN 'CRITICAL' WHEN MOD(s.sequence_no, 4) = 0 THEN 'HIGH' WHEN MOD(s.sequence_no, 2) = 0 THEN 'MEDIUM' ELSE 'LOW' END,
+  CASE
+    WHEN p.months_ago = 0 THEN CASE WHEN s.sequence_no <= 2 THEN 'NEW_RECEIVED' WHEN s.sequence_no <= 5 THEN 'UNDER_VERIFICATION' WHEN s.sequence_no = 6 THEN 'TRANSFERRED_TO_INVESTIGATION' ELSE 'RESOLVED' END
+    WHEN MOD(s.sequence_no, 11) = 0 THEN 'SPAM_OR_FAKE'
+    WHEN MOD(s.sequence_no, 3) = 0 THEN 'TRANSFERRED_TO_INVESTIGATION'
+    ELSE 'RESOLVED'
+  END,
+  IF(p.months_ago > 0 AND MOD(s.sequence_no, 11) = 0, 85, 0),
+  IF(p.months_ago > 0 AND MOD(s.sequence_no, 11) = 0, 'HIGH', 'NONE'),
+  IF(p.months_ago > 0 AND MOD(s.sequence_no, 11) = 0, 'Noi dung lap lai va thieu thong tin xac minh', NULL),
+  IF(p.months_ago > 0 AND MOD(s.sequence_no, 11) = 0, 80, 0),
+  0, NULL, 'RULE_BASED', 0,
+  CASE
+    WHEN p.months_ago = 0 THEN TIMESTAMPADD(DAY, 1 - s.sequence_no, CURRENT_TIMESTAMP)
+    ELSE TIMESTAMPADD(HOUR, 8 + MOD(s.sequence_no * 3, 12), TIMESTAMPADD(DAY, s.sequence_no, TIMESTAMPADD(MONTH, -p.months_ago, CAST(DATE_FORMAT(CURRENT_DATE, '%Y-%m-01') AS DATE))))
+  END,
+  CASE
+    WHEN p.months_ago = 0 THEN TIMESTAMPADD(DAY, 1 - s.sequence_no, CURRENT_TIMESTAMP)
+    ELSE TIMESTAMPADD(HOUR, 8 + MOD(s.sequence_no * 3, 12), TIMESTAMPADD(DAY, s.sequence_no, TIMESTAMPADD(MONTH, -p.months_ago, CAST(DATE_FORMAT(CURRENT_DATE, '%Y-%m-01') AS DATE))))
+  END
+FROM demo_month_plan p
+JOIN demo_sequence s ON s.sequence_no <= p.report_count
+JOIN crime_type ct ON ct.code = CASE MOD(s.sequence_no, 6)
+  WHEN 0 THEN 'ONLINE_SCAM' WHEN 1 THEN 'THEFT' WHEN 2 THEN 'ROBBERY'
+  WHEN 3 THEN 'PUBLIC_DISTURBANCE' WHEN 4 THEN 'FRAUD' ELSE 'DRUG_POSSESSION'
+END
+ON DUPLICATE KEY UPDATE
+  crime_type_id = VALUES(crime_type_id), description = VALUES(description),
+  incident_time = VALUES(incident_time), is_happening_now = VALUES(is_happening_now),
+  has_weapon = VALUES(has_weapon), has_injured_person = VALUES(has_injured_person),
+  latitude = VALUES(latitude), longitude = VALUES(longitude), address_text = VALUES(address_text),
+  urgency_score = VALUES(urgency_score), urgency_level = VALUES(urgency_level),
+  status = VALUES(status), spam_score = VALUES(spam_score), spam_level = VALUES(spam_level),
+  spam_reasons = VALUES(spam_reasons), fake_score = VALUES(fake_score),
+  created_at = VALUES(created_at), updated_at = VALUES(updated_at);
+
+DROP TEMPORARY TABLE demo_sequence;
+DROP TEMPORARY TABLE demo_month_plan;

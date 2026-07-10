@@ -15,7 +15,7 @@ export function TrackingTimeline({ items }: TrackingTimelineProps) {
   return (
     <article className="rounded-xl border border-(--border) bg-white p-6 shadow-sm md:p-8">
       <div className="border-b border-(--border) pb-4">
-        <h2 className="text-2xl font-bold text-slate-900">Tiến trình xử lý</h2>
+        <h2 className="section-title">Tiến trình xử lý</h2>
       </div>
 
       <ol className="mt-8 space-y-6">

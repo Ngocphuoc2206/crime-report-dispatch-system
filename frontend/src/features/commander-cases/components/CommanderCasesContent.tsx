@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { SpamWarningBadge } from "@/components/ui/SpamWarningBadge";
 import {
   CommanderSeverityBadge,
@@ -11,7 +11,6 @@ import {
   CommanderCaseEmptyState,
   CommanderCaseErrorState,
   CommanderCaseLoadingState,
-  CommanderCaseNoResultState,
 } from "@/features/commander-cases/components/CommanderCaseListStates";
 import { commanderCaseService } from "@/features/commander-cases/services/commanderCaseService";
 import type {
@@ -23,34 +22,65 @@ import type {
 type PageState = "normal" | "loading" | "empty" | "error";
 type SeverityFilter = "ALL" | CommanderCaseSeverity;
 type StatusFilter = "ALL" | CommanderCaseStatus;
+type CaseFilters = {
+  status: StatusFilter;
+  severity: SeverityFilter;
+  keyword: string;
+};
+
+const PAGE_SIZE = 10;
+const DEFAULT_FILTERS: CaseFilters = {
+  status: "ALL",
+  severity: "ALL",
+  keyword: "",
+};
+
+function getVisiblePages(page: number, totalPages: number) {
+  const pages = new Set([0, page - 1, page, page + 1, totalPages - 1]);
+
+  return Array.from(pages)
+    .filter((item) => item >= 0 && item < totalPages)
+    .sort((left, right) => left - right);
+}
 
 export function CommanderCasesContent() {
   const [pageState, setPageState] = useState<PageState>("normal");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>("ALL");
   const [searchTerm, setSearchTerm] = useState("");
+  const [appliedFilters, setAppliedFilters] =
+    useState<CaseFilters>(DEFAULT_FILTERS);
   const [cases, setCases] = useState<CommanderCase[]>([]);
+  const [page, setPage] = useState(0);
   const [totalCases, setTotalCases] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [apiError, setApiError] = useState<string | null>(null);
 
-  async function loadCases() {
+  async function loadCases(
+    targetPage = page,
+    filters = appliedFilters,
+  ) {
     setPageState("loading");
     setApiError(null);
 
     try {
       const response = await commanderCaseService.getCases({
-        status: statusFilter,
-        severity: severityFilter,
-        keyword: searchTerm,
-        size: 50,
+        status: filters.status,
+        severity: filters.severity,
+        keyword: filters.keyword,
+        page: targetPage,
+        size: PAGE_SIZE,
       });
 
       setCases(response.content);
+      setPage(response.number);
       setTotalCases(response.totalElements);
+      setTotalPages(response.totalPages);
       setPageState(response.content.length === 0 ? "empty" : "normal");
     } catch (error) {
       setCases([]);
       setTotalCases(0);
+      setTotalPages(0);
       setApiError(
         error instanceof Error
           ? error.message
@@ -66,43 +96,26 @@ export function CommanderCasesContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const filteredCases = useMemo(() => {
-    const keyword = searchTerm.trim().toLowerCase();
-
-    return cases.filter((item) => {
-      const matchedKeyword =
-        keyword === "" ||
-        item.code.toLowerCase().includes(keyword) ||
-        item.title.toLowerCase().includes(keyword) ||
-        item.shortDescription.toLowerCase().includes(keyword) ||
-        item.location.toLowerCase().includes(keyword);
-
-      const matchedStatus =
-        statusFilter === "ALL" || item.status === statusFilter;
-
-      const matchedSeverity =
-        severityFilter === "ALL" || item.severity === severityFilter;
-
-      return matchedKeyword && matchedStatus && matchedSeverity;
-    });
-  }, [cases, searchTerm, statusFilter, severityFilter]);
-
   function handleReset() {
     setStatusFilter("ALL");
     setSeverityFilter("ALL");
     setSearchTerm("");
+    setAppliedFilters(DEFAULT_FILTERS);
     setPageState("loading");
     setApiError(null);
     void commanderCaseService
-      .getCases({ size: 50 })
+      .getCases({ page: 0, size: PAGE_SIZE })
       .then((response) => {
         setCases(response.content);
+        setPage(response.number);
         setTotalCases(response.totalElements);
+        setTotalPages(response.totalPages);
         setPageState(response.content.length === 0 ? "empty" : "normal");
       })
       .catch((error) => {
         setCases([]);
         setTotalCases(0);
+        setTotalPages(0);
         setApiError(
           error instanceof Error
             ? error.message
@@ -116,11 +129,31 @@ export function CommanderCasesContent() {
     void loadCases();
   }
 
+  function handleApplyFilters() {
+    const filters = {
+      status: statusFilter,
+      severity: severityFilter,
+      keyword: searchTerm,
+    };
+    setAppliedFilters(filters);
+    void loadCases(0, filters);
+  }
+
+  function handlePageChange(targetPage: number) {
+    if (targetPage < 0 || targetPage >= totalPages || targetPage === page) return;
+    void loadCases(targetPage);
+  }
+
+  const visiblePages = getVisiblePages(page, totalPages);
+  const firstItem = totalCases === 0 ? 0 : page * PAGE_SIZE + 1;
+  const lastItem =
+    totalCases === 0 ? 0 : Math.min(firstItem + cases.length - 1, totalCases);
+
   return (
     <div className="px-8 py-8">
       <section className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-950">
+          <h1 className="page-title">
             Danh sách hồ sơ
           </h1>
 
@@ -193,7 +226,7 @@ export function CommanderCasesContent() {
 
           <button
             type="button"
-            onClick={() => void loadCases()}
+            onClick={handleApplyFilters}
             className="self-end rounded-md bg-[var(--primary)] px-5 py-3 font-bold text-white hover:bg-[var(--primary-hover)]"
           >
             Áp dụng
@@ -215,11 +248,7 @@ export function CommanderCasesContent() {
         {pageState === "error" ? (
           <CommanderCaseErrorState onRetry={handleRetry} />
         ) : null}
-        {pageState === "normal" && filteredCases.length === 0 ? (
-          <CommanderCaseNoResultState onClear={handleReset} />
-        ) : null}
-
-        {pageState === "normal" && filteredCases.length > 0 ? (
+        {pageState === "normal" && cases.length > 0 ? (
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1050px] text-left text-sm">
@@ -235,7 +264,7 @@ export function CommanderCasesContent() {
                 </thead>
 
                 <tbody className="divide-y divide-slate-200">
-                  {filteredCases.map((item) => (
+                  {cases.map((item) => (
                     <tr key={item.code} className="hover:bg-slate-50">
                       <td className="px-5 py-4">
                         <Link
@@ -280,11 +309,57 @@ export function CommanderCasesContent() {
               </table>
             </div>
 
-            <footer className="border-t border-slate-200 px-5 py-4 text-sm text-slate-600">
+            <footer className="flex flex-col gap-4 border-t border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
               <p>
-                Hiển thị {filteredCases.length} trong tổng số{" "}
-                {totalCases || filteredCases.length} hồ sơ
+                Hiển thị {firstItem}-{lastItem} trong tổng số {totalCases} hồ sơ
               </p>
+
+              <nav aria-label="Phân trang danh sách hồ sơ" className="flex items-center gap-2">
+                <button
+                  type="button"
+                  aria-label="Trang trước"
+                  disabled={page <= 0}
+                  onClick={() => handlePageChange(page - 1)}
+                  className="rounded-md px-3 py-2 font-bold text-slate-600 hover:bg-white disabled:cursor-not-allowed disabled:text-slate-300"
+                >
+                  ‹
+                </button>
+
+                {visiblePages.map((item, index) => {
+                  const previous = visiblePages[index - 1];
+                  const hasGap = previous !== undefined && item - previous > 1;
+
+                  return (
+                    <span key={item} className="flex items-center gap-2">
+                      {hasGap ? <span className="px-1 text-slate-400">...</span> : null}
+                      <button
+                        type="button"
+                        aria-label={`Trang ${item + 1}`}
+                        aria-current={item === page ? "page" : undefined}
+                        onClick={() => handlePageChange(item)}
+                        className={[
+                          "min-w-9 rounded-md px-3 py-2 font-bold",
+                          item === page
+                            ? "bg-slate-950 text-white"
+                            : "text-slate-600 hover:bg-white",
+                        ].join(" ")}
+                      >
+                        {item + 1}
+                      </button>
+                    </span>
+                  );
+                })}
+
+                <button
+                  type="button"
+                  aria-label="Trang sau"
+                  disabled={totalPages === 0 || page >= totalPages - 1}
+                  onClick={() => handlePageChange(page + 1)}
+                  className="rounded-md px-3 py-2 font-bold text-slate-600 hover:bg-white disabled:cursor-not-allowed disabled:text-slate-300"
+                >
+                  ›
+                </button>
+              </nav>
             </footer>
           </div>
         ) : null}

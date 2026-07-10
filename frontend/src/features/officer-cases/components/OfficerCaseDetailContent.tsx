@@ -149,6 +149,22 @@ export function OfficerCaseDetailContent({
     );
   }
 
+  function requestAdditionalEvidence() {
+    if (!caseDetail) return;
+
+    const note = window.prompt(
+      "Nội dung yêu cầu người dân bổ sung minh chứng",
+      "Vui lòng bổ sung ảnh, video hoặc âm thanh liên quan để cơ quan xử lý có thêm căn cứ xác minh.",
+    );
+
+    if (note === null) return;
+
+    void runAction(
+      () => officerCaseService.requestAdditionalEvidence(caseDetail.id, note),
+      "Đã gửi yêu cầu bổ sung minh chứng",
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="px-6 py-8">
@@ -312,7 +328,7 @@ export function OfficerCaseDetailContent({
       <section className="mt-8 grid gap-6 xl:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
           <article className="rounded-xl border border-(--border) bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="section-title">
               Thông tin người trình báo
             </h2>
 
@@ -374,7 +390,7 @@ export function OfficerCaseDetailContent({
           </article>
 
           <article className="rounded-xl border border-(--border) bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="section-title">
               Nội dung trình báo
             </h2>
 
@@ -414,14 +430,36 @@ export function OfficerCaseDetailContent({
           </article>
 
           <article className="rounded-xl border border-(--border) bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="section-title">
               Tài liệu & Chứng cứ đính kèm
             </h2>
 
             {caseDetail.evidence.length === 0 ? (
+              <>
               <p className="mt-5 rounded-lg bg-slate-50 p-5 text-sm text-slate-600">
                 Chưa có chứng cứ đính kèm.
               </p>
+                <div className="mt-3 rounded-lg border border-dashed border-amber-200 bg-amber-50 p-4">
+                  <p className="text-sm leading-6 text-amber-900">
+                    Nếu cần thêm căn cứ xác minh, cán bộ có thể gửi yêu cầu để người dân
+                    bổ sung ảnh, video hoặc âm thanh qua trang tra cứu hồ sơ.
+                  </p>
+                  {canOperate && canVerifyEvidence ? (
+                    <button
+                      type="button"
+                      disabled={isMutating}
+                      onClick={requestAdditionalEvidence}
+                      className="mt-3 rounded-md bg-amber-600 px-4 py-2 text-sm font-bold text-white hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      Yêu cầu bổ sung minh chứng
+                    </button>
+                  ) : (
+                    <p className="mt-3 text-xs font-semibold text-amber-800">
+                      Cần nhận quyền xử lý hồ sơ trước khi gửi yêu cầu bổ sung.
+                    </p>
+                  )}
+                </div>
+              </>
             ) : (
               <div className="mt-5 grid gap-4 md:grid-cols-3">
                 {caseDetail.evidence.map((file) => (
@@ -505,7 +543,7 @@ export function OfficerCaseDetailContent({
 
         <aside className="space-y-6">
           <article className="rounded-xl border border-(--border) bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2 className="section-title">
               Thao tác nghiệp vụ
             </h2>
 

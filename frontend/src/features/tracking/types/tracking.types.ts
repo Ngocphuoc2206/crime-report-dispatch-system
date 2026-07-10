@@ -16,16 +16,13 @@ export type ReportStatusResponse = {
 
 export type TrackingEvidenceRequest = {
   id: number;
-  caseId: number;
-  originalFilename: string;
-  contentType?: string | null;
-  sizeBytes?: number | null;
-  fileType?: string | null;
-  checksumSha256?: string | null;
-  uploadedAt: string;
-  verificationStatus: "NEEDS_MORE_INFO" | string;
+  type: string;
+  title: string;
+  message: string;
+  createdAt: string;
+  originalFilename?: string;
+  uploadedAt?: string;
   verificationNote?: string | null;
-  verifiedByUserId?: number | null;
   verifiedAt?: string | null;
 };
 

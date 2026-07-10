@@ -225,7 +225,7 @@ export function CommanderCaseDetailContent({
 
       {readOnly ? (
         <section className="mb-6 rounded-xl border-l-4 border-slate-400 bg-white px-6 py-5 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-950">
+          <h2 className="section-title">
             Hồ sơ này đã kết thúc xử lý và chỉ đọc
           </h2>
 
@@ -279,7 +279,7 @@ export function CommanderCaseDetailContent({
       <section className="mt-6 grid gap-6 xl:grid-cols-[1fr_24rem]">
         <div className="space-y-6">
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-bold text-slate-950">
+            <h2 className="section-title">
               Chi tiết tin báo
             </h2>
 
@@ -373,7 +373,7 @@ export function CommanderCaseDetailContent({
           </article>
 
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-bold text-slate-950">
+            <h2 className="section-title">
               Dữ liệu đính kèm
             </h2>
 
@@ -506,7 +506,7 @@ export function CommanderCaseDetailContent({
           </article>
 
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-bold text-slate-950">Lịch sử xử lý</h2>
+            <h2 className="section-title">Lịch sử xử lý</h2>
 
             <div className="mt-6 space-y-6">
               {activeCase.histories.map((history) => (

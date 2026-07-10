@@ -22,7 +22,7 @@ export function CommanderStatusOverview({
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-slate-950">Trạng thái xử lý</h2>
+        <h2 className="section-title">Trạng thái xử lý</h2>
         <button className="text-slate-400">...</button>
       </div>
 

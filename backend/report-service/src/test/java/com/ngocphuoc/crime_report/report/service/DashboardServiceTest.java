@@ -4,6 +4,8 @@ import com.ngocphuoc.crime_report.common.ErrorCode;
 import com.ngocphuoc.crime_report.enums.CaseStatus;
 import com.ngocphuoc.crime_report.enums.UrgencyLevel;
 import com.ngocphuoc.crime_report.report.dto.response.HeatmapPointResponse;
+import com.ngocphuoc.crime_report.report.dto.response.CrimeAnalyticsResponse;
+import com.ngocphuoc.crime_report.report.repository.AuditLogRepository;
 import com.ngocphuoc.crime_report.report.repository.CaseReportRepository;
 import com.ngocphuoc.crime_report.shared.exception.AppException;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,9 @@ class DashboardServiceTest {
 
     @Mock
     private CaseReportRepository caseReportRepository;
+
+    @Mock
+    private AuditLogRepository auditLogRepository;
 
     @InjectMocks
     private DashboardService dashboardService;
@@ -127,6 +132,37 @@ class DashboardServiceTest {
                 time,
                 time,
                 UrgencyLevel.MEDIUM
+        );
+    }
+
+    @Test
+    void getAnalytics_shouldReturnMonthlyTrendAndForecast() {
+        when(caseReportRepository.countByCreatedAtGreaterThanEqualAndCreatedAtLessThan(
+                any(LocalDateTime.class),
+                any(LocalDateTime.class)
+        )).thenReturn(10L, 12L, 14L, 16L, 18L, 20L);
+
+        CrimeAnalyticsResponse result = dashboardService.getAnalytics(6);
+
+        assertEquals(7, result.monthlyTrend().size());
+        assertFalse(result.monthlyTrend().getFirst().forecast());
+        assertTrue(result.monthlyTrend().getLast().forecast());
+        assertEquals(22L, result.forecastReportCount());
+        assertEquals(11.11, result.changePercent());
+        assertEquals("UP", result.trendDirection());
+        assertEquals("LINEAR_REGRESSION", result.forecastMethod());
+        verify(caseReportRepository, times(6))
+                .countByCreatedAtGreaterThanEqualAndCreatedAtLessThan(
+                        any(LocalDateTime.class),
+                        any(LocalDateTime.class)
+                );
+    }
+
+    @Test
+    void forecastNextMonth_shouldNeverReturnNegativeCount() {
+        assertEquals(
+                0L,
+                DashboardService.forecastNextMonth(List.of(12L, 9L, 6L, 3L))
         );
     }
 }

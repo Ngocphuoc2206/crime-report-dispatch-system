@@ -54,7 +54,7 @@ export function DispatcherActivityTimeline() {
     <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/60">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Dòng hoạt động</h2>
+          <h2 className="section-title">Dòng hoạt động</h2>
           <p className="mt-1 text-xs font-semibold uppercase text-slate-500">
             {activities.length} cập nhật mới nhất
           </p>

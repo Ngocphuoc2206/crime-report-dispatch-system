@@ -38,7 +38,7 @@ export function OfficerLineChart({ data }: OfficerLineChartProps) {
   return (
     <article className="rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
       <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-        <h2 className="text-xl font-bold text-slate-900">
+        <h2 className="section-title">
           Xu hướng tiếp nhận trong ngày
         </h2>
 

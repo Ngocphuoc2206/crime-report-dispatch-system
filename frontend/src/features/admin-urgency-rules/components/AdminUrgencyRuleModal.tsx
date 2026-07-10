@@ -79,7 +79,7 @@ export function AdminUrgencyRuleModal({
       <section className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl">
         <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
           <div>
-            <h2 className="text-2xl font-black text-slate-950">
+            <h2 className="section-title">
               {mode === "create" ? "Tạo quy tắc" : "Chỉnh sửa quy tắc"}
             </h2>
             <p className="mt-1 text-sm text-slate-500">

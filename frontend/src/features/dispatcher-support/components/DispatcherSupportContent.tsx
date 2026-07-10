@@ -36,7 +36,7 @@ export function DispatcherSupportContent() {
     <div className="px-8 py-8">
       <section className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
         <div>
-          <h1 className="text-4xl font-black text-slate-950">
+          <h1 className="page-title">
             Trợ giúp điều phối
           </h1>
 
@@ -94,7 +94,7 @@ export function DispatcherSupportContent() {
           </section>
 
           <section className="rounded-xl border border-red-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-black text-slate-950">
+            <h2 className="section-title">
               Câu hỏi thường gặp
             </h2>
 
@@ -115,7 +115,7 @@ export function DispatcherSupportContent() {
           </section>
 
           <section className="rounded-xl border border-red-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-black text-slate-950">
+            <h2 className="section-title">
               Liên hệ quản trị
             </h2>
 

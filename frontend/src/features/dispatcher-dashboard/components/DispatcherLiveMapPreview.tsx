@@ -107,7 +107,7 @@ export function DispatcherLiveMapPreview() {
   return (
     <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
       <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-        <h2 className="text-xl font-bold text-slate-900">Bản đồ trực tuyến</h2>
+        <h2 className="section-title">Bản đồ trực tuyến</h2>
 
         <Link
           href="/dispatcher/map"

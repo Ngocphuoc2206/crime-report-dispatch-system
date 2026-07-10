@@ -22,3 +22,19 @@ export type TrustMetric = {
   value: string;
   label: string;
 };
+
+export type PublicProcessingUpdate = {
+  id: number;
+  type: "CASE_DISPATCHED" | "CASE_REASSIGNED" | "DISPATCH_RECALLED" | string;
+  title: string;
+  message: string;
+  createdAt: string;
+};
+
+export type PublicProcessingFeed = {
+  updatesLast24Hours: number;
+  headline: string;
+  summary: string;
+  safetyTips: string[];
+  latestUpdates: PublicProcessingUpdate[];
+};

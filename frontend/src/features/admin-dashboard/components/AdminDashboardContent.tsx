@@ -233,7 +233,7 @@ export function AdminDashboardContent() {
     overview.underVerificationReports + overview.transferredReports;
 
   return (
-    <div className="relative px-8 py-8">
+    <div className="page-shell relative">
       {showToast ? (
         <div className="fixed bottom-8 right-8 z-50 flex items-start gap-3 rounded-xl bg-white px-6 py-4 shadow-2xl ring-1 ring-slate-200">
           <span className="flex size-8 items-center justify-center rounded-full bg-green-100 text-green-700">
@@ -261,11 +261,11 @@ export function AdminDashboardContent() {
 
       <section className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-4xl font-black text-slate-950">
+          <h1 className="page-title">
             Tổng quan quản trị
           </h1>
 
-          <p className="mt-3 text-slate-600">
+          <p className="page-description">
             Theo dõi tài khoản người dùng, danh mục nghiệp vụ và tình hình tin
             báo trên hệ thống.
           </p>
@@ -274,7 +274,7 @@ export function AdminDashboardContent() {
         <button
           type="button"
           onClick={() => void loadDashboard(true)}
-          className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 shadow-sm hover:bg-slate-50"
+          className="app-button border border-slate-200 bg-white text-slate-700 shadow-sm hover:bg-slate-50"
         >
           Làm mới dữ liệu
         </button>
@@ -290,7 +290,7 @@ export function AdminDashboardContent() {
         {dashboardState === "normal" ? (
           <>
             <section>
-              <h2 className="text-2xl font-black text-slate-950">
+              <h2 className="section-title">
                 Thống kê tài khoản
               </h2>
 

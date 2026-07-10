@@ -60,6 +60,7 @@ public class ProxyController {
             "/api/public/reports",
             "/api/public/reports/{trackingCode}/status",
             "/api/public/crime-types",
+            "/api/public/notifications/**",
 
             "/api/officer/reports/**",
             "/api/officer/audit-logs",
