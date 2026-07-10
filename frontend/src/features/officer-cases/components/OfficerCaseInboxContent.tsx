@@ -95,7 +95,7 @@ export function OfficerCaseInboxContent() {
   }
 
   return (
-    <div className="px-6 py-8">
+    <div className="min-w-0 px-4 py-6 sm:px-6 sm:py-8">
       <section className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 className="page-title">
@@ -110,7 +110,7 @@ export function OfficerCaseInboxContent() {
         <button
           type="button"
           onClick={() => void loadCases()}
-          className="rounded-md border border-(--border) bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-red-50 hover:text-(--primary)"
+          className="inline-flex min-h-11 w-full shrink-0 items-center justify-center whitespace-nowrap rounded-md border border-(--border) bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-red-50 hover:text-(--primary) sm:w-auto"
         >
           Tải lại dữ liệu
         </button>
@@ -159,14 +159,14 @@ export function OfficerCaseInboxContent() {
             className="w-full rounded-md border border-(--border) bg-white px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100 lg:w-96"
           />
 
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
             <select
               value={statusFilter}
               onChange={(event) => {
                 setStatusFilter(event.target.value as StatusFilter);
                 resetPage();
               }}
-              className="rounded-md border border-(--border) bg-white px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+              className="w-full min-w-0 rounded-md border border-(--border) bg-white px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100 sm:w-auto"
             >
               <option value="ALL">Tất cả trạng thái</option>
               <option value="NEW_RECEIVED">Mới tiếp nhận</option>
@@ -184,7 +184,7 @@ export function OfficerCaseInboxContent() {
                 setUrgencyFilter(event.target.value as UrgencyFilter);
                 resetPage();
               }}
-              className="rounded-md border border-(--border) bg-white px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100"
+              className="w-full min-w-0 rounded-md border border-(--border) bg-white px-4 py-3 outline-none focus:border-(--primary) focus:ring-4 focus:ring-red-100 sm:w-auto"
             >
               <option value="ALL">Tất cả mức độ</option>
               <option value="CRITICAL">Khẩn cấp</option>
@@ -211,7 +211,7 @@ export function OfficerCaseInboxContent() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-250 text-left text-sm">
+            <table className="w-full min-w-[1120px] text-left text-sm">
               <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                 <tr>
                   <th className="px-5 py-4">Mã tin báo</th>
@@ -251,11 +251,11 @@ export function OfficerCaseInboxContent() {
                       {item.location}
                     </td>
 
-                    <td className="px-5 py-4">
+                    <td className="min-w-32 whitespace-nowrap px-5 py-4">
                       <OfficerCasePriorityBadge priority={item.priority} />
                     </td>
 
-                    <td className="px-5 py-4">
+                    <td className="min-w-40 whitespace-nowrap px-5 py-4">
                       <OfficerCaseStatusBadge status={item.status} />
                     </td>
 
@@ -263,10 +263,10 @@ export function OfficerCaseInboxContent() {
                       {item.assignedOfficerName ?? "Chưa phân công"}
                     </td>
 
-                    <td className="px-5 py-4">
+                    <td className="whitespace-nowrap px-5 py-4">
                       <Link
                         href={`/officer/cases/${encodeURIComponent(item.id)}`}
-                        className="rounded-md border border-slate-300 px-4 py-2 font-bold text-slate-700 hover:border-(--primary) hover:bg-red-50 hover:text-(--primary)"
+                        className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-md border border-slate-300 px-4 py-2 font-bold text-slate-700 hover:border-(--primary) hover:bg-red-50 hover:text-(--primary)"
                       >
                         Xem chi tiết
                       </Link>
@@ -283,7 +283,7 @@ export function OfficerCaseInboxContent() {
             Hiển thị {filteredCases.length} / {casePage.totalElements} hồ sơ
           </p>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <button
               type="button"
               disabled={page <= 0}

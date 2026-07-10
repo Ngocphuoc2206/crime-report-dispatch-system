@@ -143,7 +143,7 @@ export function InternalShell({
         </div>
       </aside>
 
-      <div className="lg:pl-72">
+      <div className="min-w-0 lg:pl-72">
         <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
           <div className="flex min-h-20 items-center justify-between gap-4 px-5 py-4 lg:px-8">
             <div className="min-w-0">
@@ -226,7 +226,7 @@ export function InternalShell({
           </nav>
         </header>
 
-        <main className="min-h-[calc(100vh-5rem)]">{children}</main>
+        <main className="min-h-[calc(100vh-5rem)] min-w-0">{children}</main>
       </div>
     </div>
   );
