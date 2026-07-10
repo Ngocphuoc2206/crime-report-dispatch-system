@@ -36,7 +36,7 @@ export function OfficerCaseStatusBadge({
 
   return (
     <span
-      className={`rounded-full px-3 py-1 text-xs font-bold ${config[status].className}`}
+      className={`inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold ${config[status].className}`}
     >
       {config[status].label}
     </span>
@@ -72,7 +72,7 @@ export function OfficerCasePriorityBadge({
 
   return (
     <span
-      className={`rounded-full px-3 py-1 text-xs font-bold uppercase ${config[priority].className}`}
+      className={`inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold uppercase ${config[priority].className}`}
     >
       {config[priority].label}
     </span>

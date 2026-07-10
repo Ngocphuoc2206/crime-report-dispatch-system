@@ -251,11 +251,11 @@ export function OfficerCaseInboxContent() {
                       {item.location}
                     </td>
 
-                    <td className="px-5 py-4">
+                    <td className="min-w-32 whitespace-nowrap px-5 py-4">
                       <OfficerCasePriorityBadge priority={item.priority} />
                     </td>
 
-                    <td className="px-5 py-4">
+                    <td className="min-w-40 whitespace-nowrap px-5 py-4">
                       <OfficerCaseStatusBadge status={item.status} />
                     </td>
 
