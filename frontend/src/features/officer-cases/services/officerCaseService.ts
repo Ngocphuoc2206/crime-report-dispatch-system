@@ -344,4 +344,11 @@ export const officerCaseService = {
       { status, note },
       { auth: true },
     ),
+
+  requestAdditionalEvidence: (caseId: string | number, note: string | null) =>
+    apiClient.post<void, { note: string | null }>(
+      endpoints.officerCaseEvidenceRequest(caseId),
+      { note },
+      { auth: true },
+    ),
 };

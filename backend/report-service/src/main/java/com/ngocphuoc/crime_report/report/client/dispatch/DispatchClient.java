@@ -2,6 +2,7 @@ package com.ngocphuoc.crime_report.report.client.dispatch;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ngocphuoc.crime_report.common.ErrorCode;
 import com.ngocphuoc.crime_report.report.dto.response.OfficerProfileResponse;
 import com.ngocphuoc.crime_report.report.dto.response.SmartDispatchResponse;
 import com.ngocphuoc.crime_report.shared.exception.AppException;
@@ -90,9 +91,25 @@ public class DispatchClient {
                     .header(INTERNAL_TOKEN_HEADER, internalToken)
                     .body(new CompleteDispatchRequest("COMPLETED", note))
                     .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            (request, responseError) -> {
+                                try {
+                                    ApiResponse<?> errorResponse = objectMapper.readValue(
+                                            responseError.getBody(),
+                                            new TypeReference<>() {}
+                                    );
+                                    throw new AppException(errorResponse.getErrorCode(), errorResponse.getMessage());
+                                } catch (IOException exception) {
+                                    throw new AppException(
+                                            "DISPATCH_SERVICE_ERROR",
+                                            "Dispatch service error: " + responseError.getStatusCode()
+                                    );
+                                }
+                            })
                     .body(new ParameterizedTypeReference<ApiResponse<Object>>() {});
         } catch (RestClientException exception) {
-            log.warn("Could not complete dispatch task for caseId={}", caseId, exception);
+            log.error("Could not complete dispatch task and release officer for caseId={}", caseId, exception);
+            throw new AppException(ErrorCode.DISPATCH_RELEASE_FAILED);
         }
     }
 

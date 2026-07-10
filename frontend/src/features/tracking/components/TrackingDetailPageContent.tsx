@@ -132,9 +132,13 @@ export function TrackingDetailPageContent({
     }
 
     void loadStatus();
+    const refreshInterval = window.setInterval(() => {
+      void loadStatus();
+    }, 30_000);
 
     return () => {
       isActive = false;
+      window.clearInterval(refreshInterval);
     };
   }, [trackingCode]);
 
@@ -276,7 +280,7 @@ export function TrackingDetailPageContent({
       <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
         <section className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">
+            <h1 className="page-title">
               Tiến độ xử lý tin báo
             </h1>
             <p className="mt-3 text-base leading-7 text-slate-600">
@@ -292,7 +296,9 @@ export function TrackingDetailPageContent({
         <section className="mt-10 grid gap-8 lg:grid-cols-[25rem_1fr]">
           <div className="space-y-5">
             <TrackingDetailSummary detail={detail} />
-            {detail.needsAdditionalEvidence ? (
+            {detail.needsAdditionalEvidence &&
+            detail.status !== "RESOLVED" &&
+            detail.status !== "SPAM_OR_FAKE" ? (
               <section className="rounded-xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
                 <h2 className="text-lg font-bold text-amber-950">
                   Cần bổ sung minh chứng
@@ -309,7 +315,7 @@ export function TrackingDetailPageContent({
                       className="rounded-lg border border-amber-200 bg-white p-4 text-sm text-slate-700"
                     >
                       <p className="font-bold text-slate-900">
-                        {request.originalFilename}
+                        {request.title}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
                         Yêu cầu lúc: {request.verifiedAt ?? request.uploadedAt}

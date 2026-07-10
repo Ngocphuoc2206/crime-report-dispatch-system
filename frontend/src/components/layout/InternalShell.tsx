@@ -94,7 +94,7 @@ export function InternalShell({
             </span>
 
             <span className="min-w-0">
-              <span className="block truncate text-lg font-black text-slate-950">
+              <span className="block truncate text-lg font-extrabold text-slate-950">
                 Hệ thống tin báo
               </span>
               <span className="block truncate text-sm font-semibold text-slate-500">
@@ -147,10 +147,10 @@ export function InternalShell({
         <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
           <div className="flex min-h-20 items-center justify-between gap-4 px-5 py-4 lg:px-8">
             <div className="min-w-0">
-              <p className="text-xs font-bold uppercase tracking-wide text-[var(--primary)]">
+              <p className="eyebrow text-[var(--primary)]">
                 {subtitle}
               </p>
-              <h1 className="truncate text-xl font-black text-slate-950">
+              <h1 className="truncate text-xl font-extrabold leading-tight text-slate-950">
                 {title}
               </h1>
             </div>

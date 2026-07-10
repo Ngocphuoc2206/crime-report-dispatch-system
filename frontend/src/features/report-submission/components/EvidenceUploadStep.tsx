@@ -186,7 +186,7 @@ export function EvidenceUploadStep() {
 
         <section className="mt-12">
           <div className="text-center">
-            <h1 className="text-2xl font-bold uppercase tracking-tight text-slate-900 md:text-3xl">
+            <h1 className="page-title uppercase">
               Bước 4: Đính kèm bằng chứng
             </h1>
 

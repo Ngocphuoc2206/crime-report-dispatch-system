@@ -35,7 +35,7 @@ export function AdminDonutChart({
 
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="text-2xl font-black text-slate-950">
+      <h2 className="section-title">
         Phân bổ trạng thái
       </h2>
 

@@ -17,7 +17,7 @@ export function CommanderRecentActivity({
 }: CommanderRecentActivityProps) {
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="text-xl font-bold text-slate-950">
+      <h2 className="section-title">
         Hoạt động gần đây
       </h2>
 

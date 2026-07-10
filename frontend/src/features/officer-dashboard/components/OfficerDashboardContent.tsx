@@ -101,7 +101,7 @@ export function OfficerDashboardContent() {
     <div className="px-6 py-8">
       <section className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-950">
+          <h1 className="page-title">
             Bảng điều khiển tổng quan
           </h1>
 
@@ -150,7 +150,7 @@ export function OfficerDashboardContent() {
           <section className="mt-8 grid gap-6 xl:grid-cols-[1fr_22rem]">
             <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
               <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-                <h2 className="text-xl font-bold text-slate-900">
+                <h2 className="section-title">
                   Hồ sơ gần đây
                 </h2>
                 <Link
@@ -199,7 +199,7 @@ export function OfficerDashboardContent() {
 
             <aside className="rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
               <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-                <h2 className="text-xl font-bold text-slate-900">
+                <h2 className="section-title">
                   Ưu tiên cao
                 </h2>
 

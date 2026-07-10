@@ -235,7 +235,7 @@ export function ReportConfirmationStep() {
 
         <section className="mt-12">
           <div className="text-center">
-            <h1 className="text-2xl font-bold uppercase tracking-tight text-slate-900 md:text-3xl">
+            <h1 className="page-title uppercase">
               Bước 5: Xem lại và xác nhận thông tin
             </h1>
 

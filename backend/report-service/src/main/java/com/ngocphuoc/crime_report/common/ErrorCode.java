@@ -29,6 +29,10 @@ public enum ErrorCode implements com.ngocphuoc.crime_report.shared.error.ErrorCo
             "REPORT_1018",
             "Timeline limit must be between 1 and 100"
     ),
+    DISPATCH_RELEASE_FAILED(
+            "REPORT_1019",
+            "Could not complete dispatch task and release assigned officer"
+    ),
     // Uncategorized
     UNCATEGORIZED_EXCEPTION("REPORT_9998", "UNCATEGORIZED_EXCEPTION!"),
     INTERNAL_SERVER_ERROR("REPORT_INTERNAL_SERVER", "Server is not response");

@@ -4,6 +4,7 @@ export const endpoints = {
 
   // Crime-Types
   crimeTypes: "/api/public/crime-types",
+  publicProcessingNotifications: "/api/public/notifications/processing",
   reports: "/api/public/reports",
   reportStatus: (trackingCode: string) =>
     `/api/public/reports/${encodeURIComponent(trackingCode)}/status`,
@@ -18,6 +19,8 @@ export const endpoints = {
     `/api/officer/cases/${encodeURIComponent(String(caseId))}/accept`,
   officerCaseStatus: (caseId: string | number) =>
     `/api/officer/cases/${encodeURIComponent(String(caseId))}/status`,
+  officerCaseEvidenceRequest: (caseId: string | number) =>
+    `/api/officer/cases/${encodeURIComponent(String(caseId))}/evidence-request`,
   officerCaseLock: (caseId: string | number) =>
     `/api/officer/cases/${encodeURIComponent(String(caseId))}/lock`,
   officerCaseLockRenew: (caseId: string | number) =>
@@ -28,6 +31,7 @@ export const endpoints = {
     `/api/officer/evidences/${encodeURIComponent(String(evidenceId))}/verification`,
 
   commanderDashboardOverview: "/api/commander/dashboard/overview",
+  commanderDashboardAnalytics: "/api/commander/dashboard/analytics",
   commanderDashboardHeatmap: "/api/commander/dashboard/heatmap",
   commanderDashboardTimeline: "/api/commander/dashboard/timeline",
   commanderCases: "/api/commander/cases",

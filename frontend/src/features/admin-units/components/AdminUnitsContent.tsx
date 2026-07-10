@@ -593,7 +593,7 @@ export function AdminUnitsContent() {
 
       <section className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
         <div>
-          <h1 className="text-4xl font-black text-slate-950">
+          <h1 className="page-title">
             Quản lý đơn vị công an
           </h1>
           <p className="mt-3 text-slate-600">
@@ -620,7 +620,7 @@ export function AdminUnitsContent() {
       <section className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
         <header className="flex flex-col gap-4 border-b border-slate-200 px-6 py-5 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-2xl font-black text-slate-950">
+            <h2 className="section-title">
               Danh sách đơn vị
             </h2>
             <p className="mt-1 text-sm text-slate-500">

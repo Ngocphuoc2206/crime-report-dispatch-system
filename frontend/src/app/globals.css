@@ -16,6 +16,14 @@
   --border: #e4dedb;
   --surface: #ffffff;
   --surface-muted: #f4f1f0;
+
+  --font-body: var(--font-noto-sans), Arial, Helvetica, sans-serif;
+  --text-page-title: 2rem;
+  --text-section-title: 1.25rem;
+  --text-card-title: 1rem;
+  --text-body: 0.9375rem;
+  --text-caption: 0.8125rem;
+  --text-metric: 2.5rem;
 }
 
 * {
@@ -30,7 +38,10 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
 }
 
 button,
@@ -39,4 +50,104 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: 0;
+}
+
+@layer components {
+  .page-shell {
+    @apply px-5 py-6 sm:px-6 lg:px-8 lg:py-8;
+  }
+
+  .page-title {
+    font-size: var(--text-page-title);
+    line-height: 1.12;
+    font-weight: 800;
+    letter-spacing: 0;
+    color: rgb(2 6 23);
+  }
+
+  .page-description {
+    @apply mt-3 max-w-3xl text-slate-600;
+    font-size: var(--text-body);
+    line-height: 1.65;
+  }
+
+  .section-title {
+    font-size: var(--text-section-title);
+    line-height: 1.35;
+    font-weight: 800;
+    letter-spacing: 0;
+    color: rgb(2 6 23);
+  }
+
+  .card-title {
+    font-size: var(--text-card-title);
+    line-height: 1.4;
+    font-weight: 700;
+    letter-spacing: 0;
+    color: rgb(15 23 42);
+  }
+
+  .eyebrow {
+    @apply uppercase tracking-wide;
+    font-size: var(--text-caption);
+    line-height: 1.25;
+    font-weight: 700;
+  }
+
+  .metric-label {
+    @apply uppercase tracking-wide text-slate-500;
+    font-size: var(--text-caption);
+    line-height: 1.3;
+    font-weight: 700;
+  }
+
+  .metric-value {
+    font-size: var(--text-metric);
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .app-button {
+    @apply inline-flex min-h-11 items-center justify-center rounded-lg px-4 py-2.5 text-sm font-bold transition;
+  }
+
+  .text-4xl.font-bold,
+  .text-4xl.font-black {
+    font-size: var(--text-metric);
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .text-3xl.font-bold,
+  .text-3xl.font-black {
+    font-size: var(--text-page-title);
+    line-height: 1.12;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .text-2xl.font-bold,
+  .text-2xl.font-black {
+    font-size: var(--text-section-title);
+    line-height: 1.35;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .text-xl.font-bold,
+  .text-xl.font-black {
+    font-size: var(--text-card-title);
+    line-height: 1.4;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
 }

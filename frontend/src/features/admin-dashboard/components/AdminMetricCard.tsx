@@ -58,7 +58,7 @@ export function AdminMetricCard({ metric }: AdminMetricCardProps) {
         <span className={["text-lg", tone.icon].join(" ")}>■</span>
         <p
           className={[
-            "text-xs font-black uppercase tracking-wide",
+            "metric-label",
             tone.label,
           ].join(" ")}
         >
@@ -66,7 +66,7 @@ export function AdminMetricCard({ metric }: AdminMetricCardProps) {
         </p>
       </div>
 
-      <p className={["mt-5 text-4xl font-black", tone.value].join(" ")}>
+      <p className={["mt-5 metric-value", tone.value].join(" ")}>
         {metric.value}
       </p>
     </article>

@@ -129,7 +129,7 @@ export function AdminCreateOfficerModal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6 backdrop-blur-sm">
       <section className="w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-2xl">
         <header className="flex items-center justify-between border-b border-slate-200 px-7 py-5">
-          <h2 className="text-2xl font-black text-slate-950">
+          <h2 className="section-title">
             Thêm mới hồ sơ cán bộ
           </h2>
 

@@ -2,6 +2,7 @@ package com.ngocphuoc.crime_report.report.controller;
 
 import com.ngocphuoc.crime_report.enums.CaseStatus;
 import com.ngocphuoc.crime_report.enums.UrgencyLevel;
+import com.ngocphuoc.crime_report.report.dto.request.RequestAdditionalEvidenceRequest;
 import com.ngocphuoc.crime_report.report.dto.request.UpdateCaseStatusRequest;
 import com.ngocphuoc.crime_report.report.dto.response.AcceptCaseResponse;
 import com.ngocphuoc.crime_report.report.dto.response.OfficerCaseDetailResponse;
@@ -145,6 +146,29 @@ public class OfficerCaseController {
                         caseId,
                         httpServletRequest
                 ))
+                .build();
+    }
+
+    @PostMapping("/{caseId:[0-9]+}/evidence-request")
+    @Operation(summary = "Request additional evidence", description = "Ask the reporter to provide supplemental evidence even when no evidence file exists yet.")
+    public ApiResponse<Void> requestAdditionalEvidence(
+            @Parameter(description = "Case id", example = "1") @PathVariable Long caseId,
+            @Valid @RequestBody RequestAdditionalEvidenceRequest request,
+            Authentication authentication,
+            HttpServletRequest httpServletRequest
+    ) {
+        Long currentUserId = Long.valueOf(authentication.getName());
+
+        officerCaseStatusService.requestAdditionalEvidence(
+                currentUserId,
+                authentication,
+                caseId,
+                request,
+                httpServletRequest
+        );
+
+        return ApiResponse.<Void>builder()
+                .message("Additional evidence request created successfully")
                 .build();
     }
 }

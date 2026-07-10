@@ -44,7 +44,7 @@ export function AdminRecentUsersTable({ users }: AdminRecentUsersTableProps) {
   return (
     <AdminTableShell>
       <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-        <h2 className="text-2xl font-black text-slate-950">
+        <h2 className="section-title">
           Tài khoản mới tạo
         </h2>
 

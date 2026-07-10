@@ -10,7 +10,7 @@ export function OfficerHighPriorityList({
   return (
     <article className="rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
       <header className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-        <h2 className="text-xl font-bold text-slate-900">Ưu tiên cao</h2>
+        <h2 className="section-title">Ưu tiên cao</h2>
 
         <span className="rounded bg-(--primary) px-3 py-1 text-xs font-bold text-white shadow-sm shadow-red-950/10">
           {cases.length} mới

@@ -69,7 +69,7 @@ export function LoginForm() {
   return (
     <article className="rounded-xl border border-red-100 bg-white p-8 shadow-lg shadow-red-900/5 md:p-10">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-slate-900">
+        <h1 className="page-title">
           Đăng nhập hệ thống
         </h1>
         <p className="mt-3 text-sm leading-6 text-slate-600">

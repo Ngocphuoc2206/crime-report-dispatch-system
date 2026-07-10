@@ -9,7 +9,7 @@ type ClearProps = {
 export function CommanderCaseLoadingState() {
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="text-2xl font-bold text-slate-950">Đang tải dữ liệu</h2>
+      <h2 className="section-title">Đang tải dữ liệu</h2>
       <div className="mt-6 space-y-4">
         <div className="h-12 w-1/2 animate-pulse rounded bg-slate-100" />
         <div className="h-px bg-slate-200" />

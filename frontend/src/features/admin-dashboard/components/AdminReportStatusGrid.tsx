@@ -14,7 +14,7 @@ const toneClassNames: Record<AdminReportMetric["tone"], string> = {
 export function AdminReportStatusGrid({ metrics }: AdminReportStatusGridProps) {
   return (
     <section>
-      <h2 className="text-2xl font-black text-slate-950">Tình hình tin báo</h2>
+      <h2 className="section-title">Tình hình tin báo</h2>
       <div className="mt-3 h-px bg-slate-200" />
 
       <div className="mt-4 grid gap-4 md:grid-cols-3">

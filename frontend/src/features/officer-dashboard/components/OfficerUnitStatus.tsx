@@ -15,7 +15,7 @@ export function OfficerUnitStatus({ units }: OfficerUnitStatusProps) {
   return (
     <article className="rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/60">
       <header className="border-b border-slate-200 px-6 py-5">
-        <h2 className="text-xl font-bold text-slate-900">Tình trạng đơn vị</h2>
+        <h2 className="section-title">Tình trạng đơn vị</h2>
       </header>
 
       <div className="space-y-5 p-6">

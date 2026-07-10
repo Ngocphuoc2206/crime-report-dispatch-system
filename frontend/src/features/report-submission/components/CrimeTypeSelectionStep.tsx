@@ -152,7 +152,7 @@ export function CrimeTypeSelectionStep() {
 
         <div className="mt-16 grid gap-8 lg:grid-cols-[1fr_24rem] lg:items-start">
           <div className="border-l-4 border-(--primary) pl-6">
-            <h1 className="text-2xl font-bold uppercase tracking-tight text-slate-900 md:text-3xl">
+            <h1 className="page-title uppercase">
               Bước 1: Chọn nhóm hành vi vi phạm
             </h1>
 

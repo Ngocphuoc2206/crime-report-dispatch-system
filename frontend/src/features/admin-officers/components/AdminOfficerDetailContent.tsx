@@ -123,7 +123,7 @@ export function AdminOfficerDetailContent({
           </div>
 
           <div className="mt-5 flex flex-wrap items-center gap-4">
-            <h1 className="text-4xl font-black text-slate-950">
+            <h1 className="page-title">
               Hồ sơ cán bộ: {officer.fullName}
             </h1>
 
@@ -143,7 +143,7 @@ export function AdminOfficerDetailContent({
       <section className="mt-8 grid gap-6 xl:grid-cols-[1fr_24rem]">
         <div className="space-y-6">
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-black text-slate-950">
+            <h2 className="section-title">
               Thông tin cá nhân
             </h2>
 
@@ -196,7 +196,7 @@ export function AdminOfficerDetailContent({
           </article>
 
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-black text-slate-950">
+            <h2 className="section-title">
               Thông tin nghiệp vụ
             </h2>
 
@@ -243,7 +243,7 @@ export function AdminOfficerDetailContent({
 
         <aside className="space-y-6">
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-black text-slate-950">
+            <h2 className="section-title">
               Thống kê hiệu suất
             </h2>
 
@@ -272,7 +272,7 @@ export function AdminOfficerDetailContent({
           </article>
 
           <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl font-black text-slate-950">
+            <h2 className="section-title">
               Hồ sơ gần đây
             </h2>
 

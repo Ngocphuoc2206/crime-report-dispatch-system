@@ -2,6 +2,7 @@ import { apiClient } from "@/services/apiClient";
 import { endpoints } from "@/services/endpoints";
 import type {
   CommanderDashboardOverview,
+  CommanderCrimeAnalytics,
   CommanderDashboardTimelineEvent,
   CommanderMapHeatmapPoint,
   CommanderMapSeverity,
@@ -28,6 +29,14 @@ export const commanderDashboardService = {
   getOverview: () =>
     apiClient.get<CommanderDashboardOverview>(
       endpoints.commanderDashboardOverview,
+      { auth: true },
+    ),
+
+  getAnalytics: (months = 6) =>
+    apiClient.get<CommanderCrimeAnalytics>(
+      `${endpoints.commanderDashboardAnalytics}?months=${encodeURIComponent(
+        String(months),
+      )}`,
       { auth: true },
     ),
 

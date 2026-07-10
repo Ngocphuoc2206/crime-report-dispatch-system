@@ -45,20 +45,20 @@ export function DispatcherOverviewContent() {
   }, []);
 
   return (
-    <div className="px-6 py-8">
+    <div className="page-shell">
       <section className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-950">
+          <h1 className="page-title">
             Tổng quan điều phối
           </h1>
 
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="page-description">
             Theo dõi trạng thái điều phối, vụ việc ưu tiên và lực lượng sẵn
             sàng theo thời gian thực.
           </p>
         </div>
 
-        <div className="rounded-md border border-red-200 bg-white px-5 py-3 text-sm font-bold text-(--primary)">
+        <div className="app-button border border-red-200 bg-white text-(--primary)">
           Trung tâm điều phối
         </div>
       </section>
